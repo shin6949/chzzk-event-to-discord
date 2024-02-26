@@ -1,0 +1,143 @@
+name: Make Docker Image
+
+on:
+  push:
+    tags:
+      - V*
+
+jobs:
+  make-jar:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/Ver.}" >> $GITHUB_ENV
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'microsoft'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/backend/.gradle/caches
+            ~/backend/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make Package With Gradle
+        run: gradle build
+        working-directory: backend
+
+      - name: Move app file
+        run: mv ./backend/build/libs/twitch-webhook-*.jar ./twitch-webhook-${{ env.RELEASE_VERSION }}.jar
+
+      - name: Upload jar file to Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: twitch-webhook
+          path: ./twitch-webhook-${{ env.RELEASE_VERSION }}.jar
+          retention-days: 1
+
+  qemu-build-backend:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/Ver.}" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PERSONAL_TOKEN }}
+
+      - name: Docker Build
+        run: |
+          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository_owner }}/twitcheventsub:latest --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository_owner }}/twitcheventsub:${{ env.RELEASE_VERSION }} --push .
+        working-directory: backend
+
+  qemu-build-frontend:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/Ver.}" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PERSONAL_TOKEN }}
+
+      - name: Docker Build
+        run: |
+          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository_owner }}/twitch-webhook-to-discord-frontend:latest --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository_owner }}/twitch-webhook-to-discord-frontend:${{ env.RELEASE_VERSION }} --push .
+        working-directory: frontend
+
+  release:
+    needs: [make-jar]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/Ver.}" >> $GITHUB_ENV
+
+      - name: Download Release Asset
+        uses: actions/download-artifact@v4
+        with:
+          name: twitch-webhook
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./twitch-webhook-${{ env.RELEASE_VERSION }}.jar
+          asset_name: twitch-webhook-${{ env.RELEASE_VERSION }}.jar
+          asset_content_type: application/java-archive

@@ -1,0 +1,31 @@
+message:
+  basenames: string/string
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    # DB Config
+#    driver-class-name: org.mariadb.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+    # hikari
+    hikari:
+      connection-timeout: 9000
+      idle-timeout: 20000
+      max-lifetime: 30000
+
+  # JPA
+  jpa:
+    properties:
+      hibernate:
+#        dialect: org.hibernate.dialect.MySQL8Dialect
+        show_sql: false
+        format_sql: true
+        use_sql_comments: true
+    hibernate:
+      ddl-auto: validate

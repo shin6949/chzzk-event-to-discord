@@ -1,0 +1,83 @@
+stream:
+  online:
+    event-message: 님이 방송을 시작했습니다.
+    title: "제목: "
+    game-name: "게임: "
+    footer: "치지직"
+
+  offline:
+    event-message: 님의 방송이 종료되었습니다.
+    embed-description: 다음에 만나요!
+    embed-title: ""
+    footer: "치지직"
+
+channel:
+  update:
+    event-message: 님의 채널 정보가 변경되었습니다.
+    title: "제목: "
+    game-name: "게임: "
+    footer: "치지직"
+
+game:
+  prefix: ":video_game: "
+  none: ":joystick: 지정된 게임 없음."
+
+language:
+  en: 영어
+  ko: 한국어
+  es: 스페인어
+  de: 독일어
+  pt: 포르투갈어
+  ru: 러시아어
+  fr: 프랑스어
+  ja: 일본어
+  zh: 중국어
+  it: 이탈리아어
+  tr: 터키어
+  pl: 폴란드어
+  ar: 아랍어
+  th: 태국어
+  cs: 체코어
+  hu: 헝가리어
+  nl: 네덜란드어
+  fi: 핀란드어
+  sv: 스웨덴어
+  da: 덴마크어
+  no: 노르웨이어
+  el: 그리스어
+  sk: 슬로바키아어
+  ro: 루마니아어
+  bg: 불가리아어
+  id: 인도네시아어
+  uk: 우크라이나어
+  tl: 타갈로그어
+  ca: 카탈루냐어
+  hi: 힌디어
+  ms: 말레이어
+  vi: 베트남어
+  uz: 우즈베키스탄어
+  asl: 미국 수화
+  zh-hk: 홍콩 번체
+  other: 기타
+
+api:
+  register:
+    types:
+      stream.online: 방송 온라인
+      stream.offline: 방송 오프라인
+      channel.update: 채널 업데이트
+    notification-test:
+      title: 등록 완료
+      body: 등록 요청을 정상적으로 받았으며, 이 알림이 보인다면 알림을 받을 준비가 완료된 것입니다.
+  push-manage:
+    deleted-user: 탈퇴 유저
+    delete:
+      invalid-request: 유효하지 않은 요청
+      success: 삭제 완료
+  notification:
+    channel-update-event-title: "{0}님의 채널 정보가 변경됨."
+    stream-online-event-title: "{0}님이 방송 시작!"
+    stream-offline-event-title: "{0}님의 방송 종료"
+    streamer: "스트리머: {0}"
+    title: "제목: {0}"
+    game: "게임: {0}"

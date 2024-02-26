@@ -1,0 +1,84 @@
+stream:
+  online:
+    event-message: " has started the stream."
+    title: "Title: "
+    game-name: "Game: "
+    language: Language
+    footer: "Naver Chzzk"
+
+  offline:
+    event-message: "'s stream has ended."
+    embed-description: See you next time!
+    embed-title: ""
+    footer: "Naver Chzzk"
+
+channel:
+  update:
+    event-message: "'s channel info has changed."
+    title: "Title: "
+    game-name: "Game: "
+    footer: "Naver Chzzk"
+
+game:
+  prefix: ":video_game: "
+  none: ":video_game: None"
+
+language:
+  en: English
+  ko: Korean
+  es: Spanish
+  de: German
+  pt: Portuguese
+  ru: Russian
+  fr: French
+  ja: Japanese
+  zh: Chinese
+  it: Italian
+  tr: Turkish
+  pl: Polish
+  ar: Arabic
+  th: Thai
+  cs: Czech
+  hu: Hungarian
+  nl: Dutch
+  fi: Finnish
+  sv: Swedish
+  da: Danish
+  no: Norwegian
+  el: Greek
+  sk: Slovak
+  ro: Romanian
+  bg: Bulgarian
+  id: Indonesian
+  uk: Ukrainian
+  tl: Tagalog
+  ca: Catalan
+  hi: Hindi
+  ms: Malay
+  vi: Vietnamese
+  uz: Uzbek
+  asl: American Sign Language
+  zh-hk: Hong Kong Traditional
+  other: Other
+
+api:
+  register:
+    types:
+      stream.online: Stream Online
+      stream.offline: Stream Offline
+      channel.update: Channel Update
+    notification-test:
+      title: Register Notification
+      body: If you successfully received the notification request and see this notification, then you are ready to receive notifications.
+  push-manage:
+    deleted-user: Deleted user
+    delete:
+      invalid-request: Invalid request
+      success: Deletion success
+  notification:
+    channel-update-event-title: "{0}'s channel info has changed."
+    stream-online-event-title: "{0} has started the stream."
+    stream-offline-event-title: "{0} has started the stream."
+    streamer: "Streamer: {0}"
+    title: "Title: {0}"
+    game: "Game: {0}"
