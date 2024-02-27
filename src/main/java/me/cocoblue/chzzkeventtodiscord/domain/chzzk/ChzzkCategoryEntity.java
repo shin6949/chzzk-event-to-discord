@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.data.ChzzkCategoryType;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor
@@ -30,5 +30,5 @@ public class ChzzkCategoryEntity {
     private String posterImageUrl;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private ZonedDateTime updatedAt;
 }

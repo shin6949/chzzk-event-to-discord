@@ -1,34 +1,60 @@
 package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.chzzkeventtodiscord.dto.discord.DiscordEmbed;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryRepository;
+import me.cocoblue.chzzkeventtodiscord.util.TimeZoneConverter;
 import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryResponseVO;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class ChzzkCategoryService {
-    public ChzzkCategoryResponseVO getCategoryInfo(final String gameId) {
-        final String url = "https://api.chzzk.naver.com/service/v1/categories/GAME/%s/info";
+    private WebClient WEB_CLIENT;
+    private final ChzzkCategoryRepository chzzkCategoryRepository;
 
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        final HttpEntity<DiscordEmbed.Webhook> entity = new HttpEntity<>(, headers);
-
-        final RestTemplate rt = new RestTemplate();
-        rt.exchange(String.format(url, gameId), HttpMethod.POST, entity, String.class);
-
-        String formattedUrl = String.format(url, gameId);
-
-        return ChzzkCategoryResponseVO.builder()
-
-                .gameName("gameName")
-                .gameDescription("gameDescription")
-                .gameThumbnail("gameThumbnail")
+    @PostConstruct
+    public void postConstructJob() {
+        WEB_CLIENT = WebClient.builder()
+                .baseUrl("https://api.chzzk.naver.com")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
+    }
+
+    public ChzzkCategoryResponseVO getCategoryInfo(final String gameId) {
+        final Optional<ChzzkCategoryEntity> categoryEntity = chzzkCategoryRepository.findByCategoryId(gameId);
+        final LocalDateTime categoryUpdatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+        final ZonedDateTime threeDaysAgo = ZonedDateTime.now();
+
+        if(categoryEntity.isEmpty() || categoryEntity.get().getUpdatedAt().isBefore(threeDaysAgo)) {
+            return getCategoryInfoFromAPI(gameId);
+        }
+
+
+
+        return getCategoryInfoFromAPI(gameId);
+    }
+
+    private ChzzkCategoryResponseVO getCategoryInfoFromAPI(final String gameId) {
+        final String url = "/service/v1/categories/GAME/%s/info";
+
+        return WEB_CLIENT
+                .post()
+                .uri(String.format(url, gameId))
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(ChzzkCategoryResponseVO.class)
+                .block();
     }
 }

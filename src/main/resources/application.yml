@@ -29,3 +29,9 @@ spring:
         use_sql_comments: true
     hibernate:
       ddl-auto: validate
+
+chzzk:
+  check-interval: ${CHECK_INTERVAL:30}
+
+app:
+  default-timezone: ${DEFAULT_TIMEZONE:Asia/Seoul}
