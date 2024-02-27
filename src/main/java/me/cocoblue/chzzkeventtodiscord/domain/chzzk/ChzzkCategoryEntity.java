@@ -1,12 +1,13 @@
 package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.cocoblue.chzzkeventtodiscord.data.ChzzkCategoryType;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -21,9 +22,13 @@ public class ChzzkCategoryEntity {
     @Column(name = "category_name", nullable = false)
     private String categoryName;
 
-    @Column(name = "category_type", nullable = false)
-    private String categoryType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category_type")
+    private ChzzkCategoryType categoryType;
 
     @Column(name = "poster_image_url", nullable = false)
     private String posterImageUrl;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 }

@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class ChzzkChannelEntity {
     @Id
-    @Column(name = "uuid", nullable = false)
-    private String uuid;
+    @Column(name = "channel_id", nullable = false)
+    private String channelId;
     @Column(length = 300, name = "nickname", nullable = false)
     private String nickname;
     @Column(length = 500, name = "profile_url")

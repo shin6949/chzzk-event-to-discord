@@ -1,15 +1,13 @@
 package me.cocoblue.chzzkeventtodiscord.config;
 
-import dev.akkinoc.util.YamlResourceBundle;
+import net.rakugakibox.util.YamlResourceBundle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.logging.Interceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 
@@ -22,13 +20,6 @@ import java.util.ResourceBundle;
 @Configuration
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
-    private final Interceptor interceptor;
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor).addPathPatterns("/**");
-    }
-
     @Bean
     public CookieLocaleResolver localeResolver() {
         final CookieLocaleResolver localeResolver = new CookieLocaleResolver();
