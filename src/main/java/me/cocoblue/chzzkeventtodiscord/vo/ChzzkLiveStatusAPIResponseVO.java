@@ -1,30 +1,49 @@
-package me.cocoblue.chzzkeventtodiscord.vo.api;
+package me.cocoblue.chzzkeventtodiscord.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryCommonVO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveStatusDTO;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChzzkLiveInfoAPIResponseVO {
+public class ChzzkLiveStatusAPIResponseVO {
     @JsonProperty("code")
     private int code;
     @JsonProperty("message")
     private String message;
     @JsonProperty("content")
-    private ChzzkLiveInfoVO content;
+    private ChzzkLiveStatusVO content;
+
+    public ChzzkLiveStatusDTO toDTO() {
+        return ChzzkLiveStatusDTO.builder()
+                .liveTitle(content.getLiveTitle())
+                .status(content.getStatus())
+                .concurrentUserCount(content.getConcurrentUserCount())
+                .accumulateCount(content.getAccumulateCount())
+                .paidPromotion(content.isPaidPromotion())
+                .adult(content.isAdult())
+                .chatChannelId(content.getChatChannelId())
+                .livePollingStatusJson(content.getLivePollingStatusJson())
+                .faultStatus(content.getFaultStatus())
+                .userAdultStatus(content.getUserAdultStatus())
+                .chatActive(content.isChatActive())
+                .chatAvailableGroup(content.getChatAvailableGroup())
+                .chatAvailableCondition(content.getChatAvailableCondition())
+                .minFollowerMinute(content.getMinFollowerMinute())
+                .build();
+    }
 }
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class ChzzkLiveInfoVO extends ChzzkCategoryCommonVO {
+class ChzzkLiveStatusVO extends ChzzkCategoryCommonVO {
     @JsonProperty("liveTitle")
     private String liveTitle;
     @JsonProperty("status")

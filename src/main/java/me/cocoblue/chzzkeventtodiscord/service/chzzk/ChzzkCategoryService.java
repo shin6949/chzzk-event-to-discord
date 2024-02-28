@@ -3,16 +3,16 @@ package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.chzzkeventtodiscord.data.ChzzkCategoryType;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryRepository;
-import me.cocoblue.chzzkeventtodiscord.util.TimeZoneConverter;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryResponseVO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDTO;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryAPIResponseVO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -32,29 +32,41 @@ public class ChzzkCategoryService {
                 .build();
     }
 
-    public ChzzkCategoryResponseVO getCategoryInfo(final String gameId) {
-        final Optional<ChzzkCategoryEntity> categoryEntity = chzzkCategoryRepository.findByCategoryId(gameId);
-        final LocalDateTime categoryUpdatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
-        final ZonedDateTime threeDaysAgo = ZonedDateTime.now();
+    public ChzzkCategoryDTO getCategoryInfo(final ChzzkCategoryType categoryType, final String categoryId) {
+        final Optional<ChzzkCategoryEntity> categoryEntity = chzzkCategoryRepository.findByCategoryId(categoryId);
+        // PostgreSQL에서는 UTC로 저장되기 때문에, UTC로 변환해서 비교해야 함
+        final ZonedDateTime threeDaysAgo = ZonedDateTime.now(ZoneId.of("UTC"));
 
         if(categoryEntity.isEmpty() || categoryEntity.get().getUpdatedAt().isBefore(threeDaysAgo)) {
-            return getCategoryInfoFromAPI(gameId);
+            final ChzzkCategoryAPIResponseVO apiResult = getCategoryInfoFromAPI(categoryType, categoryId);
+            if(apiResult == null) {
+                log.info("Failed to get category info from Chzzk API. Check the API status or categoryType and categoryId is valid.");
+                return null;
+            }
+
+            return apiResult.toDTO();
         }
 
-
-
-        return getCategoryInfoFromAPI(gameId);
+        return new ChzzkCategoryDTO(categoryEntity.get());
     }
 
-    private ChzzkCategoryResponseVO getCategoryInfoFromAPI(final String gameId) {
-        final String url = "/service/v1/categories/GAME/%s/info";
+    private ChzzkCategoryAPIResponseVO getCategoryInfoFromAPI(final ChzzkCategoryType categoryType, final String categoryId) {
+        final String url = "/service/v1/categories/%s/%s/info";
 
-        return WEB_CLIENT
+        final ChzzkCategoryAPIResponseVO result = WEB_CLIENT
                 .post()
-                .uri(String.format(url, gameId))
+                .uri(String.format(url, categoryType.getValue(), categoryId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(ChzzkCategoryResponseVO.class)
+                .bodyToMono(ChzzkCategoryAPIResponseVO.class)
                 .block();
+
+        if(result == null) {
+            log.error("Failed to get category info from Chzzk API. Check the API status or categoryId is valid.");
+            return null;
+        }
+
+        chzzkCategoryRepository.save(result.toEntity());
+        return result;
     }
 }

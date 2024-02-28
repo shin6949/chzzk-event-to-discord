@@ -15,16 +15,11 @@ import java.time.ZonedDateTime;
 @Entity(name = "chzzk_category")
 @Builder
 public class ChzzkCategoryEntity {
-    @Id
-    @Column(name = "category_id", nullable = false)
-    private String categoryId;
+    @EmbeddedId
+    private ChzzkCategoryId id;
 
     @Column(name = "category_name", nullable = false)
     private String categoryName;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "category_type")
-    private ChzzkCategoryType categoryType;
 
     @Column(name = "poster_image_url", nullable = false)
     private String posterImageUrl;

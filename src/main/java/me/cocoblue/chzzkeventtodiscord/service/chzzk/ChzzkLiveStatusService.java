@@ -5,5 +5,8 @@ import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
-public class ChzzkEventReader {
+public class ChzzkLiveStatusService {
+    public void getLiveInfo() {
+        log.info("getLiveInfo");
+    }
 }

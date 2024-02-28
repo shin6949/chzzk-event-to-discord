@@ -1,4 +1,4 @@
-package me.cocoblue.chzzkeventtodiscord.vo.api;
+package me.cocoblue.chzzkeventtodiscord.vo;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,9 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVO;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkLiveVO;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkVideoVO;
 
 import java.util.List;
 import java.util.Map;
