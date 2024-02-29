@@ -23,12 +23,21 @@ public class ChzzkChannelEntity {
     @Id
     @Column(name = "channel_id", nullable = false)
     private String channelId;
-    @Column(length = 300, name = "channel_name", nullable = false)
+    // 30자 제한이지만 여유를 두어 33자로 설정
+    @Column(length = 33, name = "channel_name", nullable = false)
     private String channelName;
-    @Column(length = 500, name = "profile_url")
+    // URL 길이 제한 (크롬: 32,779)
+    @Column(length = 32780, name = "profile_url")
     private String profileUrl;
+    @Column(name = "is_verified_mark", nullable = false)
+    private boolean isVerifiedMark;
+    // 500자 제한이지만 여유를 두어 550자로 설정
+    @Column(length = 550, name = "channel_description")
+    private String channelDescription;
     @Column(name = "is_live", nullable = false)
     private boolean isLive;
+    @Column(name = "follower_count", nullable = false)
+    private int followerCount;
     @Column(name = "last_check_time", nullable = false)
     private ZonedDateTime lastCheckTime;
 }

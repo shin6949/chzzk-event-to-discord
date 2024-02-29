@@ -44,6 +44,9 @@ public class ChzzkChannelVO {
                 .channelDescription(channelDescription)
                 .followerCount(followerCount)
                 .openLive(openLive)
+                .verifiedMark(verifiedMark)
+                .followerCount(followerCount)
+                .channelDescription(channelDescription)
                 .build();
     }
 

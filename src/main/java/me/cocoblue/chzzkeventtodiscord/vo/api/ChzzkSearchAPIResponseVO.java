@@ -22,6 +22,14 @@ import java.util.Map;
 public class ChzzkSearchAPIResponseVO extends ChzzkAPICommonResponseVO {
     @JsonProperty("content")
     private ChzzkContentVO content;
+
+    public int getContentSize() {
+        return content.getSize();
+    }
+
+    public ChzzkChannelVO getChannel(int index) {
+        return content.getData().get(index).getChannel();
+    }
 }
 
 @Getter
