@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.data.ChzzkCategoryType;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 
 @Data
@@ -12,13 +11,13 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChzzkCategoryDTO {
-    private ChzzkCategoryType categoryType;
+    private String categoryType;
     private String categoryId;
     private String categoryValue;
 
     public ChzzkCategoryDTO(ChzzkCategoryEntity entity) {
-        this.categoryType = entity.getCategoryType();
-        this.categoryId = entity.getCategoryId();
+        this.categoryType = entity.getId().getCategoryType();
+        this.categoryId = entity.getId().getCategoryId();
         this.categoryValue = entity.getCategoryName();
     }
 }

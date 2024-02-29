@@ -3,11 +3,11 @@ package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.chzzkeventtodiscord.data.ChzzkCategoryType;
+import me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryRepository;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDTO;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryAPIResponseVO;
+import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkCategoryAPIResponseVO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -27,16 +27,17 @@ public class ChzzkCategoryService {
     @PostConstruct
     public void postConstructJob() {
         WEB_CLIENT = WebClient.builder()
-                .baseUrl("https://api.chzzk.naver.com")
+                .baseUrl(ChzzkEventToDiscordApplication.CHZZK_API_URL)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 
-    public ChzzkCategoryDTO getCategoryInfo(final ChzzkCategoryType categoryType, final String categoryId) {
+    public ChzzkCategoryDTO getCategoryInfo(final String categoryType, final String categoryId) {
         final Optional<ChzzkCategoryEntity> categoryEntity = chzzkCategoryRepository.findByCategoryId(categoryId);
         // PostgreSQL에서는 UTC로 저장되기 때문에, UTC로 변환해서 비교해야 함
         final ZonedDateTime threeDaysAgo = ZonedDateTime.now(ZoneId.of("UTC"));
 
+        // 3일 이상 지난 데이터는 API를 통해 갱신
         if(categoryEntity.isEmpty() || categoryEntity.get().getUpdatedAt().isBefore(threeDaysAgo)) {
             final ChzzkCategoryAPIResponseVO apiResult = getCategoryInfoFromAPI(categoryType, categoryId);
             if(apiResult == null) {
@@ -50,18 +51,18 @@ public class ChzzkCategoryService {
         return new ChzzkCategoryDTO(categoryEntity.get());
     }
 
-    private ChzzkCategoryAPIResponseVO getCategoryInfoFromAPI(final ChzzkCategoryType categoryType, final String categoryId) {
+    private ChzzkCategoryAPIResponseVO getCategoryInfoFromAPI(final String categoryType, final String categoryId) {
         final String url = "/service/v1/categories/%s/%s/info";
 
         final ChzzkCategoryAPIResponseVO result = WEB_CLIENT
                 .post()
-                .uri(String.format(url, categoryType.getValue(), categoryId))
+                .uri(String.format(url, categoryType, categoryId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(ChzzkCategoryAPIResponseVO.class)
                 .block();
 
-        if(result == null) {
+        if(result == null || result.getCode() != 200) {
             log.error("Failed to get category info from Chzzk API. Check the API status or categoryId is valid.");
             return null;
         }

@@ -1,7 +1,10 @@
 package me.cocoblue.chzzkeventtodiscord.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
 
 import java.time.LocalDate;
 
@@ -9,6 +12,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ChzzkChannelVO {
     @JsonProperty("channelId")
     private String channelId;
@@ -26,12 +30,38 @@ public class ChzzkChannelVO {
     private boolean openLive;
     @JsonProperty("personalData")
     private ChzzkPersonalDataVO personalData;
+    @JsonProperty("subscriptionAvailability")
+    private boolean subscriptionAvailability;
+    @JsonProperty("subscriptionPaymentAvailability")
+    private ChzzkSubscriptionPaymentAvailabilityVO subscriptionPaymentAvailability;
+
+    public ChzzkChannelDTO toDTO() {
+        return ChzzkChannelDTO.builder()
+                .channelId(channelId)
+                .channelName(channelName)
+                .channelImageUrl(channelImageUrl)
+                .verifiedMark(verifiedMark)
+                .channelDescription(channelDescription)
+                .followerCount(followerCount)
+                .openLive(openLive)
+                .build();
+    }
+
+    public ChzzkChannelEntity toEntity() {
+        return ChzzkChannelEntity.builder()
+                .channelId(channelId)
+                .channelName(channelName)
+                .profileUrl(channelImageUrl)
+                .isLive(openLive)
+                .build();
+    }
 }
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ChzzkPersonalDataVO {
     @JsonProperty("following")
     private ChzzkFollowingVO following;
@@ -43,6 +73,7 @@ class ChzzkPersonalDataVO {
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ChzzkFollowingVO {
     @JsonProperty("following")
     private boolean following;
@@ -51,3 +82,16 @@ class ChzzkFollowingVO {
     @JsonProperty("followDate")
     private LocalDate followDate;
 }
+
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+class ChzzkSubscriptionPaymentAvailabilityVO {
+    @JsonProperty("iapAvailability")
+    private boolean iapAvailability;
+    @JsonProperty("iabAvailability")
+    private boolean iabAvailability;
+}
+

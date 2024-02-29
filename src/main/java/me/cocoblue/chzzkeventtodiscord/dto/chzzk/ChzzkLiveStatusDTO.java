@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
+import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableGroupType;
+import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkLiveStatusType;
 
 @Data
 @Builder
@@ -11,17 +14,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChzzkLiveStatusDTO {
     private String liveTitle;
-    private String status;
+    private ChzzkLiveStatusType status;
     private Long concurrentUserCount;
     private Long accumulateCount;
     private boolean paidPromotion;
     private boolean adult;
     private String chatChannelId;
-    private String livePollingStatusJson;
-    private String faultStatus;
-    private String userAdultStatus;
     private boolean chatActive;
-    private String chatAvailableGroup;
-    private String chatAvailableCondition;
+    private ChzzkChatAvailableGroupType chatAvailableGroup;
+    private ChzzkChatAvailableConditionType chatAvailableCondition;
     private Long minFollowerMinute;
 }

@@ -1,11 +1,15 @@
-package me.cocoblue.chzzkeventtodiscord.vo;
+package me.cocoblue.chzzkeventtodiscord.vo.api;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVO;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkLiveVO;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkVideoVO;
 
 import java.util.List;
 import java.util.Map;
@@ -14,11 +18,8 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChzzkAPIResponseVO {
-    @JsonProperty("code")
-    private int code;
-    @JsonProperty("message")
-    private String message;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ChzzkSearchAPIResponseVO extends ChzzkAPICommonResponseVO {
     @JsonProperty("content")
     private ChzzkContentVO content;
 }
@@ -27,6 +28,7 @@ public class ChzzkAPIResponseVO {
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ChzzkContentVO {
     @JsonProperty("size")
     private int size;
@@ -40,6 +42,7 @@ class ChzzkContentVO {
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ChzzkAPIResponseData {
     @JsonProperty("channel")
     private ChzzkChannelVO channel;
@@ -51,6 +54,7 @@ class ChzzkAPIResponseData {
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ChzzkContentDetailVO {
     @JsonProperty("live")
     private ChzzkLiveVO live;

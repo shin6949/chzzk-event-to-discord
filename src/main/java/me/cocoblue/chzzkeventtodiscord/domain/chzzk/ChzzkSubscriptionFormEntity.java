@@ -2,7 +2,7 @@ package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 
 import jakarta.persistence.*;
 import lombok.*;
-import me.cocoblue.chzzkeventtodiscord.data.ChzzkSubscriptionType;
+import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 import me.cocoblue.chzzkeventtodiscord.data.LanguageIsoData;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataEntity;

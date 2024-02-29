@@ -1,4 +1,4 @@
-package me.cocoblue.chzzkeventtodiscord.data;
+package me.cocoblue.chzzkeventtodiscord.data.chzzk;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

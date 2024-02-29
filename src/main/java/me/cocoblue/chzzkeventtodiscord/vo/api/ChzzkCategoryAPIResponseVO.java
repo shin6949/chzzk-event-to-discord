@@ -1,14 +1,15 @@
-package me.cocoblue.chzzkeventtodiscord.vo;
+package me.cocoblue.chzzkeventtodiscord.vo.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.data.ChzzkCategoryType;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryId;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDTO;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryCommonVO;
 
 import java.time.ZonedDateTime;
 import java.util.Set;
@@ -17,11 +18,8 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChzzkCategoryAPIResponseVO {
-    @JsonProperty("code")
-    private Long code;
-    @JsonProperty("message")
-    private String message;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ChzzkCategoryAPIResponseVO extends ChzzkAPICommonResponseVO {
     @JsonProperty("content")
     private ChzzkCategoryContent content;
 
@@ -29,7 +27,7 @@ public class ChzzkCategoryAPIResponseVO {
         return ChzzkCategoryEntity.builder()
                 .id(ChzzkCategoryId.builder()
                         .categoryId(content.getCategoryId())
-                        .categoryType(ChzzkCategoryType.valueOf(content.getCategoryType()))
+                        .categoryType(content.getCategoryType())
                         .build())
                 .categoryName(content.getCategoryValue())
                 .posterImageUrl(content.getPosterImageUrl())
@@ -39,7 +37,7 @@ public class ChzzkCategoryAPIResponseVO {
 
     public ChzzkCategoryDTO toDTO() {
         return ChzzkCategoryDTO.builder()
-                .categoryType(ChzzkCategoryType.valueOf(content.getCategoryType()))
+                .categoryType(content.getCategoryType())
                 .categoryId(content.getCategoryId())
                 .categoryValue(content.getCategoryValue())
                 .build();

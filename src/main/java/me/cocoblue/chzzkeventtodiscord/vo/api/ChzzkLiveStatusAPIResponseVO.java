@@ -1,21 +1,23 @@
-package me.cocoblue.chzzkeventtodiscord.vo;
+package me.cocoblue.chzzkeventtodiscord.vo.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
+import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableGroupType;
+import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkLiveStatusType;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveStatusDTO;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryCommonVO;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChzzkLiveStatusAPIResponseVO {
-    @JsonProperty("code")
-    private int code;
-    @JsonProperty("message")
-    private String message;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ChzzkLiveStatusAPIResponseVO extends ChzzkAPICommonResponseVO {
     @JsonProperty("content")
     private ChzzkLiveStatusVO content;
 
@@ -28,9 +30,6 @@ public class ChzzkLiveStatusAPIResponseVO {
                 .paidPromotion(content.isPaidPromotion())
                 .adult(content.isAdult())
                 .chatChannelId(content.getChatChannelId())
-                .livePollingStatusJson(content.getLivePollingStatusJson())
-                .faultStatus(content.getFaultStatus())
-                .userAdultStatus(content.getUserAdultStatus())
                 .chatActive(content.isChatActive())
                 .chatAvailableGroup(content.getChatAvailableGroup())
                 .chatAvailableCondition(content.getChatAvailableCondition())
@@ -43,11 +42,12 @@ public class ChzzkLiveStatusAPIResponseVO {
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ChzzkLiveStatusVO extends ChzzkCategoryCommonVO {
     @JsonProperty("liveTitle")
     private String liveTitle;
     @JsonProperty("status")
-    private String status;
+    private ChzzkLiveStatusType status;
     @JsonProperty("concurrentUserCount")
     private Long concurrentUserCount;
     @JsonProperty("accumulateCount")
@@ -61,15 +61,15 @@ class ChzzkLiveStatusVO extends ChzzkCategoryCommonVO {
     @JsonProperty("livePollingStatusJson")
     private String livePollingStatusJson;
     @JsonProperty("faultStatus")
-    private String faultStatus;
+    private ChzzkLiveStatusType faultStatus;
     @JsonProperty("userAdultStatus")
     private String userAdultStatus;
     @JsonProperty("chatActive")
     private boolean chatActive;
     @JsonProperty("chatAvailableGroup")
-    private String chatAvailableGroup;
+    private ChzzkChatAvailableGroupType chatAvailableGroup;
     @JsonProperty("chatAvailableCondition")
-    private String chatAvailableCondition;
+    private ChzzkChatAvailableConditionType chatAvailableCondition;
     @JsonProperty("minFollowerMinute")
     private Long minFollowerMinute;
 }

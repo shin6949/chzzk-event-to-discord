@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.data.ChzzkCategoryType;
 
 import java.io.Serializable;
 
@@ -18,7 +17,6 @@ public class ChzzkCategoryId implements Serializable {
     @Column(name = "category_id", nullable = false)
     private String categoryId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "category_type")
-    private ChzzkCategoryType categoryType;
+    private String categoryType;
 }

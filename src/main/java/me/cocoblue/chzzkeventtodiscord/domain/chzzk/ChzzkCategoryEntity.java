@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.data.ChzzkCategoryType;
 
 import java.time.ZonedDateTime;
 
