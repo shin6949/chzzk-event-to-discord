@@ -79,7 +79,7 @@ public class ChzzkChannelService {
         final String url = "/service/v1/channels/%s";
 
         final ChzzkChannelInfoAPIResponseVO result = WEB_CLIENT
-                .post()
+                .get()
                 .uri(String.format(url, channelId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
@@ -102,7 +102,7 @@ public class ChzzkChannelService {
         final String url = "/service/v1/search/channels?keyword=%s&offset=0&size=1&withFirstChannelContent=false";
 
         final ChzzkSearchAPIResponseVO result = WEB_CLIENT
-                .post()
+                .get()
                 .uri(String.format(url, channelName))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()

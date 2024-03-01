@@ -23,7 +23,7 @@ public class ChzzkSubscriptionFormEntity {
     private Long id;
 
     @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name="channel_id", foreignKey = @ForeignKey(name="FK_CHZZK_SUBSCRIPTION_FORM_CHANNEL_UUID"))
+    @JoinColumn(name="channel_id", foreignKey = @ForeignKey(name="FK_CHZZK_SUBSCRIPTION_FORM_CHANNEL_ID"))
     private ChzzkChannelEntity chzzkChannelEntity;
 
     @Enumerated(EnumType.STRING)
@@ -36,7 +36,7 @@ public class ChzzkSubscriptionFormEntity {
 
     // 누가 이 폼을 만들었는지
     @ManyToOne()
-    @JoinColumn(name="form_owner", foreignKey = @ForeignKey(name="FK_CHZZK_SUBSCRIPTION_FORM_OWNER_CHANNEL_UUID"), nullable = false)
+    @JoinColumn(name="form_owner", foreignKey = @ForeignKey(name="FK_CHZZK_SUBSCRIPTION_FORM_OWNER_CHANNEL_ID"), nullable = false)
     private ChzzkChannelEntity formOwner;
 
     @Enumerated(EnumType.STRING)

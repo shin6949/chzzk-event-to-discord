@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -33,7 +32,6 @@ public class ChzzkSearchAPIResponseVO extends ChzzkAPICommonResponseVO {
 }
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -47,7 +45,6 @@ class ChzzkContentVO {
 }
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -59,7 +56,6 @@ class ChzzkAPIResponseData {
 }
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)

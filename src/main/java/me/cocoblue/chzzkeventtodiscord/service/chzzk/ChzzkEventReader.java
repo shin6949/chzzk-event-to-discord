@@ -6,4 +6,7 @@ import org.springframework.stereotype.Service;
 @Log4j2
 @Service
 public class ChzzkEventReader {
+    public void readEvent() {
+        log.info("Read event from Chzzk API.");
+    }
 }

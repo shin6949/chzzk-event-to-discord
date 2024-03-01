@@ -55,7 +55,7 @@ public class ChzzkCategoryService {
         final String url = "/service/v1/categories/%s/%s/info";
 
         final ChzzkCategoryAPIResponseVO result = WEB_CLIENT
-                .post()
+                .get()
                 .uri(String.format(url, categoryType, categoryId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()

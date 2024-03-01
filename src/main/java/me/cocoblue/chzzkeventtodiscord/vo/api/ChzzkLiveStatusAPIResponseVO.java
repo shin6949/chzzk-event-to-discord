@@ -13,7 +13,6 @@ import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveStatusDTO;
 import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryCommonVO;
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -39,7 +38,6 @@ public class ChzzkLiveStatusAPIResponseVO extends ChzzkAPICommonResponseVO {
 }
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)

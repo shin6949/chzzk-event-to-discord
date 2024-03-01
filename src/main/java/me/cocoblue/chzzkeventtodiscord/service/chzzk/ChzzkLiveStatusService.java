@@ -27,7 +27,7 @@ public class ChzzkLiveStatusService {
         final String url = "/polling/v2/channels/%s/live-status";
 
         final ChzzkLiveStatusAPIResponseVO result = WEB_CLIENT
-                .post()
+                .get()
                 .uri(String.format(url, channelId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()

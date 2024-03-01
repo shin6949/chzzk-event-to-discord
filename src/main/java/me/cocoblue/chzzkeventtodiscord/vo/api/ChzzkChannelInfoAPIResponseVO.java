@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVO;
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
