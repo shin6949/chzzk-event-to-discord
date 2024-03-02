@@ -1,6 +1,7 @@
 package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication;
@@ -35,7 +36,7 @@ public class ChzzkChannelService {
                 .build();
     }
 
-
+    @Transactional
     public ChzzkChannelDTO getChannelByChannelId(final String channelId) {
         final Optional<ChzzkChannelEntity> resultFromDB = chzzkChannelRepository.findByChannelId(channelId);
         // PostgreSQL에서는 UTC로 저장되기 때문에, UTC로 변환해서 비교해야 함
@@ -55,6 +56,7 @@ public class ChzzkChannelService {
         return new ChzzkChannelDTO(resultFromDB.get());
     }
 
+    @Transactional
     public ChzzkChannelDTO getChannelByChannelName(final String channelName) {
         final Optional<ChzzkChannelEntity> resultFromDB = chzzkChannelRepository.findByChannelName(channelName);
         // PostgreSQL에서는 UTC로 저장되기 때문에, UTC로 변환해서 비교해야 함
@@ -74,7 +76,7 @@ public class ChzzkChannelService {
         return new ChzzkChannelDTO(resultFromDB.get());
     }
 
-
+    @Transactional
     public ChzzkChannelDTO getChannelByChannelIdAtAPI(final String channelId) {
         final String url = "/service/v1/channels/%s";
 
@@ -98,6 +100,7 @@ public class ChzzkChannelService {
         return result.getContent().toDTO();
     }
 
+    @Transactional
     public ChzzkChannelDTO getChannelByChannelNameAtAPI(final String channelName) {
         final String url = "/service/v1/search/channels?keyword=%s&offset=0&size=1&withFirstChannelContent=false";
 

@@ -39,6 +39,7 @@ public class ChzzkCategoryAPIResponseVO extends ChzzkAPICommonResponseVO {
                 .categoryType(content.getCategoryType())
                 .categoryId(content.getCategoryId())
                 .categoryValue(content.getCategoryValue())
+                .posterImageUrl(content.getPosterImageUrl())
                 .build();
     }
 }

@@ -17,6 +17,6 @@ public class ChzzkCategoryId implements Serializable {
     @Column(name = "category_id", nullable = false)
     private String categoryId;
 
-    @Column(name = "category_type")
+    @Column(name = "category_type", nullable = false)
     private String categoryType;
 }

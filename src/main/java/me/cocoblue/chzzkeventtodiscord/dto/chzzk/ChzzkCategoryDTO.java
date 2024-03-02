@@ -14,10 +14,12 @@ public class ChzzkCategoryDTO {
     private String categoryType;
     private String categoryId;
     private String categoryValue;
+    private String posterImageUrl;
 
     public ChzzkCategoryDTO(ChzzkCategoryEntity entity) {
         this.categoryType = entity.getId().getCategoryType();
         this.categoryId = entity.getId().getCategoryId();
         this.categoryValue = entity.getCategoryName();
+        this.posterImageUrl = entity.getPosterImageUrl();
     }
 }

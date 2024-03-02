@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AppStartupRunner implements CommandLineRunner {
 
-    @Value("${chzzk.api.url}")
+    @Value("${chzzk.api-url}")
     private String CHZZK_API_URL;
 
     @Override

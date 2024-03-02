@@ -3,7 +3,6 @@ package me.cocoblue.chzzkeventtodiscord.vo.api;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
@@ -33,6 +32,9 @@ public class ChzzkLiveStatusAPIResponseVO extends ChzzkAPICommonResponseVO {
                 .chatAvailableGroup(content.getChatAvailableGroup())
                 .chatAvailableCondition(content.getChatAvailableCondition())
                 .minFollowerMinute(content.getMinFollowerMinute())
+                .categoryType(content.getCategoryType())
+                .categoryId(content.getCategoryId())
+                .categoryValue(content.getCategoryValue())
                 .build();
     }
 }

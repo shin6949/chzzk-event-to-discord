@@ -1,17 +1,16 @@
 package me.cocoblue.chzzkeventtodiscord.dto.chzzk;
 
+import lombok.*;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.Objects;
 
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class ChzzkChannelDTO {
     private String channelId;
     private String channelName;

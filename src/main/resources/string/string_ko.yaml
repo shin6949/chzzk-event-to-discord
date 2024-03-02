@@ -1,26 +1,35 @@
 stream:
   online:
-    event-message: 님이 방송을 시작했습니다.
-    title: "제목: "
-    game-name: "게임: "
+    event-message: "{0}님이 방송을 시작했습니다."
+    chat-available-group: "채팅 이용 대상"
+    chat-available-condition: "채팅 이용 조건"
     footer: "치지직"
 
   offline:
-    event-message: 님의 방송이 종료되었습니다.
-    embed-description: 다음에 만나요!
+    event-message: "{0}님의 방송이 종료되었습니다."
+    embed-description: "다음에 만나요!"
     embed-title: ""
     footer: "치지직"
 
 channel:
   update:
-    event-message: 님의 채널 정보가 변경되었습니다.
-    title: "제목: "
-    game-name: "게임: "
+    event-message: "{0}님의 채널 정보가 변경되었습니다."
     footer: "치지직"
 
 game:
   prefix: ":video_game: "
-  none: ":joystick: 지정된 게임 없음."
+  none: ":joystick: 지정된 카테고리 없음."
+
+chat:
+  group:
+    follower: "팔로워 전용"
+    manager: "운영자 전용"
+    all: "모두"
+    unknown: "알 수 없음"
+  condition:
+    none: "조건 없음"
+    real-name: "본인 인증 계정 전용"
+    unknown: "알 수 없음"
 
 language:
   en: 영어

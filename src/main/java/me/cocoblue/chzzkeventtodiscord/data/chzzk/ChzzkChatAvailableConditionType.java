@@ -10,12 +10,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ChzzkChatAvailableConditionType {
-    NONE("NONE"),
-    REAL_NAME("REAL_NAME"),
+    NONE("NONE", "chat.condition.none"),
+    REAL_NAME("REAL_NAME", "chat.condition.real-name"),
     // API 변동에 대비한 기본 값
-    UNKNOWN("UNKNOWN");
+    UNKNOWN("UNKNOWN", "chat.condition.unknown");
 
     private final String value;
+    private final String stringKey;
 
     @JsonCreator
     public static ChzzkChatAvailableConditionType forValue(String value) {

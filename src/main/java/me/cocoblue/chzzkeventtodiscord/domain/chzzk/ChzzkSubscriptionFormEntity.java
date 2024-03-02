@@ -14,12 +14,14 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @Entity(name = "chzzk_subscription_form")
+@Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChzzkSubscriptionFormEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, columnDefinition = "BIGINT UNSIGNED")
     private Long id;
 
     @ManyToOne(cascade = CascadeType.DETACH)
@@ -64,4 +66,8 @@ public class ChzzkSubscriptionFormEntity {
 
     @Column(name = "color_hex", nullable = false, length = 11)
     private String colorHex;
+
+    public int getDecimalColor() {
+        return Integer.parseInt(getColorHex(),16);
+    }
 }

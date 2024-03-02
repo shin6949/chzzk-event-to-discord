@@ -35,6 +35,7 @@ public class DiscordEmbed {
     private String timestamp;
 
     @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Author {
@@ -47,6 +48,7 @@ public class DiscordEmbed {
     }
 
     @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Field {
@@ -59,6 +61,7 @@ public class DiscordEmbed {
     }
 
     @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Footer {
@@ -69,6 +72,7 @@ public class DiscordEmbed {
     }
 
     @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Webhook {

@@ -1,6 +1,7 @@
 package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication;
@@ -32,6 +33,7 @@ public class ChzzkCategoryService {
                 .build();
     }
 
+    @Transactional
     public ChzzkCategoryDTO getCategoryInfo(final String categoryType, final String categoryId) {
         final Optional<ChzzkCategoryEntity> categoryEntity = chzzkCategoryRepository.findByCategoryId(categoryId);
         // PostgreSQL에서는 UTC로 저장되기 때문에, UTC로 변환해서 비교해야 함
@@ -51,7 +53,8 @@ public class ChzzkCategoryService {
         return new ChzzkCategoryDTO(categoryEntity.get());
     }
 
-    private ChzzkCategoryAPIResponseVO getCategoryInfoFromAPI(final String categoryType, final String categoryId) {
+    @Transactional
+    protected ChzzkCategoryAPIResponseVO getCategoryInfoFromAPI(final String categoryType, final String categoryId) {
         final String url = "/service/v1/categories/%s/%s/info";
 
         final ChzzkCategoryAPIResponseVO result = WEB_CLIENT

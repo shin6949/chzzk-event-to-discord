@@ -24,4 +24,7 @@ public class ChzzkLiveStatusDTO {
     private ChzzkChatAvailableGroupType chatAvailableGroup;
     private ChzzkChatAvailableConditionType chatAvailableCondition;
     private Long minFollowerMinute;
+    private String categoryType;
+    private String categoryId;
+    private String categoryValue;
 }

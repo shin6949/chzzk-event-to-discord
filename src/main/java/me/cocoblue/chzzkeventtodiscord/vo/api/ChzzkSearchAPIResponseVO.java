@@ -29,6 +29,9 @@ public class ChzzkSearchAPIResponseVO extends ChzzkAPICommonResponseVO {
     public ChzzkChannelVO getChannel(int index) {
         return content.getData().get(index).getChannel();
     }
+    public ChzzkLiveVO getLive(int index) {
+        return content.getData().get(index).getContent().getLive();
+    }
 }
 
 @Getter

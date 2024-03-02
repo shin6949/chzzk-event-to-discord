@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveDTO;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +27,7 @@ public class ChzzkLiveVO {
     private int concurrentUserCount;
     @JsonProperty("accumulateCount")
     private int accumulateCount;
+    // KST 기준으로 API에서 받아옴
     @JsonProperty("openDate")
     private LocalDateTime openDate;
     @JsonProperty("liveId")
@@ -42,4 +44,21 @@ public class ChzzkLiveVO {
     private String channelId;
     @JsonProperty("livePlaybackJson")
     private String livePlaybackJson;
+
+    public ChzzkLiveDTO toDTO() {
+        return ChzzkLiveDTO.builder()
+                .liveTitle(liveTitle)
+                .liveImageUrl(liveImageUrl)
+                .defaultThumbnailImageUrl(defaultThumbnailImageUrl)
+                .concurrentUserCount(concurrentUserCount)
+                .accumulateCount(accumulateCount)
+                .openDate(openDate)
+                .liveId(liveId)
+                .chatChannelId(chatChannelId)
+                .categoryType(categoryType)
+                .liveCategory(liveCategory)
+                .liveCategoryValue(liveCategoryValue)
+                .channelId(channelId)
+                .build();
+    }
 }

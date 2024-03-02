@@ -23,6 +23,6 @@ public class ChzzkCategoryEntity {
     @Column(name = "poster_image_url", nullable = false)
     private String posterImageUrl;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private ZonedDateTime updatedAt;
 }

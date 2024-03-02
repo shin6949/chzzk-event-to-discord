@@ -10,13 +10,14 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ChzzkChatAvailableGroupType {
-    FOLLOWER("FOLLOWER"),
-    MANAGER("MANAGER"),
-    ALL("ALL"),
+    FOLLOWER("FOLLOWER", "chat.group.follower"),
+    MANAGER("MANAGER", "chat.group.manager"),
+    ALL("ALL", "chat.group.all"),
     // API 변동에 대비한 기본 값
-    UNKNOWN("UNKNOWN");
+    UNKNOWN("UNKNOWN", "chat.group.unknown");
 
     private final String value;
+    private final String stringKey;
 
     @JsonCreator
     public static ChzzkChatAvailableGroupType forValue(String value) {
