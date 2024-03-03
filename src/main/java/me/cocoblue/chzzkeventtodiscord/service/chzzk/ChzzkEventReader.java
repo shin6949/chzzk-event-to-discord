@@ -7,7 +7,6 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
-import me.cocoblue.chzzkeventtodiscord.service.DiscordWebhookService;
 import me.cocoblue.chzzkeventtodiscord.service.ChzzkSubscriptionFormService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,7 +37,9 @@ public class ChzzkEventReader {
                 .collect(Collectors.toSet());
 
         log.info("Need to fetch channel ids count: {}", needToFetchChannelIds.size());
+        needToFetchChannelIds.forEach(this::classifyEventAndRunTrigger);
 
+        log.info("Scheduled task finished.");
     }
 
     @Async
@@ -50,18 +51,17 @@ public class ChzzkEventReader {
 
         // Database에서 가져온 데이터와 API에서 가져온 데이터를 비교하여 이벤트를 분류한다.
         // Live 이벤트와 Offline 이벤트는 공존할 수 없으므로 else if로 구분하여 불필요한 로직 실행을 막음.
-        if(chzzkEventClassifier.isOnNewLive(channelDataFromDatabase, channelDataFromApi)) {
-            chzzkEventSender.sendEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_ONLINE);
-        } else if(chzzkEventClassifier.isOnNewOffline(channelDataFromDatabase, channelDataFromApi)) {
-            chzzkEventSender.sendEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_OFFLINE);
+        if (chzzkEventClassifier.isOnNewLive(channelDataFromDatabase, channelDataFromApi)) {
+            chzzkEventSender.sendStreamEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_ONLINE);
+        } else if (chzzkEventClassifier.isOnNewOffline(channelDataFromDatabase, channelDataFromApi)) {
+            chzzkEventSender.sendStreamEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_OFFLINE);
         }
 
-        // Channel 정보가 변경되었을 때, Discord로 알림을 보낸다. (미구현)
-//        if(chzzkEventClassifier.isChannelInformationChanged(channelDataFromDatabase, channelDataFromApi)) {
-//            discordWebhookService.sendChannelInformationChangedEvent(channelDataFromApi);
-//        } else if(chzzkEventClassifier.isFollowerCountChanged(channelDataFromDatabase, channelDataFromApi)) {
-//            discordWebhookService.sendFollowerCountChangedEvent(channelDataFromApi);
-//        }
+        // Channel 정보가 변경되었을 때, Discord로 알림을 보낸다.
+        // TODO: 각 Form의 INTERVAL에 따라서 변경 사항을 감지할 수 있는 기능을 추가해야함.
+        if (chzzkEventClassifier.isChannelInformationChanged(channelDataFromDatabase, channelDataFromApi)) {
+            log.info("Channel information changed. channelId: {}", channelId);
+            chzzkEventSender.sendChannelUpdateEvent(channelDataFromApi);
+        }
     }
-
 }

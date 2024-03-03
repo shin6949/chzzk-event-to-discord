@@ -7,16 +7,18 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 @Getter
 @Setter
 @ToString
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "bot_profile_data")
 public class DiscordBotProfileDataEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @ManyToOne()
-    @JoinColumn(name="owner_id", foreignKey = @ForeignKey(name="FK_BOT_PROFILE_DATA_OWNER_ID"), nullable = false)
+    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "FK_BOT_PROFILE_DATA_OWNER_ID"), nullable = false)
     private ChzzkChannelEntity ownerId;
 
     @Column(length = 100, nullable = false)

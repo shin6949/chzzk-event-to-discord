@@ -2,23 +2,23 @@ package me.cocoblue.chzzkeventtodiscord.vo.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryId;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDTO;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryCommonVO;
 
 import java.time.ZonedDateTime;
 import java.util.Set;
 
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChzzkCategoryAPIResponseVO extends ChzzkAPICommonResponseVO {
+public class ChzzkCategoryAPIResponseVO {
+    @JsonProperty("code")
+    private int code;
+    @JsonProperty("message")
+    private String message;
     @JsonProperty("content")
     private ChzzkCategoryContent content;
 
@@ -44,10 +44,16 @@ public class ChzzkCategoryAPIResponseVO extends ChzzkAPICommonResponseVO {
     }
 }
 
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-class ChzzkCategoryContent extends ChzzkCategoryCommonVO {
+class ChzzkCategoryContent {
+    @JsonProperty("categoryType")
+    private String categoryType;
+    @JsonProperty("categoryId")
+    private String categoryId;
+    @JsonProperty("categoryValue")
+    private String categoryValue;
     @JsonProperty("posterImageUrl")
     private String posterImageUrl;
     @JsonProperty("openLiveCount")

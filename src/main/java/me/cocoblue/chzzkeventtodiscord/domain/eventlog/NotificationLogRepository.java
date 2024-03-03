@@ -5,9 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Repository
 public interface NotificationLogRepository extends JpaRepository<NotificationLogEntity, Long> {
-    int getCountBySubscriptionFormAndCreatedAtBetween(ChzzkSubscriptionFormEntity subscriptionForm,
-                                                                             ZonedDateTime start, ZonedDateTime end);
+    List<NotificationLogEntity> getCountBySubscriptionFormAndCreatedAtBetween(ChzzkSubscriptionFormEntity subscriptionForm,
+                                                                              ZonedDateTime start, ZonedDateTime end);
 }

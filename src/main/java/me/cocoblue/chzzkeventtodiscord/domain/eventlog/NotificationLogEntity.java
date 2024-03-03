@@ -21,10 +21,10 @@ public class NotificationLogEntity {
     private Long id;
 
     @ManyToOne()
-    @JoinColumn(name="form_id", foreignKey = @ForeignKey(name="FK_NOTIFICATION_LOG_FORM_ID"), nullable = false)
+    @JoinColumn(name = "form_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_LOG_FORM_ID"), nullable = false)
     private ChzzkSubscriptionFormEntity subscriptionForm;
 
     @CreationTimestamp
-    @Column(name="created_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private ZonedDateTime createdAt;
 }

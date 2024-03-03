@@ -21,22 +21,21 @@ spring:
   # JPA
   jpa:
     properties:
-      javax:
-        persistence:
-          schema-generation:
-            scripts:
-              action: create
-              create-target: create.sql
-              create-source: metadata
-            database:
-              action: none
+#      javax:
+#        persistence:
+#          schema-generation:
+#            scripts:
+#              action: create
+#              create-target: create.sql
+#              create-source: metadata
+#            database:
+#              action: none
 
-#      hibernate:
-#        show_sql: false
-#        format_sql: true
-#        use_sql_comments: true
-    hibernate:
-      ddl-auto: none
+      hibernate:
+        show_sql: false
+        format_sql: true
+        use_sql_comments: true
+        ddl-auto: validate
 
 chzzk:
   check-interval: ${CHZZK_CHECK_INTERVAL:30}

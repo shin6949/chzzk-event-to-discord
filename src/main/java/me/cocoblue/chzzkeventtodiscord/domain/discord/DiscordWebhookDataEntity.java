@@ -14,6 +14,7 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 public class DiscordWebhookDataEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(length = 500, nullable = false)
@@ -26,6 +27,6 @@ public class DiscordWebhookDataEntity {
     private String meno;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="owner_id", foreignKey = @ForeignKey(name="FK_WEBHOOK_DATA_OWNER_ID"), nullable = false)
+    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "FK_WEBHOOK_DATA_OWNER_ID"), nullable = false)
     private ChzzkChannelEntity ownerId;
 }

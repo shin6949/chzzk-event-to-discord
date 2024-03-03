@@ -2,7 +2,10 @@ package me.cocoblue.chzzkeventtodiscord.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
 
@@ -47,15 +50,7 @@ public class ChzzkChannelVO {
                 .verifiedMark(verifiedMark)
                 .followerCount(followerCount)
                 .channelDescription(channelDescription)
-                .build();
-    }
-
-    public ChzzkChannelEntity toEntity() {
-        return ChzzkChannelEntity.builder()
-                .channelId(channelId)
-                .channelName(channelName)
-                .profileUrl(channelImageUrl)
-                .isLive(openLive)
+                .subscriptionAvailability(subscriptionAvailability)
                 .build();
     }
 }

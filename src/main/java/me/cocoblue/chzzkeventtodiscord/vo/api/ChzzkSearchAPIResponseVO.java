@@ -4,7 +4,6 @@ package me.cocoblue.chzzkeventtodiscord.vo.api;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVO;
@@ -29,7 +28,11 @@ public class ChzzkSearchAPIResponseVO extends ChzzkAPICommonResponseVO {
     public ChzzkChannelVO getChannel(int index) {
         return content.getData().get(index).getChannel();
     }
+
     public ChzzkLiveVO getLive(int index) {
+        if(content.getData().get(index).getContent() == null) {
+            return null;
+        }
         return content.getData().get(index).getContent().getLive();
     }
 }

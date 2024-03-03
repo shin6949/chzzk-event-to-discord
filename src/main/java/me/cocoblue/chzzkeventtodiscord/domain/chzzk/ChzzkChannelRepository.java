@@ -7,6 +7,7 @@ import java.util.Optional;
 
 @Repository
 public interface ChzzkChannelRepository extends JpaRepository<ChzzkChannelEntity, String> {
-    Optional<ChzzkChannelEntity> findByChannelId(String channelId);
-    Optional<ChzzkChannelEntity> findByChannelName(String channelName);
+    Optional<ChzzkChannelEntity> findChzzkChannelEntityByChannelId(String channelId);
+
+    Optional<ChzzkChannelEntity> findChzzkChannelEntityByChannelName(String channelName);
 }

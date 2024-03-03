@@ -1,6 +1,7 @@
 package me.cocoblue.chzzkeventtodiscord.data.chzzk;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -18,7 +19,6 @@ public enum ChzzkChatAvailableConditionType {
     private final String value;
     private final String stringKey;
 
-    @JsonCreator
     public static ChzzkChatAvailableConditionType forValue(String value) {
         for (ChzzkChatAvailableConditionType type : values()) {
             if (type.getValue().equals(value)) {
@@ -26,5 +26,10 @@ public enum ChzzkChatAvailableConditionType {
             }
         }
         return UNKNOWN; // 알 수 없는 값 처리
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 }

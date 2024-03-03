@@ -7,5 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface ChzzkCategoryRepository extends JpaRepository<ChzzkCategoryEntity, String> {
-    Optional<ChzzkCategoryEntity> findByCategoryId(String categoryId);
+    Optional<ChzzkCategoryEntity> findByIdCategoryId(String categoryId);
 }

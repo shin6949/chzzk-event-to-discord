@@ -9,7 +9,6 @@ import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionTyp
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableGroupType;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkLiveStatusType;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveStatusDTO;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkCategoryCommonVO;
 
 @Getter
 @NoArgsConstructor
@@ -43,7 +42,7 @@ public class ChzzkLiveStatusAPIResponseVO extends ChzzkAPICommonResponseVO {
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ChzzkLiveStatusVO extends ChzzkCategoryCommonVO {
+class ChzzkLiveStatusVO {
     @JsonProperty("liveTitle")
     private String liveTitle;
     @JsonProperty("status")
@@ -72,4 +71,10 @@ class ChzzkLiveStatusVO extends ChzzkCategoryCommonVO {
     private ChzzkChatAvailableConditionType chatAvailableCondition;
     @JsonProperty("minFollowerMinute")
     private Long minFollowerMinute;
+    @JsonProperty("categoryType")
+    private String categoryType;
+    @JsonProperty("liveCategory")
+    private String categoryId;
+    @JsonProperty("liveCategoryValue")
+    private String categoryValue;
 }

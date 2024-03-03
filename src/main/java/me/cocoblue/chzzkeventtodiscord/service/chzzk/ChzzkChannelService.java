@@ -9,7 +9,6 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
 import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVO;
-import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkCategoryAPIResponseVO;
 import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkChannelInfoAPIResponseVO;
 import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkSearchAPIResponseVO;
 import org.springframework.http.HttpHeaders;
@@ -37,15 +36,27 @@ public class ChzzkChannelService {
     }
 
     @Transactional
+    public ChzzkChannelEntity getChannelEntityByChannelIdFromDatabase(final String channelId) {
+        return chzzkChannelRepository.findChzzkChannelEntityByChannelId(channelId).orElse(null);
+    }
+
+    @Transactional
     public ChzzkChannelDTO getChannelByChannelId(final String channelId) {
-        final Optional<ChzzkChannelEntity> resultFromDB = chzzkChannelRepository.findByChannelId(channelId);
+        if(channelId == null) {
+            log.error("Channel id is null. channelId: {}", (Object) null);
+            return null;
+        }
+
+        log.info("Get channel by channel id. channelId: {}", channelId);
+        final Optional<ChzzkChannelEntity> resultFromDB = chzzkChannelRepository.findChzzkChannelEntityByChannelId(channelId);
+        log.info("Result from DB: {}", resultFromDB);
         // PostgreSQL에서는 UTC로 저장되기 때문에, UTC로 변환해서 비교해야 함
-        final ZonedDateTime threeDaysAgo = ZonedDateTime.now(ZoneId.of("UTC"));
+        final ZonedDateTime threeDaysAgo = ZonedDateTime.now(ZoneId.of("UTC")).minusDays(3);
 
         // 3일 이상 지난 데이터는 API를 통해 갱신
-        if(resultFromDB.isEmpty() || resultFromDB.get().getLastCheckTime().isBefore(threeDaysAgo)) {
+        if (resultFromDB.isEmpty() || resultFromDB.get().getLastCheckTime().isBefore(threeDaysAgo)) {
             final ChzzkChannelDTO apiResult = getChannelByChannelIdAtAPI(channelId);
-            if(apiResult == null) {
+            if (apiResult == null) {
                 log.info("Failed to get channel info from Chzzk API.");
                 return null;
             }
@@ -58,14 +69,16 @@ public class ChzzkChannelService {
 
     @Transactional
     public ChzzkChannelDTO getChannelByChannelName(final String channelName) {
-        final Optional<ChzzkChannelEntity> resultFromDB = chzzkChannelRepository.findByChannelName(channelName);
+        log.info("Get channel by channel name. channelName: {}", channelName);
+        final Optional<ChzzkChannelEntity> resultFromDB = chzzkChannelRepository.findChzzkChannelEntityByChannelName(channelName);
+        log.info("Result from DB: {}", resultFromDB);
         // PostgreSQL에서는 UTC로 저장되기 때문에, UTC로 변환해서 비교해야 함
-        final ZonedDateTime threeDaysAgo = ZonedDateTime.now(ZoneId.of("UTC"));
+        final ZonedDateTime threeDaysAgo = ZonedDateTime.now(ZoneId.of("UTC")).minusDays(3);
 
         // 3일 이상 지난 데이터는 API를 통해 갱신
-        if(resultFromDB.isEmpty() || resultFromDB.get().getLastCheckTime().isBefore(threeDaysAgo)) {
+        if (resultFromDB.isEmpty() || resultFromDB.get().getLastCheckTime().isBefore(threeDaysAgo)) {
             final ChzzkChannelDTO apiResult = getChannelByChannelNameAtAPI(channelName);
-            if(apiResult == null) {
+            if (apiResult == null) {
                 log.info("Failed to get channel info from Chzzk API.");
                 return null;
             }
@@ -88,12 +101,12 @@ public class ChzzkChannelService {
                 .bodyToMono(ChzzkChannelInfoAPIResponseVO.class)
                 .block();
 
-        if(result == null || result.getCode() != 200) {
+        if (result == null || result.getCode() != 200) {
             log.error("Failed to get channel info by channel id from Chzzk API. Check argument is valid or update the API status. channelId: {}", channelId);
             return null;
         }
 
-        final ChzzkChannelEntity entity = result.getContent().toEntity();
+        final ChzzkChannelEntity entity = result.getContent().toDTO().toEntity();
         entity.setLastCheckTime(ZonedDateTime.now(ZoneId.of("UTC")));
 
         chzzkChannelRepository.save(entity);
@@ -112,21 +125,21 @@ public class ChzzkChannelService {
                 .bodyToMono(ChzzkSearchAPIResponseVO.class)
                 .block();
 
-        if(result == null || result.getContentSize() == 0) {
+        if (result == null || result.getContentSize() == 0) {
             log.error("Failed to get channel info by channel name from Chzzk API. Check argument is valid or update the API status. channelName: {}", channelName);
             return null;
         }
 
-        if(result.getContentSize() > 1) {
+        if (result.getContentSize() > 1) {
             log.warn("There are more than one channel with the same name. The first channel will be used. channelName: {}", channelName);
         }
 
         final ChzzkChannelVO resultChannelVO = result.getChannel(0);
-        final ChzzkChannelEntity entity = resultChannelVO.toEntity();
+        final ChzzkChannelEntity entity = resultChannelVO.toDTO().toEntity();
         entity.setLastCheckTime(ZonedDateTime.now(ZoneId.of("UTC")));
 
+        log.info("Channel info updated. entity: {}", entity);
         chzzkChannelRepository.save(entity);
         return resultChannelVO.toDTO();
     }
-
 }

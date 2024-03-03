@@ -33,16 +33,15 @@ public class ChzzkCategoryService {
                 .build();
     }
 
-    @Transactional
     public ChzzkCategoryDTO getCategoryInfo(final String categoryType, final String categoryId) {
-        final Optional<ChzzkCategoryEntity> categoryEntity = chzzkCategoryRepository.findByCategoryId(categoryId);
+        final Optional<ChzzkCategoryEntity> categoryEntity = chzzkCategoryRepository.findByIdCategoryId(categoryId);
         // PostgreSQL에서는 UTC로 저장되기 때문에, UTC로 변환해서 비교해야 함
         final ZonedDateTime threeDaysAgo = ZonedDateTime.now(ZoneId.of("UTC"));
 
         // 3일 이상 지난 데이터는 API를 통해 갱신
-        if(categoryEntity.isEmpty() || categoryEntity.get().getUpdatedAt().isBefore(threeDaysAgo)) {
+        if (categoryEntity.isEmpty() || categoryEntity.get().getUpdatedAt().isBefore(threeDaysAgo)) {
             final ChzzkCategoryAPIResponseVO apiResult = getCategoryInfoFromAPI(categoryType, categoryId);
-            if(apiResult == null) {
+            if (apiResult == null) {
                 log.info("Failed to get category info from Chzzk API. Check the API status or categoryType and categoryId is valid.");
                 return null;
             }
@@ -53,7 +52,6 @@ public class ChzzkCategoryService {
         return new ChzzkCategoryDTO(categoryEntity.get());
     }
 
-    @Transactional
     protected ChzzkCategoryAPIResponseVO getCategoryInfoFromAPI(final String categoryType, final String categoryId) {
         final String url = "/service/v1/categories/%s/%s/info";
 
@@ -65,11 +63,12 @@ public class ChzzkCategoryService {
                 .bodyToMono(ChzzkCategoryAPIResponseVO.class)
                 .block();
 
-        if(result == null || result.getCode() != 200) {
+        if (result == null || result.getCode() != 200) {
             log.error("Failed to get category info from Chzzk API. Check the API status or categoryId is valid.");
             return null;
         }
 
+        log.info("Category info from Chzzk API: {}", result.getContent());
         chzzkCategoryRepository.save(result.toEntity());
         return result;
     }

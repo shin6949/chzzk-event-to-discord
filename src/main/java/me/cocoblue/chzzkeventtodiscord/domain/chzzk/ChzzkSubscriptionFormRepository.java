@@ -13,8 +13,11 @@ import java.util.Set;
 public interface ChzzkSubscriptionFormRepository extends JpaRepository<ChzzkSubscriptionFormEntity, Long> {
     List<ChzzkSubscriptionFormEntity> findAllByChzzkChannelEntityAndChzzkSubscriptionTypeAndEnabled(ChzzkChannelEntity chzzkChannelEntity,
                                                                                                     ChzzkSubscriptionType chzzkSubscriptionType, boolean enabled);
+
     List<ChzzkSubscriptionFormEntity> findAllByChzzkChannelEntityAndEnabled(ChzzkChannelEntity chzzkChannelEntity, boolean enabled);
+
     List<ChzzkSubscriptionFormEntity> findAllByEnabled(boolean enabled);
+
     @Query("SELECT DISTINCT sf.chzzkChannelEntity.channelId FROM chzzk_subscription_form sf WHERE sf.enabled = :enabled")
     Set<String> findDistinctChannelIdsByEnabled(@Param("enabled") boolean enabled);
 }

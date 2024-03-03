@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableScheduling
 @EnableJpaAuditing
-public class ChzzkEventToDiscordApplication extends SpringBootServletInitializer  {
+public class ChzzkEventToDiscordApplication extends SpringBootServletInitializer {
     public static String CHZZK_API_URL = "https://api.chzzk.naver.com";
 
     @Override

@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 @Data
@@ -16,7 +16,7 @@ import java.time.ZonedDateTime;
 @Entity(name = "chzzk_channel")
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class ChzzkChannelEntity {
+public class ChzzkChannelEntity implements Serializable {
     @Id
     @Column(name = "channel_id", nullable = false)
     private String channelId;
@@ -31,13 +31,15 @@ public class ChzzkChannelEntity {
     // 500자 제한이지만 여유를 두어 550자로 설정
     @Column(length = 550, name = "channel_description")
     private String channelDescription;
+    @Column(name = "subscription_availability", nullable = false)
+    private boolean subscriptionAvailability;
     @Column(name = "is_live", nullable = false)
     private boolean isLive;
     @Column(name = "follower_count", nullable = false)
     private int followerCount;
     @Column(name = "last_check_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private ZonedDateTime lastCheckTime;
-    @Version
-    @Column(name = "version", nullable = false, columnDefinition = "BIGINT(20) DEFAULT 0")
-    private Long version;
+//    @Version
+//    @Column(name = "version", nullable = false, columnDefinition = "BIGINT(20) DEFAULT 0")
+//    private Long version;
 }

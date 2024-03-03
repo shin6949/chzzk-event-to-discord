@@ -1,6 +1,8 @@
 package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

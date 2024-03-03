@@ -53,7 +53,7 @@ public enum LanguageIsoData {
     private final String code;
     private final String koreanName;
 
-    private static final Map<String, LanguageIsoData> descriptions = Collections.unmodifiableMap(Stream.of(values()) .collect(Collectors.toMap(LanguageIsoData::getCode, Function.identity())));
+    private static final Map<String, LanguageIsoData> descriptions = Collections.unmodifiableMap(Stream.of(values()).collect(Collectors.toMap(LanguageIsoData::getCode, Function.identity())));
 
     public static LanguageIsoData find(String code) {
         return Optional.ofNullable(descriptions.get(code)).orElse(Other);

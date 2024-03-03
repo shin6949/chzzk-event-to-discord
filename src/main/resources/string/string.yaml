@@ -12,6 +12,16 @@ stream:
 channel:
   update:
     event-message: "{0}'s channel info has changed."
+    embed-title: ""
+    embed-description: ""
+    name: "Channel Name"
+    description: "Description"
+    follower: "Follower Count"
+    follower-count: "{0}"
+    verified: "Verified"
+    open-live: "Open Live"
+    true: "Yes"
+    false: "No"
     footer: "Naver Chzzk"
 
 game:

@@ -1,6 +1,7 @@
 package me.cocoblue.chzzkeventtodiscord.data.chzzk;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,7 +15,6 @@ public enum ChzzkLiveStatusType {
 
     private final String value;
 
-    @JsonCreator
     public static ChzzkLiveStatusType forValue(String value) {
         for (ChzzkLiveStatusType type : values()) {
             if (type.getValue().equals(value)) {
@@ -22,5 +22,10 @@ public enum ChzzkLiveStatusType {
             }
         }
         return UNKNOWN; // 알 수 없는 값 처리
+    }
+
+    @JsonValue // 이 어노테이션을 추가하여 직렬화할 때 사용할 값을 지정합니다.
+    public String getValue() {
+        return value;
     }
 }
