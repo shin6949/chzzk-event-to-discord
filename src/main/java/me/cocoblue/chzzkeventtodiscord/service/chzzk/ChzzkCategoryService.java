@@ -1,7 +1,6 @@
 package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication;
@@ -68,7 +67,9 @@ public class ChzzkCategoryService {
             return null;
         }
 
-        chzzkCategoryRepository.save(result.toEntity());
+        log.info("Successfully get category info from Chzzk API. categoryId: {}", categoryId);
+        log.debug("Category Entity info: {}", result.toDTO().toEntity());
+        chzzkCategoryRepository.save(result.toDTO().toEntity());
         return result;
     }
 }

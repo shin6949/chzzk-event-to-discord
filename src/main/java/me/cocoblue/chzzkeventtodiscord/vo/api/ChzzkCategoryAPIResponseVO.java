@@ -24,18 +24,6 @@ public class ChzzkCategoryAPIResponseVO {
     @JsonProperty("content")
     private ChzzkCategoryContent content;
 
-    public ChzzkCategoryEntity toEntity() {
-        return ChzzkCategoryEntity.builder()
-                .id(ChzzkCategoryId.builder()
-                        .categoryId(content.getCategoryId())
-                        .categoryType(content.getCategoryType())
-                        .build())
-                .categoryName(content.getCategoryValue())
-                .posterImageUrl(content.getPosterImageUrl())
-                .updatedAt(ZonedDateTime.now())
-                .build();
-    }
-
     public ChzzkCategoryDTO toDTO() {
         return ChzzkCategoryDTO.builder()
                 .categoryType(content.getCategoryType())

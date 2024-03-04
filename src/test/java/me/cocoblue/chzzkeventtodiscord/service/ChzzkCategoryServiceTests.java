@@ -3,6 +3,8 @@ package me.cocoblue.chzzkeventtodiscord.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryRepository;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDTO;
 import me.cocoblue.chzzkeventtodiscord.service.chzzk.ChzzkCategoryService;
 import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkCategoryAPIResponseVO;
@@ -22,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class ChzzkCategoryServiceTests {
     @Autowired
     private ChzzkCategoryService chzzkCategoryService;
+
+    @Autowired
+    private ChzzkCategoryRepository chzzkCategoryRepository;
 
     private boolean ObjectMapperTestsSucceeded = false;
 
@@ -76,5 +81,14 @@ class ChzzkCategoryServiceTests {
         assertNotNull(chzzkCategoryDTO.getCategoryType());
         assertNotNull(chzzkCategoryDTO.getCategoryValue());
         assertNotNull(chzzkCategoryDTO.getPosterImageUrl());
+
+        final ChzzkCategoryEntity chzzkCategoryEntity = chzzkCategoryDTO.toEntity();
+        log.info("Entity Result: {}", chzzkCategoryEntity);
+        assertNotNull(chzzkCategoryEntity.getId().getCategoryId());
+        assertNotNull(chzzkCategoryEntity.getId().getCategoryType());
+        assertNotNull(chzzkCategoryEntity.getCategoryName());
+        assertNotNull(chzzkCategoryEntity.getPosterImageUrl());
+
+        chzzkCategoryRepository.save(chzzkCategoryEntity);
     }
 }

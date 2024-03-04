@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS notification_log;
 DROP TABLE IF EXISTS chzzk_subscription_form;
-DROP TABLE IF EXISTS bot_profile_data;
+DROP TABLE IF EXISTS discord_bot_profile_data;
 DROP TABLE IF EXISTS chzzk_live_status;
 DROP TABLE IF EXISTS chzzk_category;
 DROP TABLE IF EXISTS discord_webhook_data;
@@ -52,7 +52,7 @@ create table chzzk_category (
 --    CONSTRAINT FK_CHZZK_LIVE_INFO_CATEGORY_ID FOREIGN KEY (category_id, category_type) REFERENCES chzzk_category(category_id, category_type)
 -- );
 
-create table bot_profile_data (
+create table discord_bot_profile_data (
     id bigserial not null primary key,
     username varchar(100) not null,
     avatar_url varchar(600) not null,
@@ -73,7 +73,7 @@ CREATE TABLE chzzk_subscription_form (
     form_owner VARCHAR(255) NOT NULL,
     language VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
-    CONSTRAINT FK_CHZZK_SUBSCRIPTION_FORM_BOT_PROFILE_ID FOREIGN KEY (bot_profile_id) REFERENCES bot_profile_data,
+    CONSTRAINT FK_CHZZK_SUBSCRIPTION_FORM_BOT_PROFILE_ID FOREIGN KEY (bot_profile_id) REFERENCES discord_bot_profile_data,
     CONSTRAINT FK_CHZZK_SUBSCRIPTION_FORM_CHANNEL_ID FOREIGN KEY (channel_id) REFERENCES chzzk_channel,
     CONSTRAINT FK_CHZZK_SUBSCRIPTION_FORM_OWNER_CHANNEL_ID FOREIGN KEY (form_owner) REFERENCES chzzk_channel,
     CONSTRAINT FK_CHZZK_SUBSCRIPTION_FORM_WEBHOOK_ID FOREIGN KEY (webhook_id) REFERENCES discord_webhook_data

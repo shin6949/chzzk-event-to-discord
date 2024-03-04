@@ -74,7 +74,7 @@ public class ChzzkEventSender {
             categoryData = null;
             log.warn("Category Type or Category Id is NULL. It may cause channel owner isn't set the category.");
         } else {
-            categoryData = categoryService.getCategoryInfo(liveStatus.getCategoryType(), liveStatus.getCategoryValue());
+            categoryData = categoryService.getCategoryInfo(liveStatus.getCategoryType(), liveStatus.getCategoryId());
         }
 
         if (subscriptionType == ChzzkSubscriptionType.STREAM_ONLINE) {
@@ -184,6 +184,17 @@ public class ChzzkEventSender {
                     .build();
 
             fields.add(chatAvailableGroupField);
+        }
+
+        // 채팅에 성인인증 조건이 걸려있으면 공지
+        if (liveStatus.isAdult()) {
+            final DiscordEmbed.Field isAdultField = DiscordEmbed.Field.builder()
+                    .name(messageSource.getMessage("stream.online.adult", null, locale))
+                    .value(messageSource.getMessage("stream.online.true", null, locale))
+                    .inline(true)
+                    .build();
+
+            fields.add(isAdultField);
         }
 
         final DiscordEmbed.Author author = createAuthor(channelData, "stream.online.event-message", locale, ChzzkSubscriptionType.STREAM_ONLINE);

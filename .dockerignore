@@ -1,6 +1,4 @@
-google-service-account.json
 *.env
-frontend
 
 # Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos,intellij+all,webstorm+all,vs,yarn,node,gradle,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,intellij+all,webstorm+all,vs,yarn,node,gradle,java

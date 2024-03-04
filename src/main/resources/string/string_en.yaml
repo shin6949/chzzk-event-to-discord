@@ -1,6 +1,11 @@
 stream:
   online:
     event-message: "{0} has started the stream."
+    adult: "Is Adult Only"
+    true: "Yes"
+    false: "No"
+    chat-available-group: "Chat Available Group"
+    chat-available-condition: "Chat Available Condition"
     footer: "Naver Chzzk"
 
   offline:
@@ -12,6 +17,16 @@ stream:
 channel:
   update:
     event-message: "{0}'s channel info has changed."
+    embed-title: ""
+    embed-description: ""
+    name: "Channel Name"
+    description: "Description"
+    follower: "Follower Count"
+    follower-count: "{0}"
+    verified: "Verified"
+    open-live: "Open Live"
+    true: "Yes"
+    false: "No"
     footer: "Naver Chzzk"
 
 game:

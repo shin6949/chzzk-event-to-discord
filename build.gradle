@@ -18,6 +18,10 @@ java {
     sourceCompatibility = '17'
 }
 
+bootJar {
+    mainClass.set('me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication')
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor

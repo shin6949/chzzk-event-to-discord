@@ -29,15 +29,15 @@ public class DiscordWebhookService {
     }
 
     public void sendDiscordWebhook(final DiscordEmbed.Webhook discordWebhookMessage, final String webhookUrl) {
-        // ObjectMapper 인스턴스 생성
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            // 객체를 JSON 문자열로 변환
-            String json = objectMapper.writeValueAsString(discordWebhookMessage);
-            log.info(json);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to convert DiscordWebhookMessage to JSON", e);
-        }
+//        // ObjectMapper 인스턴스 생성
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        try {
+//            // 객체를 JSON 문자열로 변환
+//            String json = objectMapper.writeValueAsString(discordWebhookMessage);
+//            log.info(json);
+//        } catch (JsonProcessingException e) {
+//            log.error("Failed to convert DiscordWebhookMessage to JSON", e);
+//        }
 
         webClient.post()
                 .uri(webhookUrl)

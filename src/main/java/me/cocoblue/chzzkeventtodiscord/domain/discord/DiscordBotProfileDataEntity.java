@@ -10,7 +10,7 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "bot_profile_data")
+@Entity(name = "discord_bot_profile_data")
 public class DiscordBotProfileDataEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

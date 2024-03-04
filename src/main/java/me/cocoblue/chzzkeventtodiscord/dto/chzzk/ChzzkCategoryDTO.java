@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryId;
+
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
@@ -21,5 +24,17 @@ public class ChzzkCategoryDTO {
         this.categoryId = entity.getId().getCategoryId();
         this.categoryValue = entity.getCategoryName();
         this.posterImageUrl = entity.getPosterImageUrl();
+    }
+
+    public ChzzkCategoryEntity toEntity() {
+        return ChzzkCategoryEntity.builder()
+                .id(ChzzkCategoryId.builder()
+                        .categoryId(categoryId)
+                        .categoryType(categoryType)
+                        .build())
+                .categoryName(categoryValue)
+                .posterImageUrl(posterImageUrl)
+                .updatedAt(ZonedDateTime.now())
+                .build();
     }
 }
