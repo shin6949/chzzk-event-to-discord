@@ -53,7 +53,7 @@ public class ChzzkSubscriptionFormEntity {
     @ColumnDefault("10")
     private int intervalMinute;
 
-    @Column(name = "enabled", nullable = false, columnDefinition = "boolean DEFAULT false", length = 1)
+    @Column(name = "enabled", nullable = false, length = 1)
     @ColumnDefault("false")
     private boolean enabled;
 

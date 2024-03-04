@@ -1,0 +1,34 @@
+message:
+  basenames: string/string
+
+spring:
+  sql:
+    init:
+      mode: always
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=POSTGRESQL
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+    hikari:
+      connection-timeout: 9000
+      idle-timeout: 20000
+      max-lifetime: 30000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        ddl-auto: none
+#        show_sql: true
+#        format_sql: true
+#        use_sql_comments: true
+
+chzzk:
+  check-interval: 120
+  api-url: ${CHZZK_API_URL:null}
+
+app:
+  default-timezone: "Asia/Seoul"
+  is-test: true

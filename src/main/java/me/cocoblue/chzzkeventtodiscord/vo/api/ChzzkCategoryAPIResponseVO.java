@@ -11,6 +11,8 @@ import java.time.ZonedDateTime;
 import java.util.Set;
 
 @Data
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -45,6 +47,8 @@ public class ChzzkCategoryAPIResponseVO {
 }
 
 @Data
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 class ChzzkCategoryContent {

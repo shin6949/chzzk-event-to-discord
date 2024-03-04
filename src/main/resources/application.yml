@@ -43,3 +43,4 @@ chzzk:
 
 app:
   default-timezone: ${APP_DEFAULT_TIMEZONE:Asia/Seoul}
+  is-test: ${APP_IS_TEST:false}

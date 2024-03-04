@@ -68,7 +68,6 @@ public class ChzzkCategoryService {
             return null;
         }
 
-        log.info("Category info from Chzzk API: {}", result.getContent());
         chzzkCategoryRepository.save(result.toEntity());
         return result;
     }

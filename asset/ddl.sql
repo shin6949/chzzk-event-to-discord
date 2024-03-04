@@ -32,25 +32,25 @@ create table chzzk_category (
     category_type varchar(255) not null,
     category_id varchar(255) not null,
     category_name varchar(255) not null,
-    poster_image_url varchar(255) not null,
+    poster_image_url varchar(32780) not null,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP not null,
     primary key (category_id, category_type)
 );
 
-CREATE TABLE chzzk_live_status (
-   channel_id VARCHAR(255) NOT NULL PRIMARY KEY,
-   live_title VARCHAR(110) NOT NULL,
-   category_id VARCHAR(255),
-   category_type VARCHAR(255),
-   adult boolean NOT NULL DEFAULT false,
-   paid_promotion boolean NOT NULL DEFAULT false,
-   chat_available_group VARCHAR(255) NOT NULL DEFAULT 'ALL',
-   chat_available_condition VARCHAR(255) NOT NULL DEFAULT 'NONE',
-   min_follower_minute BIGINT NOT NULL DEFAULT 0,
-   last_check_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-   version BIGINT DEFAULT 0 NOT NULL,
-   CONSTRAINT FK_CHZZK_LIVE_INFO_CATEGORY_ID FOREIGN KEY (category_id, category_type) REFERENCES chzzk_category(category_id, category_type)
-);
+-- CREATE TABLE chzzk_live_status (
+--    channel_id VARCHAR(255) NOT NULL PRIMARY KEY,
+--    live_title VARCHAR(110) NOT NULL,
+--    category_id VARCHAR(255),
+--    category_type VARCHAR(255),
+--    adult boolean NOT NULL DEFAULT false,
+--    paid_promotion boolean NOT NULL DEFAULT false,
+--    chat_available_group VARCHAR(255) NOT NULL DEFAULT 'ALL',
+--    chat_available_condition VARCHAR(255) NOT NULL DEFAULT 'NONE',
+--    min_follower_minute BIGINT NOT NULL DEFAULT 0,
+--    last_check_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+--    version BIGINT DEFAULT 0 NOT NULL,
+--    CONSTRAINT FK_CHZZK_LIVE_INFO_CATEGORY_ID FOREIGN KEY (category_id, category_type) REFERENCES chzzk_category(category_id, category_type)
+-- );
 
 create table bot_profile_data (
     id bigserial not null primary key,

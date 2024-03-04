@@ -8,6 +8,7 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
 import me.cocoblue.chzzkeventtodiscord.service.ChzzkSubscriptionFormService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,10 +27,17 @@ public class ChzzkEventReader {
     private final ChzzkChannelService chzzkChannelService;
     private final ChzzkEventSender chzzkEventSender;
     private final ChzzkEventClassifier chzzkEventClassifier;
+    @Value("${app.is-test:false}")
+    private boolean isTest;
 
     @Scheduled(fixedRateString = "#{${chzzk.check-interval:30} * 1000}")
     public void readEvent() {
         log.info("Read event from Chzzk API. time: {}", LocalDateTime.now());
+        if(isTest) {
+            log.info("Test mode is enabled. Skip scheduled task.");
+            return;
+        }
+
         final List<ChzzkSubscriptionFormEntity> subscriptionFormsAllEnabled = subscriptionFormService.findAllByEnabled(true);
         final Set<String> needToFetchChannelIds = subscriptionFormsAllEnabled.parallelStream()
                 .map(ChzzkSubscriptionFormEntity::getChzzkChannelEntity)
