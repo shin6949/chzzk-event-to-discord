@@ -31,4 +31,5 @@ chzzk:
 
 app:
   default-timezone: "Asia/Seoul"
+  insert-password: "test1234"
   is-test: true

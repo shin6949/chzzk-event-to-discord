@@ -4,7 +4,6 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Log4j2

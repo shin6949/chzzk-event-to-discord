@@ -3,11 +3,8 @@ package me.cocoblue.chzzkeventtodiscord.vo.api;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
-import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryId;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDTO;
 
-import java.time.ZonedDateTime;
 import java.util.Set;
 
 @Data

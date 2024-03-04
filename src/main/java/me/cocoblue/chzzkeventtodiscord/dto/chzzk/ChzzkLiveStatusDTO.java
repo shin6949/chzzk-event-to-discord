@@ -1,6 +1,9 @@
 package me.cocoblue.chzzkeventtodiscord.dto.chzzk;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableGroupType;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkLiveStatusType;

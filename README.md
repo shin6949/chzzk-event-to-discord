@@ -16,10 +16,13 @@
 - 방송 게임 변경 이벤트
 
 ## Environment variables
-- DB_URL: PostgreSQL JDBC URL
-- DB_USER: PostgreSQL Username
-- DB_PASSWORD: PostgreSQL Password
-- API_CALL_INTERVAL: API 요청 주기 (단위: 초) - Default: 30
+- APP_DB_URL: PostgreSQL JDBC URL
+- APP_DB_USER: PostgreSQL Username
+- APP_DB_PASSWORD: PostgreSQL Password
+- APP_IS_TEST: Test Run 여부 (기본 false, true 시, 스케쥴링이 작동하지 않음)
+- APP_INSERT_PASSWORD: 
+- CHZZK_API_CALL_INTERVAL: API 요청 주기 (단위: 초) - Default: 30
+- CHZZK_API_URL: API 주소 (기본: "https://api.chzzk.naver.com")
 
 ## Docker Image
 Docker Image: ghcr.io/shin6949/chzzk-event-to-discord:latest

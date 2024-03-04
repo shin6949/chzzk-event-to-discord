@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
 
 import java.time.LocalDate;
