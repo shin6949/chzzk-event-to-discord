@@ -3,7 +3,7 @@ stream:
     event-message: "{0}님이 방송을 시작했습니다."
     adult: "성인인증 필요 여부"
     true: "네"
-    false: "아니요"
+    false: "아니오"
     chat-available-group: "채팅 이용 대상"
     chat-available-condition: "채팅 이용 조건"
     footer: "치지직"
