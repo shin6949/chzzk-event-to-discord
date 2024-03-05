@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.http.HttpResponse;
-
 @Log4j2
 @RestController
 @RequestMapping("/insert")
@@ -22,7 +20,7 @@ public class InsertController {
     @Value("${app.insert-password:null}")
     private String insertPassword;
 
-    @PostMapping("/form")
+    @PostMapping(value = {"/form", "/form/"})
     public ResponseEntity<FormInsertResponseDTO> insertForm(@RequestHeader(value = "Authorization") String password, @RequestBody FormInsertRequestDTO formInsertRequestDTO) {
         log.info("Form Insert Request Received.");
         if(!password.equals("Bearer " + insertPassword)) {
@@ -31,6 +29,6 @@ public class InsertController {
         }
 
         FormInsertResponseDTO formInsertResponseDTO = formInsertService.insertForm(formInsertRequestDTO);
-        return new ResponseEntity<>(formInsertResponseDTO, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(formInsertResponseDTO, HttpStatus.OK);
     }
 }
