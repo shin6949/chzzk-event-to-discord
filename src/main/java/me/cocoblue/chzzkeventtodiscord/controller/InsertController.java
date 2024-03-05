@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Log4j2
 @RestController
-@RequestMapping("/insert")
+@RequestMapping("/form")
 @RequiredArgsConstructor
 public class InsertController {
     private final FormInsertService formInsertService;
@@ -20,10 +20,10 @@ public class InsertController {
     @Value("${app.insert-password:null}")
     private String insertPassword;
 
-    @PostMapping(value = {"/form", "/form/"})
+    @PostMapping(value = {"/insert", "/insert/"})
     public ResponseEntity<FormInsertResponseDTO> insertForm(@RequestHeader(value = "Authorization") String password, @RequestBody FormInsertRequestDTO formInsertRequestDTO) {
         log.info("Form Insert Request Received.");
-        if(!password.equals("Bearer " + insertPassword)) {
+        if (!password.equals("Bearer " + insertPassword)) {
             log.warn("Invalid Authorization Token Received. Do not process more.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

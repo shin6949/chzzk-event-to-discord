@@ -33,7 +33,7 @@ public class ChzzkEventReader {
     @Scheduled(fixedRateString = "#{${chzzk.check-interval:30} * 1000}")
     public void readEvent() {
         log.info("Read event from Chzzk API. time: {}", LocalDateTime.now());
-        if(isTest) {
+        if (isTest) {
             log.info("Test mode is enabled. Skip scheduled task.");
             return;
         }
@@ -66,7 +66,6 @@ public class ChzzkEventReader {
         }
 
         // Channel 정보가 변경되었을 때, Discord로 알림을 보낸다.
-        // TODO: 각 Form의 INTERVAL에 따라서 변경 사항을 감지할 수 있는 기능을 추가해야함.
         if (chzzkEventClassifier.isChannelInformationChanged(channelDataFromDatabase, channelDataFromApi)) {
             log.info("Channel information changed. channelId: {}", channelId);
             chzzkEventSender.sendChannelUpdateEvent(channelDataFromApi);

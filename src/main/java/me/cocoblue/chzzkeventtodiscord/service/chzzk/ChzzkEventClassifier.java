@@ -87,7 +87,7 @@ public class ChzzkEventClassifier {
         if (differences.length() > 0) {
             // Remove the trailing comma and space
             differences.setLength(differences.length() - 2);
-            log.info("Different fields: " + differences.toString());
+            log.info("Different fields: " + differences);
         } else {
             log.info("Objects are equal.");
         }

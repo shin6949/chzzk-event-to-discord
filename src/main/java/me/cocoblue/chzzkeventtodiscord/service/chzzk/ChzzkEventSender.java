@@ -164,37 +164,40 @@ public class ChzzkEventSender {
         final LocalDateTime startTime = chzzkLiveDTO == null ? ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime() :
                 chzzkLiveDTO.getOpenDate().minusHours(9);
 
-        // 채팅에 특정 조건이 걸려있으면 공지
-        if (liveStatus.getChatAvailableGroup() != ChzzkChatAvailableGroupType.ALL) {
-            final DiscordEmbed.Field chatAvailableGroupField = DiscordEmbed.Field.builder()
-                    .name(messageSource.getMessage("stream.online.chat-available-group", null, locale))
-                    .value(messageSource.getMessage(liveStatus.getChatAvailableGroup().getStringKey(), null, locale))
-                    .inline(true)
-                    .build();
+        // 상세 정보를 Field에 보여줄지 여부
+        if (form.isShowDetail()) {
+            // 채팅에 특정 조건이 걸려있으면 공지
+            if (liveStatus.getChatAvailableGroup() != ChzzkChatAvailableGroupType.ALL) {
+                final DiscordEmbed.Field chatAvailableGroupField = DiscordEmbed.Field.builder()
+                        .name(messageSource.getMessage("stream.online.chat-available-group", null, locale))
+                        .value(messageSource.getMessage(liveStatus.getChatAvailableGroup().getStringKey(), null, locale))
+                        .inline(true)
+                        .build();
 
-            fields.add(chatAvailableGroupField);
-        }
+                fields.add(chatAvailableGroupField);
+            }
 
-        // 채팅에 계정 조건이 걸려있으면 공지
-        if (liveStatus.getChatAvailableCondition() != ChzzkChatAvailableConditionType.NONE) {
-            final DiscordEmbed.Field chatAvailableGroupField = DiscordEmbed.Field.builder()
-                    .name(messageSource.getMessage("stream.online.chat-available-condition", null, locale))
-                    .value(messageSource.getMessage(liveStatus.getChatAvailableCondition().getStringKey(), null, locale))
-                    .inline(true)
-                    .build();
+            // 채팅에 계정 조건이 걸려있으면 공지
+            if (liveStatus.getChatAvailableCondition() != ChzzkChatAvailableConditionType.NONE) {
+                final DiscordEmbed.Field chatAvailableGroupField = DiscordEmbed.Field.builder()
+                        .name(messageSource.getMessage("stream.online.chat-available-condition", null, locale))
+                        .value(messageSource.getMessage(liveStatus.getChatAvailableCondition().getStringKey(), null, locale))
+                        .inline(true)
+                        .build();
 
-            fields.add(chatAvailableGroupField);
-        }
+                fields.add(chatAvailableGroupField);
+            }
 
-        // 채팅에 성인인증 조건이 걸려있으면 공지
-        if (liveStatus.isAdult()) {
-            final DiscordEmbed.Field isAdultField = DiscordEmbed.Field.builder()
-                    .name(messageSource.getMessage("stream.online.adult", null, locale))
-                    .value(messageSource.getMessage("stream.online.true", null, locale))
-                    .inline(true)
-                    .build();
+            // 채팅에 성인인증 조건이 걸려있으면 공지
+            if (liveStatus.isAdult()) {
+                final DiscordEmbed.Field isAdultField = DiscordEmbed.Field.builder()
+                        .name(messageSource.getMessage("stream.online.adult", null, locale))
+                        .value(messageSource.getMessage("stream.online.true", null, locale))
+                        .inline(true)
+                        .build();
 
-            fields.add(isAdultField);
+                fields.add(isAdultField);
+            }
         }
 
         final DiscordEmbed.Author author = createAuthor(channelData, "stream.online.event-message", locale, ChzzkSubscriptionType.STREAM_ONLINE);
@@ -316,7 +319,7 @@ public class ChzzkEventSender {
     private DiscordEmbed.Author createAuthor(final ChzzkChannelDTO channelData, final String messageKey,
                                              final Locale locale, final ChzzkSubscriptionType subscriptionType) {
         String liveURL = String.format("%s/%s", CHZZK_URL, channelData.getChannelId());
-        ;
+
         if (subscriptionType == ChzzkSubscriptionType.STREAM_ONLINE) {
             liveURL = String.format("%s/live/%s", CHZZK_URL, channelData.getChannelId());
         }

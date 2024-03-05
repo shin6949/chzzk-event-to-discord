@@ -66,7 +66,7 @@ public class ChzzkLiveStatusService {
         }
 
         final ChzzkLiveVO resultLiveVO = result.getLive(0);
-        if(resultLiveVO == null) {
+        if (resultLiveVO == null) {
             log.error("Failed to get Live info by channel name from Chzzk API. channelName: {}", channelName);
             return null;
         }

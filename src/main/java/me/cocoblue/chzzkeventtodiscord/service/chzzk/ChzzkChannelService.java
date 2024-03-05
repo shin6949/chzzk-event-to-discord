@@ -24,8 +24,8 @@ import java.util.Optional;
 @Log4j2
 @RequiredArgsConstructor
 public class ChzzkChannelService {
-    private WebClient WEB_CLIENT;
     private final ChzzkChannelRepository chzzkChannelRepository;
+    private WebClient WEB_CLIENT;
 
     @PostConstruct
     public void postConstructJob() {
@@ -42,7 +42,7 @@ public class ChzzkChannelService {
 
     @Transactional
     public ChzzkChannelDTO getChannelByChannelId(final String channelId) {
-        if(channelId == null) {
+        if (channelId == null) {
             log.error("Channel id is null. channelId: {}", (Object) null);
             return null;
         }

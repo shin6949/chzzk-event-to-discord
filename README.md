@@ -10,17 +10,16 @@
 - GitHub Action
 
 ## What can it receive?
-- 방송 시작 이벤트
-- 방송 종료 이벤트
-- 방송 제목 변경 이벤트
-- 방송 게임 변경 이벤트
+- 방송 시작 이벤트 (STREAM_ONLINE)
+- 방송 종료 이벤트 (STERAM_OFFLINE)
+- 채널 정보 변경 이벤트 (CHANNEL_UPDATE)
 
 ## Environment variables
 - APP_DB_URL: PostgreSQL JDBC URL
 - APP_DB_USER: PostgreSQL Username
 - APP_DB_PASSWORD: PostgreSQL Password
 - APP_IS_TEST: Test Run 여부 (기본 false, true 시, 스케쥴링이 작동하지 않음)
-- APP_INSERT_PASSWORD: 
+- APP_INSERT_PASSWORD: Insert API Password를 지정합니다.
 - CHZZK_API_CALL_INTERVAL: API 요청 주기 (단위: 초) - Default: 30
 - CHZZK_API_URL: API 주소 (기본: "https://api.chzzk.naver.com")
 
@@ -34,3 +33,35 @@ Docker Image: ghcr.io/shin6949/chzzk-event-to-discord:latest
 
 ## How to use
 현재는 Database에 데이터를 수동으로 저장해야합니다.
+
+### Insert API 사용 방법
+Frontend가 만들어질 때까지는 임시적으로 Insert API를 제공합니다.  
+Insert API를 사용하기 위해서는 `APP_INSERT_PASSWORD` 환경변수를 설정해야합니다.  
+
+#### Insert API endpoint
+- POST /form/insert
+
+#### Request Sample Header
+Authorization: Bearer {APP_INSERT_PASSWORD}
+
+#### Request Sample Body
+```
+{
+    "channelId": [String] <If you have channel id. If you not have this, set null>,
+    "channelName": [String] <If you don't have channel id or want to add by channel name>,
+    "content": [String] <Content when the event is sent. it displayed as discord message>,
+    "colorHex": [String] <Color code of the embed message that used at Embed color>,
+    "subscriptionType": [String] <Type of subscription. You can see type top of document>
+    "webhookId": [long] <If you want to use existing Webhook ID in database>,
+    "webhookName": [String] <If you don't have webhook id or want to add by webhook name that used only at Inner Database>,
+    "webhookUrl": [String] <If you don't have webhook id or want to add by webhook url that used with webhookName as pair>,
+    "botProfileId": [long] <If you want to use existing Bot Profile ID in database. If you not have this, set null>,
+    "botUsername": [String] <If you don't have bot profile id or want to add by bot username that used as Discord username of bot account. It used with botAvatarUrl as pair>,
+    "botAvatarUrl": [String] <If you don't have bot profile id or want to add by bot avatar url that used as Discord avatar of bot account. It used with botUsername as pair>,
+    "ownerChannelId": [String] <If you want to use existing Form Owner Channel ID>,
+    "ownerChannelName": [String] <If you don't have owner channel id or want to add by owner channel name>,
+    "intervalMinute": [int] <Interval minutes in case the notification comes multiple times within a short period of time>,
+    "language": [String] <Language of the content. Default value is Korean>,
+    "enabled": [boolean] <If you want to enable the subscription. Default value is true>
+}
+```

@@ -1,6 +1,5 @@
 package me.cocoblue.chzzkeventtodiscord.service;
 
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -13,9 +12,10 @@ import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataRepository;
 import me.cocoblue.chzzkeventtodiscord.dto.FormInsertRequestDTO;
 import me.cocoblue.chzzkeventtodiscord.dto.FormInsertResponseDTO;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
 import me.cocoblue.chzzkeventtodiscord.service.chzzk.ChzzkChannelService;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -25,76 +25,92 @@ public class FormInsertService {
     private final DiscordBotProfileDataRepository discordBotProfileDataRepository;
     private final ChzzkSubscriptionFormService chzzkSubscriptionFormService;
     private final ChzzkChannelService chzzkChannelService;
-    private final EntityManager entityManager;
 
     @Transactional
     public FormInsertResponseDTO insertForm(final FormInsertRequestDTO formInsertRequestDTO) {
         log.info("Form insert request: {}", formInsertRequestDTO);
-        final ChzzkSubscriptionFormEntity requestForm = new ChzzkSubscriptionFormEntity();
 
-        if(formInsertRequestDTO.getChannelId() == null && formInsertRequestDTO.getChannelName() != null) {
-            log.info("Requested Channel name: {}", formInsertRequestDTO.getChannelName());
-            formInsertRequestDTO.setChannelId(chzzkChannelService.getChannelByChannelName(formInsertRequestDTO.getChannelName()).getChannelId());
-        } else if(formInsertRequestDTO.getChannelId() != null){
-            chzzkChannelService.getChannelByChannelId(formInsertRequestDTO.getChannelId());
-        }
+        final ChzzkChannelEntity requestedChannelEntity = resolveChannelEntity(formInsertRequestDTO.getChannelId(), formInsertRequestDTO.getChannelName(), false);
+        final ChzzkChannelEntity ownerChannelEntity = resolveChannelEntity(formInsertRequestDTO.getOwnerChannelId(), formInsertRequestDTO.getOwnerChannelName(), true);
 
-        final ChzzkChannelEntity requestedChannelEntity = chzzkChannelService.getChannelEntityByChannelIdFromDatabase(formInsertRequestDTO.getChannelId());
-        requestForm.setChzzkChannelEntity(requestedChannelEntity);
+        final ChzzkSubscriptionFormEntity requestForm = buildFormEntity(formInsertRequestDTO, requestedChannelEntity, ownerChannelEntity);
 
-        if(formInsertRequestDTO.getOwnerChannelId() == null && formInsertRequestDTO.getOwnerChannelName() != null) {
-            log.info("Requested Owner name: {}", formInsertRequestDTO.getOwnerChannelName());
-            final ChzzkChannelDTO ownerChannel = chzzkChannelService.getChannelByChannelName(formInsertRequestDTO.getOwnerChannelName());
-            formInsertRequestDTO.setOwnerChannelId(ownerChannel.getChannelId());
-        }
+        final DiscordWebhookDataEntity webhookEntity = resolveWebhookEntity(formInsertRequestDTO, ownerChannelEntity);
+        requestForm.setWebhookId(webhookEntity);
 
-        final ChzzkChannelEntity ownerChannelEntity = chzzkChannelService.getChannelEntityByChannelIdFromDatabase(formInsertRequestDTO.getOwnerChannelId());
-        requestForm.setFormOwner(ownerChannelEntity);
-
-        final FormInsertResponseDTO result = new FormInsertResponseDTO();
-        requestForm.setContent(formInsertRequestDTO.getContent());
-        requestForm.setChzzkSubscriptionType(formInsertRequestDTO.getSubscriptionType());
-        requestForm.setEnabled(formInsertRequestDTO.getEnabled() == null || formInsertRequestDTO.getEnabled());
-        requestForm.setIntervalMinute(formInsertRequestDTO.getIntervalMinute() == null ? 10 : formInsertRequestDTO.getIntervalMinute());
-        requestForm.setLanguageIsoData(formInsertRequestDTO.getLanguage() == null ? LanguageIsoData.Korean : formInsertRequestDTO.getLanguage());
-        requestForm.setColorHex(formInsertRequestDTO.getColorHex() == null ? "000000" : formInsertRequestDTO.getColorHex());
-
-        if(formInsertRequestDTO.getWebhookId() == null) {
-            log.info("Webhook id is null. Creating new webhook");
-            final DiscordWebhookDataEntity discordWebhookDataEntity = DiscordWebhookDataEntity.builder()
-                    .ownerId(ownerChannelEntity)
-                    .name(formInsertRequestDTO.getWebhookName())
-                    .webhookUrl(formInsertRequestDTO.getWebhookUrl())
-                    .meno(null)
-                    .build();
-
-            discordWebhookDataRepository.save(discordWebhookDataEntity);
-            requestForm.setWebhookId(discordWebhookDataEntity);
-            result.setRegisteredWebhookId(discordWebhookDataEntity.getId());
-        } else {
-            requestForm.setWebhookId(discordWebhookDataRepository.findById(formInsertRequestDTO.getWebhookId()).orElseThrow());
-            result.setRegisteredWebhookId(formInsertRequestDTO.getWebhookId());
-        }
-
-        if(formInsertRequestDTO.getBotProfileId() == null) {
-            final DiscordBotProfileDataEntity discordBotProfileDataEntity = DiscordBotProfileDataEntity.builder()
-                    .avatarUrl(formInsertRequestDTO.getBotAvatarUrl())
-                    .username(formInsertRequestDTO.getBotUsername())
-                    .ownerId(ownerChannelEntity)
-                    .build();
-            discordBotProfileDataRepository.save(discordBotProfileDataEntity);
-            requestForm.setBotProfileId(discordBotProfileDataEntity);
-            result.setRegisteredBotProfileId(discordBotProfileDataEntity.getId());
-        } else {
-            requestForm.setBotProfileId(discordBotProfileDataRepository.findById(formInsertRequestDTO.getBotProfileId()).orElseThrow());
-            result.setRegisteredBotProfileId(formInsertRequestDTO.getBotProfileId());
-        }
+        final DiscordBotProfileDataEntity botProfileEntity = resolveBotProfileEntity(formInsertRequestDTO, ownerChannelEntity);
+        requestForm.setBotProfileId(botProfileEntity);
 
         chzzkSubscriptionFormService.save(requestForm);
-        result.setIsSuccess(true);
-        result.setRegisteredFormId(requestForm.getId());
+        return buildFormInsertResponseDTO(requestForm, webhookEntity, botProfileEntity);
+    }
 
+    private ChzzkChannelEntity resolveChannelEntity(String channelId, String channelName, boolean isOwner) {
+        if (channelId == null && channelName != null) {
+            log.info("Requested {} Channel name: {}", isOwner ? "Owner" : "Channel", channelName);
+            channelId = chzzkChannelService.getChannelByChannelName(channelName).getChannelId();
+        }
+        return chzzkChannelService.getChannelEntityByChannelIdFromDatabase(channelId);
+    }
+
+    private DiscordWebhookDataEntity resolveWebhookEntity(FormInsertRequestDTO dto, ChzzkChannelEntity owner) {
+        return Optional.ofNullable(dto.getWebhookId())
+                .map(id -> discordWebhookDataRepository.findById(id).orElseThrow())
+                .orElseGet(() -> createOrGetExistingWebhook(dto, owner));
+    }
+
+    private DiscordWebhookDataEntity createOrGetExistingWebhook(FormInsertRequestDTO dto, ChzzkChannelEntity owner) {
+        return discordWebhookDataRepository.findDiscordWebhookDataEntityByWebhookUrlAndNameAndOwnerId(dto.getWebhookUrl(), dto.getWebhookName(), owner)
+                .orElseGet(() -> {
+                    log.info("Webhook does not exist. Creating new webhook");
+                    DiscordWebhookDataEntity newWebhook = DiscordWebhookDataEntity.builder()
+                            .ownerId(owner)
+                            .name(dto.getWebhookName())
+                            .webhookUrl(dto.getWebhookUrl())
+                            .build();
+                    return discordWebhookDataRepository.save(newWebhook);
+                });
+    }
+
+    private DiscordBotProfileDataEntity resolveBotProfileEntity(FormInsertRequestDTO dto, ChzzkChannelEntity owner) {
+        return Optional.ofNullable(dto.getBotProfileId())
+                .map(id -> discordBotProfileDataRepository.findById(id).orElseThrow())
+                .orElseGet(() -> createOrGetExistingBotProfile(dto, owner));
+    }
+
+    private DiscordBotProfileDataEntity createOrGetExistingBotProfile(FormInsertRequestDTO dto, ChzzkChannelEntity owner) {
+        return discordBotProfileDataRepository.findDiscordBotProfileDataEntityByAvatarUrlAndOwnerIdAndUsername(dto.getBotAvatarUrl(), owner, dto.getBotUsername())
+                .orElseGet(() -> {
+                    log.info("Bot profile does not exist. Creating new bot profile");
+                    DiscordBotProfileDataEntity newBotProfile = DiscordBotProfileDataEntity.builder()
+                            .avatarUrl(dto.getBotAvatarUrl())
+                            .username(dto.getBotUsername())
+                            .ownerId(owner)
+                            .build();
+                    return discordBotProfileDataRepository.save(newBotProfile);
+                });
+    }
+
+    private ChzzkSubscriptionFormEntity buildFormEntity(FormInsertRequestDTO dto, ChzzkChannelEntity channel, ChzzkChannelEntity owner) {
+        ChzzkSubscriptionFormEntity entity = new ChzzkSubscriptionFormEntity();
+        entity.setChzzkChannelEntity(channel);
+        entity.setFormOwner(owner);
+        entity.setContent(dto.getContent());
+        entity.setChzzkSubscriptionType(dto.getSubscriptionType());
+        entity.setEnabled(dto.getEnabled() == null || dto.getEnabled());
+        entity.setIntervalMinute(dto.getIntervalMinute() == null ? 10 : dto.getIntervalMinute());
+        entity.setLanguageIsoData(dto.getLanguage() == null ? LanguageIsoData.Korean : dto.getLanguage());
+        entity.setColorHex(dto.getColorHex() == null ? "000000" : dto.getColorHex());
+        return entity;
+    }
+
+    private FormInsertResponseDTO buildFormInsertResponseDTO(ChzzkSubscriptionFormEntity form, DiscordWebhookDataEntity webhook, DiscordBotProfileDataEntity botProfile) {
+        FormInsertResponseDTO dto = new FormInsertResponseDTO();
+        dto.setIsSuccess(true);
+        dto.setRegisteredFormId(form.getId());
+        dto.setRegisteredWebhookId(webhook.getId());
+        dto.setRegisteredBotProfileId(botProfile.getId());
         log.info("Form inserted");
-        return result;
+        return dto;
     }
 }

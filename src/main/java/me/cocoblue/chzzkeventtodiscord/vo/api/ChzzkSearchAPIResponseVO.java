@@ -30,7 +30,7 @@ public class ChzzkSearchAPIResponseVO extends ChzzkAPICommonResponseVO {
     }
 
     public ChzzkLiveVO getLive(int index) {
-        if(content.getData().get(index).getContent() == null) {
+        if (content.getData().get(index).getContent() == null) {
             return null;
         }
         return content.getData().get(index).getContent().getLive();

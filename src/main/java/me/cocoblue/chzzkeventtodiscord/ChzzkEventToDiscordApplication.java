@@ -15,13 +15,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class ChzzkEventToDiscordApplication extends SpringBootServletInitializer {
     public static String CHZZK_API_URL = "https://api.chzzk.naver.com";
 
+    public static void main(String[] args) {
+        SpringApplication.run(ChzzkEventToDiscordApplication.class, args);
+    }
+
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(ChzzkEventToDiscordApplication.class);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(ChzzkEventToDiscordApplication.class, args);
     }
 
 }
