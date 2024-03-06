@@ -47,21 +47,22 @@ Authorization: Bearer {APP_INSERT_PASSWORD}
 #### Request Sample Body
 ```
 {
-    "channelId": [String] <If you have channel id. If you not have this, set null>,
-    "channelName": [String] <If you don't have channel id or want to add by channel name>,
-    "content": [String] <Content when the event is sent. it displayed as discord message>,
-    "colorHex": [String] <Color code of the embed message that used at Embed color>,
-    "subscriptionType": [String] <Type of subscription. You can see type top of document>
-    "webhookId": [long] <If you want to use existing Webhook ID in database>,
-    "webhookName": [String] <If you don't have webhook id or want to add by webhook name that used only at Inner Database>,
-    "webhookUrl": [String] <If you don't have webhook id or want to add by webhook url that used with webhookName as pair>,
-    "botProfileId": [long] <If you want to use existing Bot Profile ID in database. If you not have this, set null>,
-    "botUsername": [String] <If you don't have bot profile id or want to add by bot username that used as Discord username of bot account. It used with botAvatarUrl as pair>,
-    "botAvatarUrl": [String] <If you don't have bot profile id or want to add by bot avatar url that used as Discord avatar of bot account. It used with botUsername as pair>,
-    "ownerChannelId": [String] <If you want to use existing Form Owner Channel ID>,
-    "ownerChannelName": [String] <If you don't have owner channel id or want to add by owner channel name>,
-    "intervalMinute": [int] <Interval minutes in case the notification comes multiple times within a short period of time>,
-    "language": [String] <Language of the content. Default value is Korean>,
-    "enabled": [boolean] <If you want to enable the subscription. Default value is true>
+    "channelId": [String] <이벤트를 구독할 채널 ID가 있으면 입력하세요. 모른다면 null로 설정하세요.>,
+    "channelName": [String] <채널 ID가 없거나 채널 이름으로 추가하고 싶을 때 여기에 채널 이름을 설정하세요.>,
+    "content": [String] <이벤트 발송 시 내용. 디스코드 메시지로 표시됩니다.>,
+    "colorHex": [String] <임베드 색상에 사용되는 색상 코드. 이 코드는 Discord의 Embed의 띠 색으로 활용됩니다.>,
+    "subscriptionType": [String] <이벤트 구독 유형. 문서 상단에서 유형을 볼 수 있습니다.>,
+    "webhookId": [long] <DB에 있는 Webhook ID를 사용하고 싶을 때>,
+    "webhookName": [String] <등록하고자 하는 Webhook이 DB에 없을 때, webhook을 구분할 이름>,
+    "webhookUrl": [String] <등록하고자 하는 Webhook이 DB에 없을 때, 등록할 Webhook URL. webhookName을 설정했다면 같이 설정되어야합니다.>,
+    "botProfileId": [long] <DB에 있는 Bot Profile ID를 사용하고 싶을 때. 없으면 null로 설정하세요.>,
+    "botUsername": [String] <bot profile id가 없거나 bot 계정의 Discord 사용자 이름으로 추가하고 싶을 때. botAvatarUrl과 짝을 이룹니다.>,
+    "botAvatarUrl": [String] <bot profile id가 없거나 bot 계정의 Discord 봇의  URL로 추가하고 싶을 때. botUsername과 짝을 이룹니다.>,
+    "ownerChannelId": [String] <기존 폼 소유주 채널 ID를 사용하고 싶을 때>,
+    "ownerChannelName": [String] <소유주 채널 ID가 없거나 소유주 채널 이름으로 추가하고 싶을 때>,
+    "intervalMinute": [int] <짧은 시간 내에 여러 번 알림이 올 경우 알림 간격 분>,
+    "showDetail": [boolean] <이벤트의 세부 정보를 표시하고 싶을 때. STREAM_ONLINE 이벤트일 때, 이 옵션이 의미가 있습니다. 기본값은 false입니다.>,
+    "language": [String] <콘텐츠의 언어. 기본값은 한국어입니다.>,
+    "enabled": [boolean] <구독을 활성화하고 싶으면 true로 설정하세요. 기본값은 true입니다.>
 }
 ```
