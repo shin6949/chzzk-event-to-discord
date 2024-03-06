@@ -49,6 +49,8 @@ public class FormInsertService {
         if (channelId == null && channelName != null) {
             log.info("Requested {} Channel name: {}", isOwner ? "Owner" : "Channel", channelName);
             channelId = chzzkChannelService.getChannelByChannelName(channelName).getChannelId();
+        } else if(channelId != null && channelName == null) {
+            chzzkChannelService.getChannelByChannelId(channelId);
         }
         return chzzkChannelService.getChannelEntityByChannelIdFromDatabase(channelId);
     }
