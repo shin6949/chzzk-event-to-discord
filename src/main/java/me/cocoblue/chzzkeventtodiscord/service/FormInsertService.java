@@ -102,6 +102,7 @@ public class FormInsertService {
         entity.setEnabled(dto.getEnabled() == null || dto.getEnabled());
         entity.setIntervalMinute(dto.getIntervalMinute() == null ? 10 : dto.getIntervalMinute());
         entity.setLanguageIsoData(dto.getLanguage() == null ? LanguageIsoData.Korean : dto.getLanguage());
+        entity.setShowDetail(dto.getShowDetail() == null || dto.getShowDetail());
         entity.setColorHex(dto.getColorHex() == null ? "000000" : dto.getColorHex());
         return entity;
     }
