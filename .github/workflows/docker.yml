@@ -35,7 +35,7 @@ jobs:
         run: gradle build
 
       - name: Move app file
-        run: mv ./backend/build/libs/chzzk-event-to-discord-*.jar ./chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
+        run: mv ./build/libs/chzzk-event-to-discord-*.jar ./chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
 
       - name: Upload jar file to Artifact
         uses: actions/upload-artifact@v4
