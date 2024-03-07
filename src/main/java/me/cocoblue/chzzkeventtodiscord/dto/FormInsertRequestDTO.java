@@ -21,6 +21,8 @@ public class FormInsertRequestDTO {
     private String colorHex;
     @JsonProperty("subscriptionType")
     private ChzzkSubscriptionType subscriptionType;
+    @JsonProperty("showDetail")
+    private Boolean showDetail;
     @JsonProperty("webhookId")
     private Long webhookId;
     @JsonProperty("webhookName")

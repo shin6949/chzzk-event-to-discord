@@ -50,10 +50,9 @@ public enum LanguageIsoData {
     ZH_HK("zh-hk", "홍콩 번체"),
     Other("other", "기타");
 
+    private static final Map<String, LanguageIsoData> descriptions = Collections.unmodifiableMap(Stream.of(values()).collect(Collectors.toMap(LanguageIsoData::getCode, Function.identity())));
     private final String code;
     private final String koreanName;
-
-    private static final Map<String, LanguageIsoData> descriptions = Collections.unmodifiableMap(Stream.of(values()).collect(Collectors.toMap(LanguageIsoData::getCode, Function.identity())));
 
     public static LanguageIsoData find(String code) {
         return Optional.ofNullable(descriptions.get(code)).orElse(Other);

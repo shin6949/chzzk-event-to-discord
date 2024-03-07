@@ -21,8 +21,8 @@ import java.util.Optional;
 @Log4j2
 @RequiredArgsConstructor
 public class ChzzkCategoryService {
-    private WebClient WEB_CLIENT;
     private final ChzzkCategoryRepository chzzkCategoryRepository;
+    private WebClient WEB_CLIENT;
 
     @PostConstruct
     public void postConstructJob() {
