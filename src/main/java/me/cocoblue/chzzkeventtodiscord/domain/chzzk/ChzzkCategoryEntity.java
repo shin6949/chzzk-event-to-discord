@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.ZonedDateTime;
 
@@ -25,6 +26,7 @@ public class ChzzkCategoryEntity {
     @Column(name = "poster_image_url", nullable = false, length = 32780)
     private String posterImageUrl;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @ColumnDefault("CURRENT_TIMESTAMP")
     private ZonedDateTime updatedAt;
 }
