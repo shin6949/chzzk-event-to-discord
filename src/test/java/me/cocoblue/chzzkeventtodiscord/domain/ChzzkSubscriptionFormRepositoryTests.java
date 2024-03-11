@@ -20,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,14 +45,16 @@ class ChzzkSubscriptionFormRepositoryTests {
     private DiscordBotProfileDataRepository discordBotProfileDataRepository;
 
     private final ChzzkChannelEntity COMMON_CHANNEL_ENTITY = ChzzkChannelEntity.builder()
-            .channelId("a1345fncjc")
+            .channelId("123456789")
             .channelName("testChannelName")
+            .lastCheckTime(ZonedDateTime.now())
             .build();
 
     private final DiscordWebhookDataEntity COMMON_WEBHOOK_ENTITY = DiscordWebhookDataEntity.builder()
             .name("testWebhook")
             .meno("This is test memo")
             .webhookUrl("https://discord.com/api/webhooks/1234567890/abcdefghijk")
+            .ownerId(COMMON_CHANNEL_ENTITY)
             .build();
 
     private final DiscordBotProfileDataEntity COMMON_BOT_PROFILE_ENTITY = DiscordBotProfileDataEntity.builder()
@@ -62,11 +65,6 @@ class ChzzkSubscriptionFormRepositoryTests {
 
     @BeforeAll
     void setUp() {
-        chzzkChannelRepository.save(COMMON_CHANNEL_ENTITY);
-        final Optional<ChzzkChannelEntity> insertedChannel = chzzkChannelRepository.findById(COMMON_CHANNEL_ENTITY.getChannelId());
-        assertTrue(insertedChannel.isPresent());
-        assertNotNull(insertedChannel.get().getLastCheckTime());
-
         discordWebhookDataRepository.save(COMMON_WEBHOOK_ENTITY);
         // save 시, id가 객체에 들어가야함.
         assertNotNull(COMMON_WEBHOOK_ENTITY.getId());
@@ -88,8 +86,10 @@ class ChzzkSubscriptionFormRepositoryTests {
                 .formOwner(COMMON_CHANNEL_ENTITY)
                 .languageIsoData(LanguageIsoData.Korean)
                 .intervalMinute(10)
+                .colorHex("FFFFFF")
                 .enabled(true)
                 .showDetail(false)
+                .content("testContent")
                 .botProfileId(COMMON_BOT_PROFILE_ENTITY)
                 .build());
 
@@ -100,6 +100,7 @@ class ChzzkSubscriptionFormRepositoryTests {
                 .formOwner(COMMON_CHANNEL_ENTITY)
                 .languageIsoData(LanguageIsoData.Korean)
                 .intervalMinute(10)
+                .colorHex("FFFFFF")
                 .enabled(false)
                 .showDetail(false)
                 .botProfileId(COMMON_BOT_PROFILE_ENTITY)

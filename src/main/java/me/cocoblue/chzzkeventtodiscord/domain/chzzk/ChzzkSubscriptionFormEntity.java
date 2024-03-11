@@ -65,7 +65,7 @@ public class ChzzkSubscriptionFormEntity {
     @JoinColumn(name = "bot_profile_id", foreignKey = @ForeignKey(name = "FK_CHZZK_SUBSCRIPTION_FORM_BOT_PROFILE_ID"), nullable = false)
     private DiscordBotProfileDataEntity botProfileId;
 
-    @Column(length = 2000, name = "content", nullable = false)
+    @Column(length = 2000, name = "content")
     private String content;
 
     @Column(name = "color_hex", nullable = false, length = 11)

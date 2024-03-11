@@ -1,9 +1,10 @@
 package me.cocoblue.chzzkeventtodiscord.domain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
+import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -12,11 +13,13 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Log4j2
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -34,7 +37,7 @@ class ChzzkChannelRepositoryTests {
     final boolean IS_LIVE = true;
     final int FOLLOWER_COUNT = 1000;
 
-    @PostConstruct
+    @BeforeAll
     void setUp() {
         final ChzzkChannelEntity chzzkChannelEntity = ChzzkChannelEntity.builder()
                 .channelId(CHANNEL_ID)
@@ -45,6 +48,7 @@ class ChzzkChannelRepositoryTests {
                 .subscriptionAvailability(SUBSCRIPTION_AVAILABILITY)
                 .isLive(IS_LIVE)
                 .followerCount(FOLLOWER_COUNT)
+                .lastCheckTime(ZonedDateTime.now())
                 .build();
 
         chzzkChannelRepository.save(chzzkChannelEntity);
@@ -72,6 +76,7 @@ class ChzzkChannelRepositoryTests {
                 .subscriptionAvailability(subscriptionAvailability)
                 .isLive(isLive)
                 .followerCount(followerCount)
+                .lastCheckTime(ZonedDateTime.now())
                 .build();
 
         chzzkChannelRepository.save(chzzkChannelEntity);

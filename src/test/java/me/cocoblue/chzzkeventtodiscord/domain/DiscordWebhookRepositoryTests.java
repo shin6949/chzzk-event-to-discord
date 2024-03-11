@@ -6,6 +6,7 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataRepository;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -37,7 +38,7 @@ class DiscordWebhookRepositoryTests {
 
     private final String TEST_CHANNEL_ID = "testChannelId";
 
-    @PostConstruct
+    @BeforeAll
     void setUp() {
         final ChzzkChannelEntity chzzkChannelEntity = ChzzkChannelEntity.builder()
                 .channelId(TEST_CHANNEL_ID)

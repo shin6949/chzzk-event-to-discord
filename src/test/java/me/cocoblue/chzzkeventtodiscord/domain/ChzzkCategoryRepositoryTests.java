@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryId;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryRepository;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,7 +37,7 @@ class ChzzkCategoryRepositoryTests {
     private final String COMMON_CATEGORY_NAME = "StarCraft";
     private final String COMMON_CATEGORY_POSTER_URL = "testPosterImageUrl";
 
-    @PostConstruct
+    @BeforeAll
     void setUp() {
         final ChzzkCategoryId chzzkCategoryId = ChzzkCategoryId.builder()
                 .categoryId(COMMON_CATEGORY_ID)
@@ -46,6 +48,7 @@ class ChzzkCategoryRepositoryTests {
                 .id(chzzkCategoryId)
                 .categoryName(COMMON_CATEGORY_NAME)
                 .posterImageUrl(COMMON_CATEGORY_POSTER_URL)
+                .updatedAt(ZonedDateTime.now())
                 .build();
 
         chzzkCategoryRepository.save(chzzkCategoryEntity);
@@ -69,6 +72,7 @@ class ChzzkCategoryRepositoryTests {
                 .id(chzzkCategoryId)
                 .categoryName(categoryName)
                 .posterImageUrl(posterImageUrl)
+                .updatedAt(ZonedDateTime.now())
                 .build();
 
         chzzkCategoryRepository.save(chzzkCategoryEntity);
