@@ -1,12 +1,14 @@
 package me.cocoblue.chzzkeventtodiscord.domain;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataRepository;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -20,8 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class DiscordWebhookRepositoryTests {
     @Autowired
     private DiscordWebhookDataRepository discordWebhookDataRepository;
@@ -34,9 +37,9 @@ class DiscordWebhookRepositoryTests {
 
     private final String TEST_CHANNEL_ID = "testChannelId";
 
-    @BeforeEach
+    @PostConstruct
     void setUp() {
-        ChzzkChannelEntity chzzkChannelEntity = ChzzkChannelEntity.builder()
+        final ChzzkChannelEntity chzzkChannelEntity = ChzzkChannelEntity.builder()
                 .channelId(TEST_CHANNEL_ID)
                 .channelName("testChannelName")
                 .profileUrl("testProfileUrl")
@@ -51,22 +54,23 @@ class DiscordWebhookRepositoryTests {
 
     @Test
     @Transactional
+    @DisplayName("DiscordWebhookDataEntity 저장 테스트")
     void saveTest() {
-        Optional<ChzzkChannelEntity> chzzkChannelEntity = chzzkChannelRepository.findById(TEST_CHANNEL_ID);
+        final Optional<ChzzkChannelEntity> chzzkChannelEntity = chzzkChannelRepository.findById(TEST_CHANNEL_ID);
         assertTrue(chzzkChannelEntity.isPresent());
 
         final String webhookName = "testName";
         final String webhookUrl = "testWebhookUrl";
         final String meno = "testMeno";
 
-        DiscordWebhookDataEntity entity = DiscordWebhookDataEntity.builder()
+        final DiscordWebhookDataEntity entity = DiscordWebhookDataEntity.builder()
                 .name(webhookName)
                 .webhookUrl(webhookUrl)
                 .meno(meno)
                 .ownerId(chzzkChannelEntity.get())
                 .build();
-        DiscordWebhookDataEntity savedEntity = discordWebhookDataRepository.save(entity);
-        DiscordWebhookDataEntity foundEntity = testEntityManager.find(DiscordWebhookDataEntity.class, savedEntity.getId());
+        final DiscordWebhookDataEntity savedEntity = discordWebhookDataRepository.save(entity);
+        final DiscordWebhookDataEntity foundEntity = testEntityManager.find(DiscordWebhookDataEntity.class, savedEntity.getId());
 
         assertEquals(webhookName, foundEntity.getName());
         assertEquals(webhookUrl, foundEntity.getWebhookUrl());
@@ -75,15 +79,16 @@ class DiscordWebhookRepositoryTests {
 
     @Test
     @Transactional
+    @DisplayName("findDiscordWebhookDataEntityByWebhookUrlAndNameAndOwnerId 메소드 테스트")
     void findDiscordWebhookDataEntityByWebhookUrlAndNameAndOwnerId_Test() {
-        Optional<ChzzkChannelEntity> chzzkChannelEntity = chzzkChannelRepository.findById(TEST_CHANNEL_ID);
+        final Optional<ChzzkChannelEntity> chzzkChannelEntity = chzzkChannelRepository.findById(TEST_CHANNEL_ID);
         assertTrue(chzzkChannelEntity.isPresent());
 
         final String webhookName = "testName";
         final String webhookUrl = "testWebhookUrl";
         final String meno = "testMeno";
 
-        DiscordWebhookDataEntity entity = DiscordWebhookDataEntity.builder()
+        final DiscordWebhookDataEntity entity = DiscordWebhookDataEntity.builder()
                 .name(webhookName)
                 .webhookUrl(webhookUrl)
                 .meno(meno)
@@ -91,8 +96,9 @@ class DiscordWebhookRepositoryTests {
                 .build();
         discordWebhookDataRepository.save(entity);
 
-        Optional<DiscordWebhookDataEntity> foundEntity = discordWebhookDataRepository
+        final Optional<DiscordWebhookDataEntity> foundEntity = discordWebhookDataRepository
                 .findDiscordWebhookDataEntityByWebhookUrlAndNameAndOwnerId(webhookUrl, webhookName, chzzkChannelEntity.get());
+
         assertTrue(foundEntity.isPresent());
         assertEquals(webhookName, foundEntity.get().getName());
     }

@@ -89,23 +89,21 @@ jobs:
           name: chzzk-event-to-discord
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        uses: marvinpinto/action-automatic-releases@latest
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           draft: false
           prerelease: false
+          files: |
+            ./chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
 
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
-          asset_name: chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
-          asset_content_type: application/java-archive
+#      - name: Upload Release Asset
+#        id: upload-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }}
+#          asset_path: ./chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
+#          asset_name: chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
+#          asset_content_type: application/java-archive
