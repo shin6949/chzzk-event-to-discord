@@ -7,6 +7,7 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryId;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -19,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 class ChzzkCategoryRepositoryTests {
@@ -91,5 +93,8 @@ class ChzzkCategoryRepositoryTests {
         assertEquals(COMMON_CATEGORY_TYPE, foundEntity.get().getId().getCategoryType());
         assertEquals(COMMON_CATEGORY_NAME, foundEntity.get().getCategoryName());
         assertEquals(COMMON_CATEGORY_POSTER_URL, foundEntity.get().getPosterImageUrl());
+
+        final Optional<ChzzkCategoryEntity> errorEntity = chzzkCategoryRepository.findByIdCategoryId("errorTEST");
+        assertTrue(errorEntity.isEmpty());
     }
 }

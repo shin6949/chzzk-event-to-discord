@@ -6,8 +6,30 @@ on:
       - V*
 
 jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'microsoft'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Test with Gradle
+        run: ./gradlew test --info
+      - name: Publish Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Reports
+          path: build/reports/tests/test/
+
   make-jar:
     runs-on: ubuntu-22.04
+    needs: [test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,6 +68,7 @@ jobs:
 
   qemu-build-backend:
     runs-on: ubuntu-22.04
+    needs: [test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -74,7 +97,7 @@ jobs:
           docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_IMAGE_NAME }}:${{ env.RELEASE_VERSION }} --push .
 
   release:
-    needs: [make-jar]
+    needs: [make-jar, test, qemu-build-backend]
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
