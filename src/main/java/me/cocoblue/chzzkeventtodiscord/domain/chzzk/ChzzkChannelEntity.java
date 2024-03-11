@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
@@ -40,7 +41,8 @@ public class ChzzkChannelEntity implements Serializable {
     private boolean isLive;
     @Column(name = "follower_count", nullable = false)
     private int followerCount;
-    @Column(name = "last_check_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "last_check_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @ColumnDefault("CURRENT_TIMESTAMP")
     private ZonedDateTime lastCheckTime;
 //    @Version
 //    @Column(name = "version", nullable = false, columnDefinition = "BIGINT(20) DEFAULT 0")

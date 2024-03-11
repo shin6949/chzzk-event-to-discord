@@ -141,7 +141,7 @@ public class ChzzkEventSender {
 
         // Thumbnail
         DiscordEmbed.Thumbnail thumbnail = null;
-        if (categoryData == null) {
+        if (categoryData == null || categoryData.getPosterImageUrl() == null) {
             log.warn("Category Type or Category Id is NULL. It may cause channel owner isn't set the category.");
         } else {
             final String thumbnailUrl = categoryData.getPosterImageUrl();

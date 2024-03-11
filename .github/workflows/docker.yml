@@ -6,8 +6,30 @@ on:
       - V*
 
 jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'microsoft'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Test with Gradle
+        run: ./gradlew test --info
+      - name: Publish Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Reports
+          path: build/reports/tests/test/
+
   make-jar:
     runs-on: ubuntu-22.04
+    needs: [test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,6 +68,7 @@ jobs:
 
   qemu-build-backend:
     runs-on: ubuntu-22.04
+    needs: [test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -74,7 +97,7 @@ jobs:
           docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_IMAGE_NAME }}:${{ env.RELEASE_VERSION }} --push .
 
   release:
-    needs: [make-jar]
+    needs: [make-jar, test, qemu-build-backend]
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -89,23 +112,21 @@ jobs:
           name: chzzk-event-to-discord
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        uses: marvinpinto/action-automatic-releases@latest
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           draft: false
           prerelease: false
+          files: |
+            ./chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
 
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
-          asset_name: chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
-          asset_content_type: application/java-archive
+#      - name: Upload Release Asset
+#        id: upload-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }}
+#          asset_path: ./chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
+#          asset_name: chzzk-event-to-discord-${{ env.RELEASE_VERSION }}.jar
+#          asset_content_type: application/java-archive
