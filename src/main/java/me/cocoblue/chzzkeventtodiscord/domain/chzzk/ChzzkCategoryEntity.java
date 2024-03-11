@@ -23,7 +23,7 @@ public class ChzzkCategoryEntity {
     @Column(name = "category_name", nullable = false)
     private String categoryName;
 
-    @Column(name = "poster_image_url", nullable = false, length = 32780)
+    @Column(name = "poster_image_url", length = 32780)
     private String posterImageUrl;
 
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
