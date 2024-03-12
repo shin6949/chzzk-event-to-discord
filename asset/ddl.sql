@@ -32,7 +32,8 @@ create table chzzk_category (
     category_type varchar(255) not null,
     category_id varchar(255) not null,
     category_name varchar(255) not null,
-    poster_image_url varchar(32780) not null,
+    # NULLABLE added at Ver.0.1.2
+    poster_image_url varchar(32780),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP not null,
     primary key (category_id, category_type)
 );
@@ -72,6 +73,8 @@ CREATE TABLE chzzk_subscription_form (
     channel_id VARCHAR(255),
     form_owner VARCHAR(255) NOT NULL,
     language VARCHAR(255) NOT NULL,
+    # Since Ver.0.1.1
+    showDetail BOOLEAN NOT NULL DEFAULT FALSE,
     type VARCHAR(255) NOT NULL,
     CONSTRAINT FK_CHZZK_SUBSCRIPTION_FORM_BOT_PROFILE_ID FOREIGN KEY (bot_profile_id) REFERENCES discord_bot_profile_data,
     CONSTRAINT FK_CHZZK_SUBSCRIPTION_FORM_CHANNEL_ID FOREIGN KEY (channel_id) REFERENCES chzzk_channel,
