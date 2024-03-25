@@ -1,7 +1,7 @@
 package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -9,8 +9,8 @@ import java.util.Objects;
 @Log4j2
 @Service
 public class ChzzkEventClassifier {
-    public boolean isOnNewLive(final ChzzkChannelDTO channelDataFromDatabase,
-                               final ChzzkChannelDTO channelDataFromApi) {
+    public boolean isOnNewLive(final ChzzkChannelDto channelDataFromDatabase,
+                               final ChzzkChannelDto channelDataFromApi) {
         if (!channelDataFromDatabase.isOpenLive() && channelDataFromApi.isOpenLive()) {
             log.info("New live streaming started. channelId: {}", channelDataFromDatabase.getChannelId());
             return true;
@@ -20,8 +20,8 @@ public class ChzzkEventClassifier {
         return false;
     }
 
-    public boolean isOnNewOffline(final ChzzkChannelDTO channelDataFromDatabase,
-                                  final ChzzkChannelDTO channelDataFromApi) {
+    public boolean isOnNewOffline(final ChzzkChannelDto channelDataFromDatabase,
+                                  final ChzzkChannelDto channelDataFromApi) {
         if (channelDataFromDatabase.isOpenLive() && !channelDataFromApi.isOpenLive()) {
             log.info("Streaming is now offline. channelId: {}", channelDataFromDatabase.getChannelId());
             return true;
@@ -32,8 +32,8 @@ public class ChzzkEventClassifier {
 
     }
 
-    public boolean isChannelInformationChanged(final ChzzkChannelDTO channelDataFromDatabase,
-                                               final ChzzkChannelDTO channelDataFromApi) {
+    public boolean isChannelInformationChanged(final ChzzkChannelDto channelDataFromDatabase,
+                                               final ChzzkChannelDto channelDataFromApi) {
         compareChzzkChannelDTO(channelDataFromDatabase, channelDataFromApi);
 
         if (!channelDataFromDatabase.equals(channelDataFromApi)) {
@@ -45,8 +45,8 @@ public class ChzzkEventClassifier {
         return false;
     }
 
-    public boolean isFollowerCountChanged(final ChzzkChannelDTO channelDataFromDatabase,
-                                          final ChzzkChannelDTO channelDataFromApi) {
+    public boolean isFollowerCountChanged(final ChzzkChannelDto channelDataFromDatabase,
+                                          final ChzzkChannelDto channelDataFromApi) {
         if (channelDataFromDatabase.getFollowerCount() != channelDataFromApi.getFollowerCount()) {
             log.info("Follower count is changed. channelId: {}", channelDataFromDatabase.getChannelId());
             return true;
@@ -56,7 +56,7 @@ public class ChzzkEventClassifier {
         return false;
     }
 
-    void compareChzzkChannelDTO(ChzzkChannelDTO dto1, ChzzkChannelDTO dto2) {
+    void compareChzzkChannelDTO(ChzzkChannelDto dto1, ChzzkChannelDto dto2) {
         StringBuilder differences = new StringBuilder();
 
         if (!Objects.equals(dto1.getChannelId(), dto2.getChannelId())) {

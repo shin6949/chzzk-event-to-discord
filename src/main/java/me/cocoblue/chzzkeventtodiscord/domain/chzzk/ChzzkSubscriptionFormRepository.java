@@ -10,14 +10,11 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface ChzzkSubscriptionFormRepository extends JpaRepository<ChzzkSubscriptionFormEntity, Long> {
-    List<ChzzkSubscriptionFormEntity> findAllByChzzkChannelEntityAndChzzkSubscriptionTypeAndEnabled(ChzzkChannelEntity chzzkChannelEntity,
+public interface ChzzkSubscriptionFormRepository<T extends ChzzkSubscriptionFormEntity> extends JpaRepository<T, Long> {
+    List<T> findAllByChzzkChannelEntityAndChzzkSubscriptionTypeAndEnabled(ChzzkChannelEntity chzzkChannelEntity,
                                                                                                     ChzzkSubscriptionType chzzkSubscriptionType, boolean enabled);
 
-    List<ChzzkSubscriptionFormEntity> findAllByChzzkChannelEntityAndEnabled(ChzzkChannelEntity chzzkChannelEntity, boolean enabled);
+    List<T> findAllByChzzkChannelEntityAndEnabled(ChzzkChannelEntity chzzkChannelEntity, boolean enabled);
 
-    List<ChzzkSubscriptionFormEntity> findAllByEnabled(boolean enabled);
-
-    @Query("SELECT DISTINCT sf.chzzkChannelEntity.channelId FROM chzzk_subscription_form sf WHERE sf.enabled = :enabled")
-    Set<String> findDistinctChannelIdsByEnabled(@Param("enabled") boolean enabled);
+    List<T> findAllByEnabled(boolean enabled);
 }

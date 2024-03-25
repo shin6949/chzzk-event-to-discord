@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class FormInsertResponseDTO {
+public class FormInsertResponseDto {
     @JsonProperty("isSuccess")
     private Boolean isSuccess;
     @JsonProperty("registeredFormId")

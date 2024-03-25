@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryRepository;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDTO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDto;
 import me.cocoblue.chzzkeventtodiscord.service.chzzk.ChzzkCategoryService;
-import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkCategoryAPIResponseVO;
+import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkCategoryApiResponseVo;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -56,8 +56,8 @@ class ChzzkCategoryServiceTests {
                 "    }\n" +
                 "}";
         ObjectMapper objectMapper = new ObjectMapper();
-        final ChzzkCategoryAPIResponseVO apiResponseVO = objectMapper.readValue(testCategoryResult, ChzzkCategoryAPIResponseVO.class);
-        final ChzzkCategoryDTO chzzkCategoryDTO = apiResponseVO.toDTO();
+        final ChzzkCategoryApiResponseVo apiResponseVO = objectMapper.readValue(testCategoryResult, ChzzkCategoryApiResponseVo.class);
+        final ChzzkCategoryDto chzzkCategoryDTO = apiResponseVO.toDTO();
 
         log.info("DTO Result: {}", chzzkCategoryDTO);
         assertEquals(apiResponseVO.getCode(), 200);
@@ -74,7 +74,7 @@ class ChzzkCategoryServiceTests {
         Assumptions.assumeTrue(ObjectMapperTestsSucceeded);
         final String categoryType = "GAME";
         final String categoryId = "Splatoon3";
-        final ChzzkCategoryDTO chzzkCategoryDTO = chzzkCategoryService.getCategoryInfo(categoryType, categoryId);
+        final ChzzkCategoryDto chzzkCategoryDTO = chzzkCategoryService.getCategoryInfo(categoryType, categoryId);
 
         log.info("DTO Result: {}", chzzkCategoryDTO);
         assertNotNull(chzzkCategoryDTO.getCategoryId());

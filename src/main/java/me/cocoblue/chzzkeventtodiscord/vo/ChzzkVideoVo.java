@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChzzkVideoVO {
+public class ChzzkVideoVo {
     @JsonProperty("videoNo")
     private Long videoNo;
     @JsonProperty("videoId")
@@ -42,5 +42,5 @@ public class ChzzkVideoVO {
     @JsonProperty("exposure")
     private boolean exposure;
     @JsonProperty("channel")
-    private ChzzkChannelVO channel;
+    private ChzzkChannelVo channel;
 }

@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVO;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkLiveVO;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkVideoVO;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVo;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkLiveVo;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkVideoVo;
 
 import java.util.List;
 import java.util.Map;
@@ -17,19 +17,19 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChzzkSearchAPIResponseVO extends ChzzkAPICommonResponseVO {
+public class ChzzkSearchApiResponseVo extends ChzzkApiCommonResponseVo {
     @JsonProperty("content")
-    private ChzzkContentVO content;
+    private ChzzkContentVo content;
 
     public int getContentSize() {
         return content.getSize();
     }
 
-    public ChzzkChannelVO getChannel(int index) {
+    public ChzzkChannelVo getChannel(int index) {
         return content.getData().get(index).getChannel();
     }
 
-    public ChzzkLiveVO getLive(int index) {
+    public ChzzkLiveVo getLive(int index) {
         if (content.getData().get(index).getContent() == null) {
             return null;
         }
@@ -41,33 +41,33 @@ public class ChzzkSearchAPIResponseVO extends ChzzkAPICommonResponseVO {
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ChzzkContentVO {
+class ChzzkContentVo {
     @JsonProperty("size")
     private int size;
     @JsonProperty("page")
     private Map<String, Object> page;
     @JsonProperty("data")
-    private List<ChzzkAPIResponseData> data;
+    private List<ChzzkApiResponseData> data;
 }
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ChzzkAPIResponseData {
+class ChzzkApiResponseData {
     @JsonProperty("channel")
-    private ChzzkChannelVO channel;
+    private ChzzkChannelVo channel;
     @JsonProperty("content")
-    private ChzzkContentDetailVO content;
+    private ChzzkContentDetailVo content;
 }
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ChzzkContentDetailVO {
+class ChzzkContentDetailVo {
     @JsonProperty("live")
-    private ChzzkLiveVO live;
+    private ChzzkLiveVo live;
     @JsonProperty("videos")
-    private List<ChzzkVideoVO> videos;
+    private List<ChzzkVideoVo> videos;
 }

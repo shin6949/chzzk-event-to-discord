@@ -6,7 +6,7 @@ import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDto;
 import me.cocoblue.chzzkeventtodiscord.service.ChzzkSubscriptionFormService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -53,9 +53,9 @@ public class ChzzkEventReader {
     @Async
     public void classifyEventAndRunTrigger(final String channelId) {
         log.info("Classify event and send to Discord. channelId: {}", channelId);
-        final ChzzkChannelDTO channelDataFromDatabase = new ChzzkChannelDTO(chzzkChannelRepository.findById(channelId).orElseThrow());
+        final ChzzkChannelDto channelDataFromDatabase = new ChzzkChannelDto(chzzkChannelRepository.findById(channelId).orElseThrow());
         // API 상에서 채널 정보를 가져오면 정보는 자동으로 DB에 업데이트 되므로 별도의 로직이 필요 없음. 즉, 상기 코드가 선행되어야 비교가 가능하다.
-        final ChzzkChannelDTO channelDataFromApi = chzzkChannelService.getChannelByChannelIdAtAPI(channelId);
+        final ChzzkChannelDto channelDataFromApi = chzzkChannelService.getChannelByChannelIdAtAPI(channelId);
 
         // Database에서 가져온 데이터와 API에서 가져온 데이터를 비교하여 이벤트를 분류한다.
         // Live 이벤트와 Offline 이벤트는 공존할 수 없으므로 else if로 구분하여 불필요한 로직 실행을 막음.

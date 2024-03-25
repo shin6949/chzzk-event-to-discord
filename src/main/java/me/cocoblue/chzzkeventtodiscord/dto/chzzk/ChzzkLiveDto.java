@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChzzkLiveDTO {
+public class ChzzkLiveDto {
     private String liveTitle;
     private String liveImageUrl;
     private String defaultThumbnailImageUrl;

@@ -13,13 +13,13 @@ import java.time.ZonedDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChzzkCategoryDTO {
+public class ChzzkCategoryDto {
     private String categoryType;
     private String categoryId;
     private String categoryValue;
     private String posterImageUrl;
 
-    public ChzzkCategoryDTO(ChzzkCategoryEntity entity) {
+    public ChzzkCategoryDto(ChzzkCategoryEntity entity) {
         this.categoryType = entity.getId().getCategoryType();
         this.categoryId = entity.getId().getCategoryId();
         this.categoryValue = entity.getCategoryName();

@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDto;
 
 import java.time.LocalDate;
 
@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChzzkChannelVO {
+public class ChzzkChannelVo {
     @JsonProperty("channelId")
     private String channelId;
     @JsonProperty("channelName")
@@ -31,14 +31,14 @@ public class ChzzkChannelVO {
     @JsonProperty("openLive")
     private boolean openLive;
     @JsonProperty("personalData")
-    private ChzzkPersonalDataVO personalData;
+    private ChzzkPersonalDataVo personalData;
     @JsonProperty("subscriptionAvailability")
     private boolean subscriptionAvailability;
     @JsonProperty("subscriptionPaymentAvailability")
-    private ChzzkSubscriptionPaymentAvailabilityVO subscriptionPaymentAvailability;
+    private ChzzkSubscriptionPaymentAvailabilityVo subscriptionPaymentAvailability;
 
-    public ChzzkChannelDTO toDTO() {
-        return ChzzkChannelDTO.builder()
+    public ChzzkChannelDto toDTO() {
+        return ChzzkChannelDto.builder()
                 .channelId(channelId)
                 .channelName(channelName)
                 .channelImageUrl(channelImageUrl)
@@ -59,9 +59,9 @@ public class ChzzkChannelVO {
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ChzzkPersonalDataVO {
+class ChzzkPersonalDataVo {
     @JsonProperty("following")
-    private ChzzkFollowingVO following;
+    private ChzzkFollowingVo following;
     @JsonProperty("privateUserBlock")
     private boolean privateUserBlock;
 }
@@ -71,7 +71,7 @@ class ChzzkPersonalDataVO {
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ChzzkFollowingVO {
+class ChzzkFollowingVo {
     @JsonProperty("following")
     private boolean following;
     @JsonProperty("notification")
@@ -85,7 +85,7 @@ class ChzzkFollowingVO {
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ChzzkSubscriptionPaymentAvailabilityVO {
+class ChzzkSubscriptionPaymentAvailabilityVo {
     @JsonProperty("iapAvailability")
     private boolean iapAvailability;
     @JsonProperty("iabAvailability")

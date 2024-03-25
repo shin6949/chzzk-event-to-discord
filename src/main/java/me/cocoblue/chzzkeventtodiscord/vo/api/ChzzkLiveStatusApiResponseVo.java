@@ -8,18 +8,18 @@ import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableGroupType;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkLiveStatusType;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveStatusDTO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveStatusDto;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChzzkLiveStatusAPIResponseVO extends ChzzkAPICommonResponseVO {
+public class ChzzkLiveStatusApiResponseVo extends ChzzkApiCommonResponseVo {
     @JsonProperty("content")
-    private ChzzkLiveStatusVO content;
+    private ChzzkLiveStatusVo content;
 
-    public ChzzkLiveStatusDTO toDTO() {
-        return ChzzkLiveStatusDTO.builder()
+    public ChzzkLiveStatusDto toDTO() {
+        return ChzzkLiveStatusDto.builder()
                 .liveTitle(content.getLiveTitle())
                 .status(content.getStatus())
                 .concurrentUserCount(content.getConcurrentUserCount())
@@ -34,6 +34,7 @@ public class ChzzkLiveStatusAPIResponseVO extends ChzzkAPICommonResponseVO {
                 .categoryType(content.getCategoryType())
                 .categoryId(content.getCategoryId())
                 .categoryValue(content.getCategoryValue())
+                .chatDonationRankingExposure(content.isChatDonationRankingExposure())
                 .build();
     }
 }
@@ -42,7 +43,7 @@ public class ChzzkLiveStatusAPIResponseVO extends ChzzkAPICommonResponseVO {
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ChzzkLiveStatusVO {
+class ChzzkLiveStatusVo {
     @JsonProperty("liveTitle")
     private String liveTitle;
     @JsonProperty("status")
@@ -77,4 +78,7 @@ class ChzzkLiveStatusVO {
     private String categoryId;
     @JsonProperty("liveCategoryValue")
     private String categoryValue;
+    /* @since Chzzk 24.03.21. Update */
+    @JsonProperty("chatDonationRankingExposure")
+    private boolean chatDonationRankingExposure;
 }

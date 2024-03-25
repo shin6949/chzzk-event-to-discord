@@ -3,7 +3,7 @@ package me.cocoblue.chzzkeventtodiscord.vo.api;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDTO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDto;
 
 import java.util.Set;
 
@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChzzkCategoryAPIResponseVO {
+public class ChzzkCategoryApiResponseVo {
     @JsonProperty("code")
     private int code;
     @JsonProperty("message")
@@ -21,8 +21,8 @@ public class ChzzkCategoryAPIResponseVO {
     @JsonProperty("content")
     private ChzzkCategoryContent content;
 
-    public ChzzkCategoryDTO toDTO() {
-        return ChzzkCategoryDTO.builder()
+    public ChzzkCategoryDto toDTO() {
+        return ChzzkCategoryDto.builder()
                 .categoryType(content.getCategoryType())
                 .categoryId(content.getCategoryId())
                 .categoryValue(content.getCategoryValue())

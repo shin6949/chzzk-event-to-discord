@@ -13,10 +13,10 @@ import java.util.List;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class ChzzkSubscriptionFormService {
-    private final ChzzkSubscriptionFormRepository chzzkSubscriptionFormRepository;
+public class ChzzkSubscriptionFormService<T extends ChzzkSubscriptionFormEntity> {
+    private final ChzzkSubscriptionFormRepository<T> chzzkSubscriptionFormRepository;
 
-    public List<ChzzkSubscriptionFormEntity> findAllByChannelEntityAndSubscriptionTypeAndEnabled(final String channelId, final ChzzkSubscriptionType type, final boolean enabled) {
+    public List<T> findAllByChannelEntityAndSubscriptionTypeAndEnabled(final String channelId, final ChzzkSubscriptionType type, final boolean enabled) {
         log.debug("Get subscription form by channelId: {} / type: {} / enabled: {}", channelId, type, enabled);
         final ChzzkChannelEntity chzzkChannelEntity = ChzzkChannelEntity.builder()
                 .channelId(channelId)
@@ -25,7 +25,7 @@ public class ChzzkSubscriptionFormService {
         return chzzkSubscriptionFormRepository.findAllByChzzkChannelEntityAndChzzkSubscriptionTypeAndEnabled(chzzkChannelEntity, type, enabled);
     }
 
-    public List<ChzzkSubscriptionFormEntity> findAllByChannelEntityAndEnabled(final String channelId, final boolean enabled) {
+    public List<T> findAllByChannelEntityAndEnabled(final String channelId, final boolean enabled) {
         log.debug("Get subscription form by channelId: {} / enabled: {}", channelId, enabled);
         final ChzzkChannelEntity chzzkChannelEntity = ChzzkChannelEntity.builder()
                 .channelId(channelId)
@@ -34,12 +34,12 @@ public class ChzzkSubscriptionFormService {
         return chzzkSubscriptionFormRepository.findAllByChzzkChannelEntityAndEnabled(chzzkChannelEntity, enabled);
     }
 
-    public List<ChzzkSubscriptionFormEntity> findAllByEnabled(final boolean enabled) {
+    public List<T> findAllByEnabled(final boolean enabled) {
         log.debug("Get subscription form by enabled: {}", enabled);
         return chzzkSubscriptionFormRepository.findAllByEnabled(enabled);
     }
 
-    public void save(final ChzzkSubscriptionFormEntity chzzkSubscriptionFormEntity) {
+    public void save(final T chzzkSubscriptionFormEntity) {
         log.debug("Save subscription form: {}", chzzkSubscriptionFormEntity);
         chzzkSubscriptionFormRepository.saveAndFlush(chzzkSubscriptionFormEntity);
     }

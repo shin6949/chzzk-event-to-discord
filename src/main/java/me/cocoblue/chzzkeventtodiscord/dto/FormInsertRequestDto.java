@@ -10,7 +10,7 @@ import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class FormInsertRequestDTO {
+public class FormInsertRequestDto {
     @JsonProperty("channelId")
     private String channelId;
     @JsonProperty("channelName")

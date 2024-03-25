@@ -2,6 +2,7 @@ package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import me.cocoblue.chzzkeventtodiscord.data.LanguageIsoData;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataEntity;
@@ -11,13 +12,12 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.ZonedDateTime;
 
-@Getter
-@Setter
-@Entity(name = "chzzk_subscription_form")
-@Builder
-@ToString
+@Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity(name = "chzzk_subscription_form")
+@Inheritance(strategy = InheritanceType.JOINED) // 조인 전략 사용
 public class ChzzkSubscriptionFormEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,10 +56,6 @@ public class ChzzkSubscriptionFormEntity {
     @Column(name = "enabled", nullable = false, length = 1)
     @ColumnDefault("false")
     private boolean enabled;
-
-    @Column(name = "show_detail", nullable = false, length = 1)
-    @ColumnDefault("false")
-    private boolean showDetail;
 
     @ManyToOne()
     @JoinColumn(name = "bot_profile_id", foreignKey = @ForeignKey(name = "FK_CHZZK_SUBSCRIPTION_FORM_BOT_PROFILE_ID"), nullable = false)

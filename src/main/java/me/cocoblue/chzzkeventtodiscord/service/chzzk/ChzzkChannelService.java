@@ -7,10 +7,10 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDTO;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVO;
-import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkChannelInfoAPIResponseVO;
-import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkSearchAPIResponseVO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDto;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVo;
+import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkChannelInfoApiResponseVo;
+import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkSearchApiResponseVo;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class ChzzkChannelService {
     }
 
     @Transactional
-    public ChzzkChannelDTO getChannelByChannelId(final String channelId) {
+    public ChzzkChannelDto getChannelByChannelId(final String channelId) {
         if (channelId == null) {
             log.error("Channel id is null. channelId: {}", (Object) null);
             return null;
@@ -55,7 +55,7 @@ public class ChzzkChannelService {
 
         // 3일 이상 지난 데이터는 API를 통해 갱신
         if (resultFromDB.isEmpty() || resultFromDB.get().getLastCheckTime().isBefore(threeDaysAgo)) {
-            final ChzzkChannelDTO apiResult = getChannelByChannelIdAtAPI(channelId);
+            final ChzzkChannelDto apiResult = getChannelByChannelIdAtAPI(channelId);
             if (apiResult == null) {
                 log.info("Failed to get channel info from Chzzk API.");
                 return null;
@@ -64,11 +64,11 @@ public class ChzzkChannelService {
             return apiResult;
         }
 
-        return new ChzzkChannelDTO(resultFromDB.get());
+        return new ChzzkChannelDto(resultFromDB.get());
     }
 
     @Transactional
-    public ChzzkChannelDTO getChannelByChannelName(final String channelName) {
+    public ChzzkChannelDto getChannelByChannelName(final String channelName) {
         log.info("Get channel by channel name. channelName: {}", channelName);
         final Optional<ChzzkChannelEntity> resultFromDB = chzzkChannelRepository.findChzzkChannelEntityByChannelName(channelName);
         log.info("Result from DB: {}", resultFromDB);
@@ -77,7 +77,7 @@ public class ChzzkChannelService {
 
         // 3일 이상 지난 데이터는 API를 통해 갱신
         if (resultFromDB.isEmpty() || resultFromDB.get().getLastCheckTime().isBefore(threeDaysAgo)) {
-            final ChzzkChannelDTO apiResult = getChannelByChannelNameAtAPI(channelName);
+            final ChzzkChannelDto apiResult = getChannelByChannelNameAtAPI(channelName);
             if (apiResult == null) {
                 log.info("Failed to get channel info from Chzzk API.");
                 return null;
@@ -86,19 +86,19 @@ public class ChzzkChannelService {
             return apiResult;
         }
 
-        return new ChzzkChannelDTO(resultFromDB.get());
+        return new ChzzkChannelDto(resultFromDB.get());
     }
 
     @Transactional
-    public ChzzkChannelDTO getChannelByChannelIdAtAPI(final String channelId) {
+    public ChzzkChannelDto getChannelByChannelIdAtAPI(final String channelId) {
         final String url = "/service/v1/channels/%s";
 
-        final ChzzkChannelInfoAPIResponseVO result = WEB_CLIENT
+        final ChzzkChannelInfoApiResponseVo result = WEB_CLIENT
                 .get()
                 .uri(String.format(url, channelId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(ChzzkChannelInfoAPIResponseVO.class)
+                .bodyToMono(ChzzkChannelInfoApiResponseVo.class)
                 .block();
 
         if (result == null || result.getCode() != 200) {
@@ -114,15 +114,15 @@ public class ChzzkChannelService {
     }
 
     @Transactional
-    public ChzzkChannelDTO getChannelByChannelNameAtAPI(final String channelName) {
+    public ChzzkChannelDto getChannelByChannelNameAtAPI(final String channelName) {
         final String url = "/service/v1/search/channels?keyword=%s&offset=0&size=1&withFirstChannelContent=false";
 
-        final ChzzkSearchAPIResponseVO result = WEB_CLIENT
+        final ChzzkSearchApiResponseVo result = WEB_CLIENT
                 .get()
                 .uri(String.format(url, channelName))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(ChzzkSearchAPIResponseVO.class)
+                .bodyToMono(ChzzkSearchApiResponseVo.class)
                 .block();
 
         if (result == null || result.getContentSize() == 0) {
@@ -134,7 +134,7 @@ public class ChzzkChannelService {
             log.warn("There are more than one channel with the same name. The first channel will be used. channelName: {}", channelName);
         }
 
-        final ChzzkChannelVO resultChannelVO = result.getChannel(0);
+        final ChzzkChannelVo resultChannelVO = result.getChannel(0);
         final ChzzkChannelEntity entity = resultChannelVO.toDTO().toEntity();
         entity.setLastCheckTime(ZonedDateTime.now(ZoneId.of("UTC")));
 
