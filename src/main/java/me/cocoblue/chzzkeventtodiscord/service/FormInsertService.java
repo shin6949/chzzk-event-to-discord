@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.data.LanguageIsoData;
+import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkStreamOnlineFormEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataEntity;
@@ -20,32 +22,42 @@ import java.util.Optional;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class FormInsertService<T extends ChzzkSubscriptionFormEntity> {
+public class FormInsertService {
     private final DiscordWebhookDataRepository discordWebhookDataRepository;
     private final DiscordBotProfileDataRepository discordBotProfileDataRepository;
-    private final ChzzkSubscriptionFormService<T> chzzkSubscriptionFormService;
+    private final ChzzkSubscriptionFormService chzzkSubscriptionFormService;
     private final ChzzkChannelService chzzkChannelService;
 
     @Transactional
-    public FormInsertResponseDto insertForm(final FormInsertRequestDto formInsertRequestDTO) {
-        log.info("Form insert request: {}", formInsertRequestDTO);
+    public FormInsertResponseDto insertForm(final FormInsertRequestDto formInsertRequestDto) {
+        log.info("Form insert request: {}", formInsertRequestDto);
 
-        final ChzzkChannelEntity requestedChannelEntity = resolveChannelEntity(formInsertRequestDTO.getChannelId(), formInsertRequestDTO.getChannelName(), false);
-        final ChzzkChannelEntity ownerChannelEntity = resolveChannelEntity(formInsertRequestDTO.getOwnerChannelId(), formInsertRequestDTO.getOwnerChannelName(), true);
+        final ChzzkChannelEntity requestedChannelEntity = resolveChannelEntity(formInsertRequestDto.getChannelId(), formInsertRequestDto.getChannelName(), false);
+        final ChzzkChannelEntity ownerChannelEntity = resolveChannelEntity(formInsertRequestDto.getOwnerChannelId(), formInsertRequestDto.getOwnerChannelName(), true);
 
-        final T requestForm = buildFormEntity(formInsertRequestDTO, requestedChannelEntity, ownerChannelEntity);
+        final DiscordWebhookDataEntity webhookEntity = resolveWebhookEntity(formInsertRequestDto, ownerChannelEntity);
+        final DiscordBotProfileDataEntity botProfileEntity = resolveBotProfileEntity(formInsertRequestDto, ownerChannelEntity);
 
-        final DiscordWebhookDataEntity webhookEntity = resolveWebhookEntity(formInsertRequestDTO, ownerChannelEntity);
-        requestForm.setWebhookId(webhookEntity);
+        switch (formInsertRequestDto.getSubscriptionType()) {
+            case STREAM_ONLINE -> {
+                final ChzzkStreamOnlineFormEntity requestForm = buildStreamOnlineFormEntity(formInsertRequestDto, requestedChannelEntity, ownerChannelEntity);
+                requestForm.setWebhookId(webhookEntity);
+                requestForm.setBotProfileId(botProfileEntity);
+                chzzkSubscriptionFormService.save(requestForm);
+                return buildFormInsertResponseDTO(requestForm, webhookEntity, botProfileEntity);
+            }
 
-        final DiscordBotProfileDataEntity botProfileEntity = resolveBotProfileEntity(formInsertRequestDTO, ownerChannelEntity);
-        requestForm.setBotProfileId(botProfileEntity);
-
-        chzzkSubscriptionFormService.save(requestForm);
-        return buildFormInsertResponseDTO(requestForm, webhookEntity, botProfileEntity);
+            default -> {
+                final ChzzkSubscriptionFormEntity requestForm = buildFormEntity(formInsertRequestDto, requestedChannelEntity, ownerChannelEntity);
+                requestForm.setWebhookId(webhookEntity);
+                requestForm.setBotProfileId(botProfileEntity);
+                chzzkSubscriptionFormService.save(requestForm);
+                return buildFormInsertResponseDTO(requestForm, webhookEntity, botProfileEntity);
+            }
+        }
     }
 
-    private ChzzkChannelEntity resolveChannelEntity(String channelId, String channelName, boolean isOwner) {
+    private ChzzkChannelEntity resolveChannelEntity(String channelId, final String channelName, boolean isOwner) {
         if (channelId == null && channelName != null) {
             log.info("Requested {} Channel name: {}", isOwner ? "Owner" : "Channel", channelName);
             channelId = chzzkChannelService.getChannelByChannelName(channelName).getChannelId();
@@ -96,7 +108,7 @@ public class FormInsertService<T extends ChzzkSubscriptionFormEntity> {
     private ChzzkSubscriptionFormEntity buildFormEntity(final FormInsertRequestDto formInsertRequestDto,
                                                         final ChzzkChannelEntity channel,
                                                         final ChzzkChannelEntity owner) {
-        final ChzzkSubscriptionFormEntity entity = ChzzkSubscriptionFormEntity.builder()
+        return ChzzkSubscriptionFormEntity.builder()
                         .chzzkChannelEntity(channel)
                         .formOwner(owner)
                         .content(formInsertRequestDto.getContent())
@@ -106,9 +118,23 @@ public class FormInsertService<T extends ChzzkSubscriptionFormEntity> {
                         .languageIsoData(formInsertRequestDto.getLanguage() == null ? LanguageIsoData.Korean : formInsertRequestDto.getLanguage())
                         .colorHex(formInsertRequestDto.getColorHex() == null ? "000000" : formInsertRequestDto.getColorHex())
                         .build();
-        // TODO: 반영 필요
-//        entity.setShowDetail(dto.getShowDetail() == null || dto.getShowDetail());
-        return (T) entity;
+    }
+
+    private ChzzkStreamOnlineFormEntity buildStreamOnlineFormEntity(final FormInsertRequestDto formInsertRequestDto,
+        final ChzzkChannelEntity channel,
+        final ChzzkChannelEntity owner) {
+
+        return ChzzkStreamOnlineFormEntity.builder()
+            .chzzkChannelEntity(channel)
+            .formOwner(owner)
+            .content(formInsertRequestDto.getContent())
+            .showDetail(formInsertRequestDto.getShowDetail() == null || formInsertRequestDto.getShowDetail())
+            .chzzkSubscriptionType(formInsertRequestDto.getSubscriptionType())
+            .enabled(formInsertRequestDto.getEnabled() == null || formInsertRequestDto.getEnabled())
+            .intervalMinute(formInsertRequestDto.getIntervalMinute() == null ? 10 : formInsertRequestDto.getIntervalMinute())
+            .languageIsoData(formInsertRequestDto.getLanguage() == null ? LanguageIsoData.Korean : formInsertRequestDto.getLanguage())
+            .colorHex(formInsertRequestDto.getColorHex() == null ? "000000" : formInsertRequestDto.getColorHex())
+            .build();
     }
 
     private FormInsertResponseDto buildFormInsertResponseDTO(final ChzzkSubscriptionFormEntity form,

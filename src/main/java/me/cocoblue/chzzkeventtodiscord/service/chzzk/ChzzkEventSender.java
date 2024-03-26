@@ -30,11 +30,11 @@ import java.util.Locale;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class ChzzkEventSender<T extends ChzzkSubscriptionFormEntity> {
+public class ChzzkEventSender {
     private final DiscordWebhookService discordWebhookService;
     private final ChzzkLiveStatusService liveStatusService;
     private final NotificationLogService notificationLogService;
-    private final ChzzkSubscriptionFormService<T> subscriptionFormService;
+    private final ChzzkSubscriptionFormService subscriptionFormService;
     private final NotificationLogRepository notificationLogRepository;
     private final ChzzkCategoryService categoryService;
     private final MessageSource messageSource;
@@ -47,7 +47,7 @@ public class ChzzkEventSender<T extends ChzzkSubscriptionFormEntity> {
         final ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
 
         // 기존 데이터 로드
-        final List<T> filteredForms =
+        final List<ChzzkSubscriptionFormEntity> filteredForms =
                 subscriptionFormService.findAllByChannelEntityAndSubscriptionTypeAndEnabled(chzzkChannelDto.getChannelId(), subscriptionType, true)
                         .stream()
                         .filter(form -> {
@@ -89,7 +89,7 @@ public class ChzzkEventSender<T extends ChzzkSubscriptionFormEntity> {
         final ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
 
         // 기존 데이터 로드
-        final List<T> filteredForms =
+        final List<ChzzkSubscriptionFormEntity> filteredForms =
                 subscriptionFormService.findAllByChannelEntityAndSubscriptionTypeAndEnabled(afterChannelData.getChannelId(), ChzzkSubscriptionType.CHANNEL_UPDATE, true)
                         .stream()
                         .filter(form -> {

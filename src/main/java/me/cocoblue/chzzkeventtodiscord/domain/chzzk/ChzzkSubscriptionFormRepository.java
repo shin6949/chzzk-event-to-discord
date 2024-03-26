@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface ChzzkSubscriptionFormRepository<T extends ChzzkSubscriptionFormEntity> extends JpaRepository<T, Long> {
-    List<T> findAllByChzzkChannelEntityAndChzzkSubscriptionTypeAndEnabled(ChzzkChannelEntity chzzkChannelEntity,
+public interface ChzzkSubscriptionFormRepository extends JpaRepository<ChzzkSubscriptionFormEntity, Long> {
+    List<ChzzkSubscriptionFormEntity> findAllByChzzkChannelEntityAndChzzkSubscriptionTypeAndEnabled(ChzzkChannelEntity chzzkChannelEntity,
                                                                                                     ChzzkSubscriptionType chzzkSubscriptionType, boolean enabled);
 
-    List<T> findAllByChzzkChannelEntityAndEnabled(ChzzkChannelEntity chzzkChannelEntity, boolean enabled);
+    List<ChzzkSubscriptionFormEntity> findAllByChzzkChannelEntityAndEnabled(ChzzkChannelEntity chzzkChannelEntity, boolean enabled);
 
-    List<T> findAllByEnabled(boolean enabled);
+    List<ChzzkSubscriptionFormEntity> findAllByEnabled(boolean enabled);
 }
