@@ -10,9 +10,9 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.eventlog.NotificationLogRepository;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkCategoryDto;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDto;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveDto;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveStatusDto;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveDetailDto;
 import me.cocoblue.chzzkeventtodiscord.dto.discord.DiscordEmbed;
+import me.cocoblue.chzzkeventtodiscord.service.ChzzkStreamOnlineFormService;
 import me.cocoblue.chzzkeventtodiscord.service.ChzzkSubscriptionFormService;
 import me.cocoblue.chzzkeventtodiscord.service.DiscordWebhookService;
 import me.cocoblue.chzzkeventtodiscord.service.NotificationLogService;
@@ -32,9 +32,10 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class ChzzkEventSender {
     private final DiscordWebhookService discordWebhookService;
-    private final ChzzkLiveStatusService liveStatusService;
+    private final ChzzkLiveDetailService liveStatusService;
     private final NotificationLogService notificationLogService;
     private final ChzzkSubscriptionFormService subscriptionFormService;
+    private final ChzzkStreamOnlineFormService streamOnlineFormService;
     private final NotificationLogRepository notificationLogRepository;
     private final ChzzkCategoryService categoryService;
     private final MessageSource messageSource;
@@ -42,7 +43,43 @@ public class ChzzkEventSender {
     private final String chzzkFaviconUrl = "https://play-lh.googleusercontent.com/wvo3IB5dTJHyjpIHvkdzpgbFnG3LoVsqKdQ7W3IoRm-EVzISMz9tTaIYoRdZm1phL_8=w120-h120-rw";
 
     @Async
-    public void sendStreamEvent(final ChzzkChannelDto chzzkChannelDto, final ChzzkSubscriptionType subscriptionType) {
+    public void sendStreamOnlineEvent(final ChzzkChannelDto chzzkChannelDto, final ChzzkSubscriptionType subscriptionType) {
+        log.info("Send stream related event information to Discord. channelId: {}", chzzkChannelDto.getChannelId());
+        final ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+
+        // 기존 데이터 로드
+        final List<ChzzkStreamOnlineFormEntity> filteredForms =
+                streamOnlineFormService.findAllByChannelEntityAndSubscriptionTypeAndEnabled(chzzkChannelDto.getChannelId(), subscriptionType, true)
+                        .stream()
+                        .filter(form -> {
+                            int count = notificationLogRepository.getCountBySubscriptionFormAndCreatedAtBetween(form, now.minusMinutes(form.getIntervalMinute()), now).size();
+                            return count == 0;
+                        })
+                        .toList();
+
+        if (filteredForms.isEmpty()) {
+            log.info("No subscription form for event. channelId: {}", chzzkChannelDto.getChannelId());
+            return;
+        }
+
+        final ChzzkLiveDetailDto chzzkLiveDetailDto = liveStatusService.getLiveDetailFromApi(chzzkChannelDto.getChannelName());
+        log.debug("liveDetail: {}", chzzkLiveDetailDto);
+
+        final ChzzkCategoryDto categoryData;
+        if (chzzkLiveDetailDto.getCategoryId() == null || chzzkLiveDetailDto.getCategoryType() == null || chzzkLiveDetailDto.getCategoryValue() == null) {
+            categoryData = null;
+            log.warn("Category Type or Category Id is NULL. It may cause channel owner isn't set the category.");
+        } else {
+            categoryData = categoryService.getCategoryInfo(chzzkLiveDetailDto.getCategoryType(), chzzkLiveDetailDto.getCategoryId());
+        }
+
+        if (subscriptionType == ChzzkSubscriptionType.STREAM_ONLINE) {
+            filteredForms.forEach(form -> processStreamOnlineEvent(form, chzzkChannelDto, chzzkLiveDetailDto, categoryData));
+        }
+    }
+
+    @Async
+    public void sendStreamOfflineEvent(final ChzzkChannelDto chzzkChannelDto, final ChzzkSubscriptionType subscriptionType) {
         log.info("Send stream related event information to Discord. channelId: {}", chzzkChannelDto.getChannelId());
         final ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
 
@@ -61,27 +98,9 @@ public class ChzzkEventSender {
             return;
         }
 
-        if (subscriptionType == ChzzkSubscriptionType.STREAM_OFFLINE) {
-            filteredForms.forEach(form -> processStreamOfflineEvent(form, chzzkChannelDto));
-            return;
-        }
-
-        final ChzzkLiveDto chzzkLiveDTO = liveStatusService.getLiveStatusFromSearchApi(chzzkChannelDto.getChannelName());
-        final ChzzkLiveStatusDto liveStatus = liveStatusService.getLiveStatusFromApi(chzzkChannelDto.getChannelId());
-        log.info("liveStatus: {}", liveStatus);
-
-        ChzzkCategoryDto categoryData;
-        if (liveStatus.getCategoryId() == null || liveStatus.getCategoryType() == null || liveStatus.getCategoryValue() == null) {
-            categoryData = null;
-            log.warn("Category Type or Category Id is NULL. It may cause channel owner isn't set the category.");
-        } else {
-            categoryData = categoryService.getCategoryInfo(liveStatus.getCategoryType(), liveStatus.getCategoryId());
-        }
-
-        if (subscriptionType == ChzzkSubscriptionType.STREAM_ONLINE) {
-            filteredForms.forEach(form -> processStreamOnlineEvent(form, chzzkChannelDto, liveStatus, chzzkLiveDTO, categoryData));
-        }
+        filteredForms.forEach(form -> processStreamOfflineEvent(form, chzzkChannelDto));
     }
+
 
     @Async
     public void sendChannelUpdateEvent(final ChzzkChannelDto afterChannelData) {
@@ -116,9 +135,9 @@ public class ChzzkEventSender {
 
     @Async
     public void processStreamOnlineEvent(final ChzzkStreamOnlineFormEntity form, final ChzzkChannelDto channelData,
-                                         final ChzzkLiveStatusDto liveStatus, final ChzzkLiveDto chzzkLiveDTO,
+                                         final ChzzkLiveDetailDto liveDetailDto,
                                          final ChzzkCategoryDto categoryData) {
-        final DiscordEmbed.Webhook webhook = makeStreamOnlineDiscordWebhook(form, channelData, liveStatus, chzzkLiveDTO, categoryData);
+        final DiscordEmbed.Webhook webhook = makeStreamOnlineDiscordWebhook(form, channelData, liveDetailDto, categoryData);
         discordWebhookService.sendDiscordWebhook(webhook, form.getWebhookId().getWebhookUrl());
         notificationLogService.insertNotificationLog(form.getId());
     }
@@ -131,7 +150,7 @@ public class ChzzkEventSender {
     }
 
     private DiscordEmbed.Webhook makeStreamOnlineDiscordWebhook(final ChzzkStreamOnlineFormEntity form, final ChzzkChannelDto channelData,
-                                                                final ChzzkLiveStatusDto liveStatus, final ChzzkLiveDto chzzkLiveDTO,
+                                                                final ChzzkLiveDetailDto liveDetailDto,
                                                                 final ChzzkCategoryDto categoryData) {
         // Form의 Locale 얻기
         final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
@@ -153,7 +172,7 @@ public class ChzzkEventSender {
         final String embedColor = Integer.toString(form.getDecimalColor());
         final String categoryName = categoryData == null ? null : categoryData.getCategoryValue();
         final String embedDescription = categoryData == null ? messageSource.getMessage("game.none", null, locale) : messageSource.getMessage("game.prefix", null, locale) + categoryName;
-        final String embedTitle = liveStatus.getLiveTitle();
+        final String embedTitle = liveDetailDto.getLiveTitle();
 
         // Embed Field Area
         final List<DiscordEmbed.Field> fields = new ArrayList<>();
@@ -162,16 +181,15 @@ public class ChzzkEventSender {
         final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("stream.online.footer", null, locale), chzzkFaviconUrl);
 
         // Embed Timestamp -> KST로 오기 때문에 UTC로 변환.
-        final LocalDateTime startTime = chzzkLiveDTO == null ? ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime() :
-                chzzkLiveDTO.getOpenDate().minusHours(9);
+        final LocalDateTime startTime = liveDetailDto.getOpenDate().minusHours(9);
 
         // 상세 정보를 Field에 보여줄지 여부
         if (form.isShowDetail()) {
             // 채팅에 특정 조건이 걸려있으면 공지
-            if (liveStatus.getChatAvailableGroup() != ChzzkChatAvailableGroupType.ALL) {
+            if (liveDetailDto.getChatAvailableGroup() != ChzzkChatAvailableGroupType.ALL) {
                 final DiscordEmbed.Field chatAvailableGroupField = DiscordEmbed.Field.builder()
                         .name(messageSource.getMessage("stream.online.chat-available-group", null, locale))
-                        .value(messageSource.getMessage(liveStatus.getChatAvailableGroup().getStringKey(), null, locale))
+                        .value(messageSource.getMessage(liveDetailDto.getChatAvailableGroup().getStringKey(), null, locale))
                         .inline(true)
                         .build();
 
@@ -179,10 +197,10 @@ public class ChzzkEventSender {
             }
 
             // 채팅에 계정 조건이 걸려있으면 공지
-            if (liveStatus.getChatAvailableCondition() != ChzzkChatAvailableConditionType.NONE) {
+            if (liveDetailDto.getChatAvailableCondition() != ChzzkChatAvailableConditionType.NONE) {
                 final DiscordEmbed.Field chatAvailableGroupField = DiscordEmbed.Field.builder()
                         .name(messageSource.getMessage("stream.online.chat-available-condition", null, locale))
-                        .value(messageSource.getMessage(liveStatus.getChatAvailableCondition().getStringKey(), null, locale))
+                        .value(messageSource.getMessage(liveDetailDto.getChatAvailableCondition().getStringKey(), null, locale))
                         .inline(true)
                         .build();
 
@@ -190,7 +208,7 @@ public class ChzzkEventSender {
             }
 
             // 채팅에 성인인증 조건이 걸려있으면 공지
-            if (liveStatus.isAdult()) {
+            if (liveDetailDto.isAdult()) {
                 final DiscordEmbed.Field isAdultField = DiscordEmbed.Field.builder()
                         .name(messageSource.getMessage("stream.online.adult", null, locale))
                         .value(messageSource.getMessage("stream.online.true", null, locale))
@@ -203,9 +221,12 @@ public class ChzzkEventSender {
 
         final DiscordEmbed.Author author = createAuthor(channelData, "stream.online.event-message", locale, ChzzkSubscriptionType.STREAM_ONLINE);
 
-        final DiscordEmbed.Image image = chzzkLiveDTO == null ? null : DiscordEmbed.Image.builder()
-                .url(chzzkLiveDTO.getLiveImageUrl().replace("{type}", "480"))
-                .build();
+        DiscordEmbed.Image image = null;
+        if(form.isShowThumbnail()) {
+            image = DiscordEmbed.Image.builder()
+                    .url(liveDetailDto.getLiveImageUrl().replace("{type}", "480"))
+                    .build();
+        }
 
         final List<DiscordEmbed> discordEmbeds = new ArrayList<>();
         final DiscordEmbed discordEmbed = createDiscordEmbed(author, embedTitle, liveURL, embedDescription, embedColor, fields, footer, String.valueOf(startTime), thumbnail, image);

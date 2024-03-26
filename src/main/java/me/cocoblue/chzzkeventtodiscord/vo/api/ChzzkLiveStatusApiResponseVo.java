@@ -18,7 +18,7 @@ public class ChzzkLiveStatusApiResponseVo extends ChzzkApiCommonResponseVo {
     @JsonProperty("content")
     private ChzzkLiveStatusVo content;
 
-    public ChzzkLiveStatusDto toDTO() {
+    public ChzzkLiveStatusDto toDto() {
         return ChzzkLiveStatusDto.builder()
                 .liveTitle(content.getLiveTitle())
                 .status(content.getStatus())

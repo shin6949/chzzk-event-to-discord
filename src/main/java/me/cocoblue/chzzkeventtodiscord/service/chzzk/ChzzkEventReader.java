@@ -60,9 +60,9 @@ public class ChzzkEventReader {
         // Database에서 가져온 데이터와 API에서 가져온 데이터를 비교하여 이벤트를 분류한다.
         // Live 이벤트와 Offline 이벤트는 공존할 수 없으므로 else if로 구분하여 불필요한 로직 실행을 막음.
         if (chzzkEventClassifier.isOnNewLive(channelDataFromDatabase, channelDataFromApi)) {
-            chzzkEventSender.sendStreamEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_ONLINE);
+            chzzkEventSender.sendStreamOnlineEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_ONLINE);
         } else if (chzzkEventClassifier.isOnNewOffline(channelDataFromDatabase, channelDataFromApi)) {
-            chzzkEventSender.sendStreamEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_OFFLINE);
+            chzzkEventSender.sendStreamOfflineEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_OFFLINE);
         }
 
         // Channel 정보가 변경되었을 때, Discord로 알림을 보낸다.

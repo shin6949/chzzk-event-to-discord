@@ -37,7 +37,7 @@ public class ChzzkChannelVo {
     @JsonProperty("subscriptionPaymentAvailability")
     private ChzzkSubscriptionPaymentAvailabilityVo subscriptionPaymentAvailability;
 
-    public ChzzkChannelDto toDTO() {
+    public ChzzkChannelDto toDto() {
         return ChzzkChannelDto.builder()
                 .channelId(channelId)
                 .channelName(channelName)

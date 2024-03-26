@@ -42,7 +42,7 @@ public class ChzzkLiveStatusService {
             return null;
         }
 
-        return result.toDTO();
+        return result.toDto();
     }
 
     public ChzzkLiveDto getLiveStatusFromSearchApi(final String channelName) {
@@ -70,6 +70,6 @@ public class ChzzkLiveStatusService {
             log.error("Failed to get Live info by channel name from Chzzk API. channelName: {}", channelName);
             return null;
         }
-        return resultLiveVO.toDTO();
+        return resultLiveVO.toDto();
     }
 }

@@ -3,6 +3,7 @@ package me.cocoblue.chzzkeventtodiscord.domain.eventlog;
 import jakarta.persistence.*;
 import lombok.*;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.ZonedDateTime;
@@ -17,7 +18,7 @@ import java.time.ZonedDateTime;
 public class NotificationLogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "log_id", nullable = false, columnDefinition = "BIGINT UNSIGNED")
+    @Column(name = "log_id", nullable = false)
     private Long id;
 
     @ManyToOne()
@@ -25,6 +26,6 @@ public class NotificationLogEntity {
     private ChzzkSubscriptionFormEntity subscriptionForm;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
     private ZonedDateTime createdAt;
 }

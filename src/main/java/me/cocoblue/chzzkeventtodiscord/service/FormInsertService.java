@@ -4,10 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.data.LanguageIsoData;
-import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkStreamOnlineFormEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
-import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataEntity;
@@ -26,6 +25,7 @@ public class FormInsertService {
     private final DiscordWebhookDataRepository discordWebhookDataRepository;
     private final DiscordBotProfileDataRepository discordBotProfileDataRepository;
     private final ChzzkSubscriptionFormService chzzkSubscriptionFormService;
+    private final ChzzkStreamOnlineFormService chzzkStreamOnlineFormService;
     private final ChzzkChannelService chzzkChannelService;
 
     @Transactional
@@ -43,7 +43,7 @@ public class FormInsertService {
                 final ChzzkStreamOnlineFormEntity requestForm = buildStreamOnlineFormEntity(formInsertRequestDto, requestedChannelEntity, ownerChannelEntity);
                 requestForm.setWebhookId(webhookEntity);
                 requestForm.setBotProfileId(botProfileEntity);
-                chzzkSubscriptionFormService.save(requestForm);
+                chzzkStreamOnlineFormService.save(requestForm);
                 return buildFormInsertResponseDTO(requestForm, webhookEntity, botProfileEntity);
             }
 

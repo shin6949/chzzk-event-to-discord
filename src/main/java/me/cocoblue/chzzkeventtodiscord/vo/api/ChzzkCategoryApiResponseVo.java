@@ -21,7 +21,7 @@ public class ChzzkCategoryApiResponseVo {
     @JsonProperty("content")
     private ChzzkCategoryContent content;
 
-    public ChzzkCategoryDto toDTO() {
+    public ChzzkCategoryDto toDto() {
         return ChzzkCategoryDto.builder()
                 .categoryType(content.getCategoryType())
                 .categoryId(content.getCategoryId())

@@ -17,13 +17,13 @@ public class DiscordWebhookDataEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(length = 500, nullable = false)
+    @Column(name = "name", length = 500, nullable = false)
     private String name;
 
-    @Column(length = 500, nullable = false)
+    @Column(name = "webhoook_url", length = 500, nullable = false)
     private String webhookUrl;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "meno")
     private String meno;
 
     @ManyToOne(cascade = CascadeType.ALL)

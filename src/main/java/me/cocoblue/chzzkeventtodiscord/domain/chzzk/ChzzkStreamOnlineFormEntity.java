@@ -15,10 +15,10 @@ import org.hibernate.annotations.ColumnDefault;
 @AllArgsConstructor
 public class ChzzkStreamOnlineFormEntity extends ChzzkSubscriptionFormEntity {
     @Column(name = "show_detail", nullable = false, length = 1)
-    @ColumnDefault("false")
+    @ColumnDefault("0")
     private boolean showDetail;
 
     @Column(name = "show_thumbnaill", nullable = false, length = 1)
-    @ColumnDefault("true")
+    @ColumnDefault("1")
     private boolean showThumbnail;
 }

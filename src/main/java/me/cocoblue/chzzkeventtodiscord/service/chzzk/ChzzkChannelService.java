@@ -106,11 +106,11 @@ public class ChzzkChannelService {
             return null;
         }
 
-        final ChzzkChannelEntity entity = result.getContent().toDTO().toEntity();
+        final ChzzkChannelEntity entity = result.getContent().toDto().toEntity();
         entity.setLastCheckTime(ZonedDateTime.now(ZoneId.of("UTC")));
 
         chzzkChannelRepository.save(entity);
-        return result.getContent().toDTO();
+        return result.getContent().toDto();
     }
 
     @Transactional
@@ -135,11 +135,11 @@ public class ChzzkChannelService {
         }
 
         final ChzzkChannelVo resultChannelVO = result.getChannel(0);
-        final ChzzkChannelEntity entity = resultChannelVO.toDTO().toEntity();
+        final ChzzkChannelEntity entity = resultChannelVO.toDto().toEntity();
         entity.setLastCheckTime(ZonedDateTime.now(ZoneId.of("UTC")));
 
         log.info("Channel info updated. entity: {}", entity);
         chzzkChannelRepository.save(entity);
-        return resultChannelVO.toDTO();
+        return resultChannelVO.toDto();
     }
 }

@@ -1,7 +1,9 @@
 package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import me.cocoblue.chzzkeventtodiscord.data.LanguageIsoData;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
@@ -45,16 +47,16 @@ public class ChzzkSubscriptionFormEntity {
     @Column(name = "language", nullable = false)
     private LanguageIsoData languageIsoData;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     private ZonedDateTime createdAt;
 
-    @Column(name = "interval_minute", nullable = false, length = 11)
+    @Column(name = "interval_minute", nullable = false)
     @ColumnDefault("10")
     private int intervalMinute;
 
-    @Column(name = "enabled", nullable = false, length = 1)
-    @ColumnDefault("false")
+    @Column(name = "enabled", nullable = false)
+    @ColumnDefault("0")
     private boolean enabled;
 
     @ManyToOne()

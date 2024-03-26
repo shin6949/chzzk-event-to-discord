@@ -57,7 +57,7 @@ class ChzzkCategoryServiceTests {
                 "}";
         ObjectMapper objectMapper = new ObjectMapper();
         final ChzzkCategoryApiResponseVo apiResponseVO = objectMapper.readValue(testCategoryResult, ChzzkCategoryApiResponseVo.class);
-        final ChzzkCategoryDto chzzkCategoryDTO = apiResponseVO.toDTO();
+        final ChzzkCategoryDto chzzkCategoryDTO = apiResponseVO.toDto();
 
         log.info("DTO Result: {}", chzzkCategoryDTO);
         assertEquals(apiResponseVO.getCode(), 200);

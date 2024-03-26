@@ -45,7 +45,7 @@ public class ChzzkCategoryService {
                 return null;
             }
 
-            return apiResult.toDTO();
+            return apiResult.toDto();
         }
 
         return new ChzzkCategoryDto(categoryEntity.get());
@@ -68,8 +68,8 @@ public class ChzzkCategoryService {
         }
 
         log.info("Successfully get category info from Chzzk API. categoryId: {}", categoryId);
-        log.debug("Category Entity info: {}", result.toDTO().toEntity());
-        chzzkCategoryRepository.save(result.toDTO().toEntity());
+        log.debug("Category Entity info: {}", result.toDto().toEntity());
+        chzzkCategoryRepository.save(result.toDto().toEntity());
         return result;
     }
 }

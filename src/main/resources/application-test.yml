@@ -8,23 +8,25 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=POSTGRESQL
-    username: sa
-    password:
-    driverClassName: org.h2.Driver
+    # DB Config
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: ${APP_DB_URL}
+    username: ${APP_DB_USER}
+    password: ${APP_DB_PASSWORD}
     hikari:
       connection-timeout: 9000
       idle-timeout: 20000
       max-lifetime: 30000
+  # JPA
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+      # ddl-auto: validate
     properties:
       hibernate:
-        ddl-auto: none
-#        show_sql: true
-#        format_sql: true
-#        use_sql_comments: true
-
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
 chzzk:
   check-interval: 120
   api-url: ${CHZZK_API_URL:null}

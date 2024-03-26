@@ -19,7 +19,7 @@ public class ChzzkLiveVo extends BaseChzzkLiveVo {
     @JsonProperty("channelId")
     private String channelId;
 
-    public ChzzkLiveDto toDTO() {
+    public ChzzkLiveDto toDto() {
         return ChzzkLiveDto.builder()
                 .liveTitle(liveTitle)
                 .liveImageUrl(liveImageUrl)

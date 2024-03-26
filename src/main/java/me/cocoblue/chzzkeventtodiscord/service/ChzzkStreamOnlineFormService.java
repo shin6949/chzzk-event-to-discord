@@ -1,15 +1,14 @@
 package me.cocoblue.chzzkeventtodiscord.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkStreamOnlineFormEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkStreamOnlineFormRepository;
-import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
-import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Log4j2
 @Service
