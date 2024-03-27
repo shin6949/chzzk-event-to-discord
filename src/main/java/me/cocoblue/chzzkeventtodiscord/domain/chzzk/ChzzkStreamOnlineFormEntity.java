@@ -18,7 +18,7 @@ public class ChzzkStreamOnlineFormEntity extends ChzzkSubscriptionFormEntity {
     @ColumnDefault("0")
     private boolean showDetail;
 
-    @Column(name = "show_thumbnaill", nullable = false, length = 1)
+    @Column(name = "show_thumbnail", nullable = false, length = 1)
     @ColumnDefault("1")
     private boolean showThumbnail;
 }
