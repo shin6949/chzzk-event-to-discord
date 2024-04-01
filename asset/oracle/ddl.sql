@@ -132,41 +132,41 @@ CREATE TABLE notification_log (
     created_at  TIMESTAMP       NOT NULL
 );
 
--- -- chzzk_channel PK
--- ALTER TABLE chzzk_category ADD CONSTRAINT pk_chzzk_category PRIMARY KEY (category_id, category_type);
---
--- -- chzzk_channel PK
--- ALTER TABLE chzzk_channel ADD CONSTRAINT pk_chzzk_channel PRIMARY KEY (channel_id);
---
--- -- discord_webhook_data PK
--- ALTER TABLE discord_webhook_data ADD CONSTRAINT pk_discord_webhook_data PRIMARY KEY (id);
---
--- -- discord_webhook_data FK
--- ALTER TABLE discord_webhook_data ADD CONSTRAINT fk_discord_webhook_data_owner_id FOREIGN KEY (owner_id) REFERENCES chzzk_channel(channel_id);
---
--- -- discord_bot_profile_data PK
--- ALTER TABLE discord_bot_profile_data ADD CONSTRAINT pk_discord_bot_profile_data PRIMARY KEY (id);
---
--- -- discord_bot_profile_data FK
--- ALTER TABLE discord_bot_profile_data ADD CONSTRAINT fk_bot_profile_data_owner_id FOREIGN KEY (owner_id) REFERENCES chzzk_channel(channel_id);
---
--- -- chzzk_subscription_form PK
--- ALTER TABLE chzzk_subscription_form ADD CONSTRAINT pk_chzzk_subscription_form PRIMARY KEY (id);
---
--- -- chzzk_subscription_form FK
--- ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_channel_id FOREIGN KEY (channel_id) REFERENCES chzzk_channel(channel_id);
--- ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_webhook_id FOREIGN KEY (webhook_id) REFERENCES discord_webhook_data(id);
--- ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_owner_channel_id FOREIGN KEY (form_owner) REFERENCES chzzk_channel(channel_id);
--- ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_bot_profile_id FOREIGN KEY (bot_profile_id) REFERENCES discord_bot_profile_data(id);
---
--- -- chzzk_subscription_stream_online_form PK
--- ALTER TABLE chzzk_subscription_stream_online_form ADD CONSTRAINT pk_chzzk_subscription_stream_online_form PRIMARY KEY (id);
---
--- -- chzzk_subscription_stream_online_form FK
--- ALTER TABLE chzzk_subscription_stream_online_form ADD CONSTRAINT fk_chzzk_subscription_stream_online_form_id FOREIGN KEY (id) REFERENCES chzzk_subscription_form(id);
---
--- -- notification_log PK
--- ALTER TABLE notification_log ADD CONSTRAINT pk_notification_log PRIMARY KEY (log_id);
---
--- -- notification_log FK
--- ALTER TABLE notification_log ADD CONSTRAINT fk_notification_log_form_id FOREIGN KEY (form_id) REFERENCES chzzk_subscription_form(id);
+-- chzzk_channel PK
+ALTER TABLE chzzk_category ADD CONSTRAINT pk_chzzk_category PRIMARY KEY (category_id, category_type);
+
+-- chzzk_channel PK
+ALTER TABLE chzzk_channel ADD CONSTRAINT pk_chzzk_channel PRIMARY KEY (channel_id);
+
+-- discord_webhook_data PK
+ALTER TABLE discord_webhook_data ADD CONSTRAINT pk_discord_webhook_data PRIMARY KEY (id);
+
+-- discord_webhook_data FK
+ALTER TABLE discord_webhook_data ADD CONSTRAINT fk_discord_webhook_data_owner_id FOREIGN KEY (owner_id) REFERENCES chzzk_channel(channel_id);
+
+-- discord_bot_profile_data PK
+ALTER TABLE discord_bot_profile_data ADD CONSTRAINT pk_discord_bot_profile_data PRIMARY KEY (id);
+
+-- discord_bot_profile_data FK
+ALTER TABLE discord_bot_profile_data ADD CONSTRAINT fk_bot_profile_data_owner_id FOREIGN KEY (owner_id) REFERENCES chzzk_channel(channel_id);
+
+-- chzzk_subscription_form PK
+ALTER TABLE chzzk_subscription_form ADD CONSTRAINT pk_chzzk_subscription_form PRIMARY KEY (id);
+
+-- chzzk_subscription_form FK
+ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_channel_id FOREIGN KEY (channel_id) REFERENCES chzzk_channel(channel_id);
+ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_webhook_id FOREIGN KEY (webhook_id) REFERENCES discord_webhook_data(id);
+ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_owner_channel_id FOREIGN KEY (form_owner) REFERENCES chzzk_channel(channel_id);
+ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_bot_profile_id FOREIGN KEY (bot_profile_id) REFERENCES discord_bot_profile_data(id);
+
+-- chzzk_subscription_stream_online_form PK
+ALTER TABLE chzzk_subscription_stream_online_form ADD CONSTRAINT pk_chzzk_subscription_stream_online_form PRIMARY KEY (id);
+
+-- chzzk_subscription_stream_online_form FK
+ALTER TABLE chzzk_subscription_stream_online_form ADD CONSTRAINT fk_chzzk_subscription_stream_online_form_id FOREIGN KEY (id) REFERENCES chzzk_subscription_form(id) ON DELETE CASCADE;
+
+-- notification_log PK
+ALTER TABLE notification_log ADD CONSTRAINT pk_notification_log PRIMARY KEY (log_id);
+
+-- notification_log FK
+ALTER TABLE notification_log ADD CONSTRAINT fk_notification_log_form_id FOREIGN KEY (form_id) REFERENCES chzzk_subscription_form(id);
