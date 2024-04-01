@@ -67,6 +67,7 @@ public class ChzzkSubscriptionFormEntity {
     private String content;
 
     @Column(name = "color_hex", nullable = false, length = 11)
+    @ColumnDefault("000000")
     private String colorHex;
 
     public int getDecimalColor() {

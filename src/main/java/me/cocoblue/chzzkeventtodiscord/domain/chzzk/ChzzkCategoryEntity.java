@@ -24,11 +24,10 @@ public class ChzzkCategoryEntity {
     @Column(name = "category_name", nullable = false)
     private String categoryName;
 
-    @Column(name = "poster_image_url", length = 32780)
+    @Column(name = "poster_image_url", length = 30000)
     private String posterImageUrl;
 
     @Column(name = "updated_at", nullable = false)
-    @ColumnDefault("CURRENT_TIMESTAMP")
     @UpdateTimestamp
     private ZonedDateTime updatedAt;
 }

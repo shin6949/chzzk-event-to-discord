@@ -22,7 +22,7 @@ public class NotificationLogEntity {
     private Long id;
 
     @ManyToOne()
-    @JoinColumn(name = "form_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_LOG_FORM_ID"), nullable = false)
+    @JoinColumn(name = "form_id", foreignKey = @ForeignKey(name = "fk_notification_log_form_id"), nullable = false)
     private ChzzkSubscriptionFormEntity subscriptionForm;
 
     @CreationTimestamp

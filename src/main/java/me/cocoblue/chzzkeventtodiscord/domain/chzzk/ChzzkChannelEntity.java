@@ -28,8 +28,8 @@ public class ChzzkChannelEntity implements Serializable {
     // 30자 제한이지만 여유를 두어 33자로 설정
     @Column(length = 33, name = "channel_name", nullable = false)
     private String channelName;
-    // URL 길이 제한 (크롬: 32,779)
-    @Column(length = 32780, name = "profile_url")
+    // URL 길이 제한 (크롬: 32,779) -> 그러나 Oracle DB의 제한으로 인해 30,000으로 설정
+    @Column(length = 30000, name = "profile_url")
     private String profileUrl;
     @Column(name = "is_verified_mark", nullable = false)
     private boolean isVerifiedMark;

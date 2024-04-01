@@ -34,7 +34,7 @@ create table chzzk_category (
     category_name varchar(255) not null,
     -- NULLABLE added at Ver.0.1.2
     poster_image_url varchar(32780),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP not null,
+    updated_at TIMESTAMP WITH TIME ZONE not null,
     primary key (category_id, category_type)
 );
 
@@ -53,7 +53,7 @@ CREATE TABLE chzzk_subscription_form (
     bot_profile_id BIGINT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     webhook_id BIGINT NOT NULL,
-    color_hex VARCHAR(11) NOT NULL,
+    color_hex VARCHAR(11) NOT NULL DEFAULT '000000',
     content VARCHAR(2000) NOT NULL,
     channel_id VARCHAR(255),
     form_owner VARCHAR(255) NOT NULL,

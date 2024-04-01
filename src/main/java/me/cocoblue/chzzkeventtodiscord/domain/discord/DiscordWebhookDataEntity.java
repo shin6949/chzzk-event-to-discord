@@ -20,13 +20,13 @@ public class DiscordWebhookDataEntity {
     @Column(name = "name", length = 500, nullable = false)
     private String name;
 
-    @Column(name = "webhoook_url", length = 500, nullable = false)
+    @Column(name = "webhook_url", length = 30000, nullable = false)
     private String webhookUrl;
 
-    @Column(name = "meno")
+    @Column(name = "meno", length = 500)
     private String meno;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "FK_WEBHOOK_DATA_OWNER_ID"), nullable = false)
+    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "fk_discord_webhook_data_owner_id"), nullable = false)
     private ChzzkChannelEntity ownerId;
 }
