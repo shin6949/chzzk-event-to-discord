@@ -1,5 +1,6 @@
 package me.cocoblue.chzzkeventtodiscord.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class NotificationLogService {
     private final NotificationLogRepository notificationLogRepository;
 
+    @Transactional
     public void insertNotificationLog(final Long subscriptionId) {
         log.info("Insert notification log. subscriptionId: {}", subscriptionId);
         final ChzzkSubscriptionFormEntity subscriptionForm = ChzzkSubscriptionFormEntity.builder()
@@ -23,6 +25,7 @@ public class NotificationLogService {
                 .subscriptionForm(subscriptionForm)
                 .build();
 
+        log.info("Insert notificationLogEntity. notificationLogEntity: {}", notificationLogEntity);
         notificationLogRepository.save(notificationLogEntity);
     }
 }

@@ -7,7 +7,8 @@ spring:
 
   datasource:
     # DB Config
-    driver-class-name: org.postgresql.Driver
+#    driver-class-name: org.postgresql.Driver
+    driver-class-name: ${APP_DB_DRIVER}
     url: ${APP_DB_URL}
     username: ${APP_DB_USER}
     password: ${APP_DB_PASSWORD}
@@ -21,12 +22,12 @@ spring:
   # JPA
   jpa:
     hibernate:
-#      ddl-auto: create
-      ddl-auto: validate
+      ddl-auto: create
+#      ddl-auto: validate
     properties:
       hibernate:
         show_sql: true
-        format_sql: true
+        format_sql: false
         use_sql_comments: true
 
 chzzk:

@@ -84,7 +84,6 @@ class ChzzkSubscriptionFormRepositoryTests {
                 .intervalMinute(10)
                 .colorHex("FFFFFF")
                 .enabled(true)
-                .showDetail(false)
                 .content("testContent")
                 .botProfileId(COMMON_BOT_PROFILE_ENTITY)
                 .build());
@@ -98,7 +97,6 @@ class ChzzkSubscriptionFormRepositoryTests {
                 .intervalMinute(10)
                 .colorHex("FFFFFF")
                 .enabled(false)
-                .showDetail(false)
                 .botProfileId(COMMON_BOT_PROFILE_ENTITY)
                 .build());
 

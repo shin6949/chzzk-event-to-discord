@@ -9,10 +9,12 @@ spring:
     allow-bean-definition-overriding: true
   datasource:
     # DB Config
-    driver-class-name: oracle.jdbc.OracleDriver
-    url: ${APP_DB_URL}
-    username: ${APP_DB_USER}
-    password: ${APP_DB_PASSWORD}
+#    driver-class-name: oracle.jdbc.OracleDriver
+    driver-class-name: org.h2.Driver
+#    url: ${APP_DB_URL}
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
     hikari:
       connection-timeout: 9000
       idle-timeout: 20000
@@ -20,8 +22,8 @@ spring:
   # JPA
   jpa:
     hibernate:
-#      ddl-auto: create
-       ddl-auto: validate
+      ddl-auto: create
+#       ddl-auto: validate
     properties:
       hibernate:
         show_sql: true
