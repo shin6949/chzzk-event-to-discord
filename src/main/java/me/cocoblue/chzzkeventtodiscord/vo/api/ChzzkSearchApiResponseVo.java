@@ -3,15 +3,14 @@ package me.cocoblue.chzzkeventtodiscord.vo.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVo;
 import me.cocoblue.chzzkeventtodiscord.vo.ChzzkLiveVo;
 import me.cocoblue.chzzkeventtodiscord.vo.ChzzkVideoVo;
-
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @NoArgsConstructor

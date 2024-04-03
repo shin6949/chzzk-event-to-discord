@@ -1,7 +1,11 @@
 package me.cocoblue.chzzkeventtodiscord.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.data.LanguageIsoData;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 

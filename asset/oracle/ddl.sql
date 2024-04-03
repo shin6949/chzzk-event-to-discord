@@ -141,9 +141,9 @@ ALTER TABLE discord_bot_profile_data ADD CONSTRAINT fk_bot_profile_data_owner_id
 
 -- chzzk_subscription_form FK
 ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_channel_id FOREIGN KEY (channel_id) REFERENCES chzzk_channel(channel_id);
-ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_webhook_id FOREIGN KEY (webhook_id) REFERENCES discord_webhook_data(id);
+ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_webhook_id FOREIGN KEY (webhook_id) REFERENCES discord_webhook_data(id) ON DELETE CASCADE;
 ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_owner_channel_id FOREIGN KEY (form_owner) REFERENCES chzzk_channel(channel_id);
-ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_bot_profile_id FOREIGN KEY (bot_profile_id) REFERENCES discord_bot_profile_data(id);
+ALTER TABLE chzzk_subscription_form ADD CONSTRAINT fk_chzzk_subscription_form_bot_profile_id FOREIGN KEY (bot_profile_id) REFERENCES discord_bot_profile_data(id) ON DELETE CASCADE;
 
 -- chzzk_subscription_stream_online_form FK
 ALTER TABLE chzzk_subscription_stream_online_form ADD CONSTRAINT fk_chzzk_subscription_stream_online_form_id FOREIGN KEY (id) REFERENCES chzzk_subscription_form(id) ON DELETE CASCADE;

@@ -3,14 +3,12 @@ package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor

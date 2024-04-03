@@ -1,5 +1,11 @@
 package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
@@ -19,13 +25,6 @@ import me.cocoblue.chzzkeventtodiscord.service.NotificationLogService;
 import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 @Log4j2
 @Service
@@ -62,9 +61,8 @@ public class ChzzkEventSender {
             return;
         }
 
-        final ChzzkLiveDetailDto chzzkLiveDetailDto = liveStatusService.getLiveDetailFromApi(chzzkChannelDto.getChannelName());
+        final ChzzkLiveDetailDto chzzkLiveDetailDto = liveStatusService.getLiveDetailFromApi(chzzkChannelDto.getChannelId());
         log.debug("liveDetail: {}", chzzkLiveDetailDto);
-
         final ChzzkCategoryDto categoryData;
         if (chzzkLiveDetailDto.getCategoryId() == null || chzzkLiveDetailDto.getCategoryType() == null || chzzkLiveDetailDto.getCategoryValue() == null) {
             categoryData = null;
@@ -222,10 +220,19 @@ public class ChzzkEventSender {
         final DiscordEmbed.Author author = createAuthor(channelData, "stream.online.event-message", locale, ChzzkSubscriptionType.STREAM_ONLINE);
 
         DiscordEmbed.Image image = null;
-        if(form.isShowThumbnail()) {
+        // 기존에 중첩된 조건문을 간소화하여 가독성을 높임
+        if (form.isShowThumbnail() && !liveDetailDto.isAdult() && liveDetailDto.getLiveImageUrl() != null) {
             image = DiscordEmbed.Image.builder()
-                    .url(liveDetailDto.getLiveImageUrl().replace("{type}", "480"))
-                    .build();
+                .url(liveDetailDto.getLiveImageUrl().replace("{type}", "480"))
+                .build();
+        } else {
+            if (form.isShowThumbnail()) {
+                if (liveDetailDto.isAdult()) {
+                    log.info("Stream was set as adult stream. Thumbnail is not exists. Channel ID: {}", channelData.getChannelId());
+                } else {
+                    log.info("Live Image URL is NULL. Channel ID: {}", channelData.getChannelId());
+                }
+            }
         }
 
         final List<DiscordEmbed> discordEmbeds = new ArrayList<>();

@@ -2,23 +2,57 @@ package me.cocoblue.chzzkeventtodiscord.vo.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableGroupType;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveDetailDto;
 
-import java.time.LocalDateTime;
-
 // For Chzzk Live Detail API
+@Getter
+@ToString(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ChzzkLiveDetailVo extends ChzzkApiCommonResponseVo {
+    @JsonProperty("content")
+    private ChzzkLiveDetailVoContent content;
+
+    public ChzzkLiveDetailDto toDto() {
+        return ChzzkLiveDetailDto.builder()
+            .liveId(content.getLiveId())
+            .liveTitle(content.getLiveTitle())
+            .liveImageUrl(content.getLiveImageUrl())
+            .defaultThumbnailImageUrl(content.getDefaultThumbnailImageUrl())
+            .concurrentUserCount(content.getConcurrentUserCount())
+            .accumulateCount(content.getAccumulateCount())
+            .openDate(content.getOpenDate())
+            .closeDate(content.getCloseDate())
+            .chatChannelId(content.getChatChannelId())
+            .categoryType(content.getCategoryType())
+            .categoryId(content.getLiveCategory())
+            .categoryValue(content.getLiveCategoryValue())
+            .adult(content.isAdult())
+            .chatActive(content.isChatActive())
+            .chatAvailableGroup(content.getChatAvailableGroup())
+            .chatAvailableCondition(content.getChatAvailableCondition())
+            .minFollowerMinute(content.getMinFollowerMinute())
+            .build();
+    }
+}
+
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChzzkLiveDetailVo extends BaseChzzkLiveVo {
+class ChzzkLiveDetailVoContent extends BaseChzzkLiveVo {
     @JsonProperty("closeDate")
     private LocalDateTime closeDate;
     @JsonProperty("adult")
@@ -31,26 +65,4 @@ public class ChzzkLiveDetailVo extends BaseChzzkLiveVo {
     private ChzzkChatAvailableConditionType chatAvailableCondition;
     @JsonProperty("minFollowerMinute")
     private int minFollowerMinute;
-
-    public ChzzkLiveDetailDto toDto() {
-        return ChzzkLiveDetailDto.builder()
-                .liveId(liveId)
-                .liveTitle(liveTitle)
-                .liveImageUrl(liveImageUrl)
-                .defaultThumbnailImageUrl(defaultThumbnailImageUrl)
-                .concurrentUserCount(concurrentUserCount)
-                .accumulateCount(accumulateCount)
-                .openDate(openDate)
-                .closeDate(closeDate)
-                .chatChannelId(chatChannelId)
-                .categoryType(categoryType)
-                .categoryId(liveCategory)
-                .categoryValue(liveCategoryValue)
-                .adult(adult)
-                .chatActive(chatActive)
-                .chatAvailableGroup(chatAvailableGroup)
-                .chatAvailableCondition(chatAvailableCondition)
-                .minFollowerMinute(minFollowerMinute)
-                .build();
-    }
 }

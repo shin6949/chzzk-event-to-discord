@@ -1,13 +1,12 @@
 package me.cocoblue.chzzkeventtodiscord.dto.chzzk;
 
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryId;
-
-import java.time.ZonedDateTime;
 
 @Data
 @Builder

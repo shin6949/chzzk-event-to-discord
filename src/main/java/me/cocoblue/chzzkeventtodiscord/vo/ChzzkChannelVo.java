@@ -2,13 +2,12 @@ package me.cocoblue.chzzkeventtodiscord.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkChannelDto;
-
-import java.time.LocalDate;
 
 @Getter
 @Builder

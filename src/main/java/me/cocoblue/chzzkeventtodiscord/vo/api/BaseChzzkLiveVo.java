@@ -1,13 +1,13 @@
 package me.cocoblue.chzzkeventtodiscord.vo.api;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -28,6 +28,7 @@ public class BaseChzzkLiveVo {
     @JsonProperty("accumulateCount")
     protected int accumulateCount;
     @JsonProperty("openDate")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     protected LocalDateTime openDate;
     @JsonProperty("chatChannelId")
     protected String chatChannelId;

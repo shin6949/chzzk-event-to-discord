@@ -1,5 +1,10 @@
 package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
@@ -13,11 +18,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -29,6 +29,8 @@ public class ChzzkEventReader {
     private final ChzzkEventClassifier chzzkEventClassifier;
     @Value("${app.is-test:false}")
     private boolean isTest;
+    @Value("${chzzk.check-interval:30}")
+    private int checkInterval;
 
     @Scheduled(fixedRateString = "#{${chzzk.check-interval:30} * 1000}")
     public void readEvent() {
@@ -53,9 +55,16 @@ public class ChzzkEventReader {
     @Async
     public void classifyEventAndRunTrigger(final String channelId) {
         log.info("Classify event and send to Discord. channelId: {}", channelId);
-        final ChzzkChannelDto channelDataFromDatabase = new ChzzkChannelDto(chzzkChannelRepository.findById(channelId).orElseThrow());
+        final ChzzkChannelEntity channelEntityFromDatabase = chzzkChannelRepository.findById(channelId).orElseThrow();
+        final ChzzkChannelDto channelDataFromDatabase = new ChzzkChannelDto(channelEntityFromDatabase);
         // API 상에서 채널 정보를 가져오면 정보는 자동으로 DB에 업데이트 되므로 별도의 로직이 필요 없음. 즉, 상기 코드가 선행되어야 비교가 가능하다.
         final ChzzkChannelDto channelDataFromApi = chzzkChannelService.getChannelByChannelIdAtAPI(channelId);
+
+        // channelDataFromDatabase와 channelDataFromApi의 Update 시간이 CHZZK_CHECK_INTERVAL + 60초 차이가 난다면, 이벤트를 트리거 하지 않음. (최초 실행 시 오안내 방지)
+//        if (ZonedDateTime.now().minusSeconds(checkInterval + 60).isBefore(channelEntityFromDatabase.getLastCheckTime())) {
+//            log.info("Skip event trigger. Channel data in database is too old. channelId: {}", channelId);
+//            return;
+//        }
 
         // Database에서 가져온 데이터와 API에서 가져온 데이터를 비교하여 이벤트를 분류한다.
         // Live 이벤트와 Offline 이벤트는 공존할 수 없으므로 else if로 구분하여 불필요한 로직 실행을 막음.
