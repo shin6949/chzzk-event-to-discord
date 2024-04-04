@@ -124,7 +124,8 @@ CREATE TABLE chzzk_subscription_form (
 CREATE TABLE chzzk_subscription_stream_online_form (
     id              NUMBER(38) NOT NULL PRIMARY KEY,
     show_detail     NUMBER(1)   DEFAULT 0 NOT NULL,
-    show_thumbnail  NUMBER(1)   DEFAULT 1 NOT NULL
+    show_thumbnail  NUMBER(1)   DEFAULT 1 NOT NULL,
+    show_viewer_num NUMBER(1)   DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE notification_log (

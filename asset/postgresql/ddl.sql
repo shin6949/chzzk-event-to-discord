@@ -77,5 +77,6 @@ CREATE TABLE chzzk_subscription_stream_online_form (
     id  bigserial   PRIMARY KEY,
     show_detail  BOOLEAN  NOT NULL DEFAULT 0,
     show_thumbnail BOOLEAN  NOT NULL DEFAULT 1,
+    show_viewer_count BOOLEAN  NOT NULL DEFAULT 0,
     FOREIGN KEY (id) REFERENCES chzzk_subscription_form (id) ON DELETE CASCADE
 );

@@ -217,6 +217,17 @@ public class ChzzkEventSender {
             }
         }
 
+        // 시청자 수를 Field에 보여줄지 여부
+        if(form.isShowViewerCount()) {
+            final DiscordEmbed.Field viewerCountField = DiscordEmbed.Field.builder()
+                    .name(messageSource.getMessage("stream.online.viewer-count", null, locale))
+                    .value(messageSource.getMessage("stream.online.viewer-count", new Object[]{String.valueOf(liveDetailDto.getConcurrentUserCount())}, locale))
+                    .inline(true)
+                    .build();
+
+            fields.add(viewerCountField);
+        }
+
         final DiscordEmbed.Author author = createAuthor(channelData, "stream.online.event-message", locale, ChzzkSubscriptionType.STREAM_ONLINE);
 
         DiscordEmbed.Image image = null;
