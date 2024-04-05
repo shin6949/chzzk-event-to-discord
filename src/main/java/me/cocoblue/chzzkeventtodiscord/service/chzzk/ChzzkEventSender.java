@@ -221,7 +221,7 @@ public class ChzzkEventSender {
         if(form.isShowViewerCount()) {
             final DiscordEmbed.Field viewerCountField = DiscordEmbed.Field.builder()
                     .name(messageSource.getMessage("stream.online.viewer-count", null, locale))
-                    .value(messageSource.getMessage("stream.online.viewer-count", new Object[]{String.valueOf(liveDetailDto.getConcurrentUserCount())}, locale))
+                    .value(messageSource.getMessage("stream.online.viewer-count-num", new Object[]{String.valueOf(liveDetailDto.getConcurrentUserCount())}, locale))
                     .inline(true)
                     .build();
 
