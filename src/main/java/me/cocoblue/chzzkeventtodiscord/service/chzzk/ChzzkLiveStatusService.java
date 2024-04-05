@@ -3,11 +3,11 @@ package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveDTO;
-import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveStatusDTO;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkLiveVO;
-import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkLiveStatusAPIResponseVO;
-import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkSearchAPIResponseVO;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveDto;
+import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveStatusDto;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkLiveVo;
+import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkLiveStatusApiResponseVo;
+import me.cocoblue.chzzkeventtodiscord.vo.api.ChzzkSearchApiResponseVo;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -26,15 +26,15 @@ public class ChzzkLiveStatusService {
                 .build();
     }
 
-    public ChzzkLiveStatusDTO getLiveStatusFromAPI(final String channelId) {
+    public ChzzkLiveStatusDto getLiveStatusFromApi(final String channelId) {
         final String url = "/polling/v2/channels/%s/live-status";
 
-        final ChzzkLiveStatusAPIResponseVO result = WEB_CLIENT
+        final ChzzkLiveStatusApiResponseVo result = WEB_CLIENT
                 .get()
                 .uri(String.format(url, channelId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(ChzzkLiveStatusAPIResponseVO.class)
+                .bodyToMono(ChzzkLiveStatusApiResponseVo.class)
                 .block();
 
         if (result == null || result.getCode() != 200) {
@@ -42,18 +42,18 @@ public class ChzzkLiveStatusService {
             return null;
         }
 
-        return result.toDTO();
+        return result.toDto();
     }
 
-    public ChzzkLiveDTO getLiveStatusFromSearchAPI(final String channelName) {
+    public ChzzkLiveDto getLiveStatusFromSearchApi(final String channelName) {
         final String url = "/service/v1/search/channels?keyword=%s&offset=0&size=18&withFirstChannelContent=false";
 
-        final ChzzkSearchAPIResponseVO result = WEB_CLIENT
+        final ChzzkSearchApiResponseVo result = WEB_CLIENT
                 .get()
                 .uri(String.format(url, channelName))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(ChzzkSearchAPIResponseVO.class)
+                .bodyToMono(ChzzkSearchApiResponseVo.class)
                 .block();
 
         if (result == null || result.getContentSize() == 0) {
@@ -65,11 +65,11 @@ public class ChzzkLiveStatusService {
             log.warn("There are more than one channel with the same name. The first channel will be used. channelName: {}", channelName);
         }
 
-        final ChzzkLiveVO resultLiveVO = result.getLive(0);
+        final ChzzkLiveVo resultLiveVO = result.getLive(0);
         if (resultLiveVO == null) {
             log.error("Failed to get Live info by channel name from Chzzk API. channelName: {}", channelName);
             return null;
         }
-        return resultLiveVO.toDTO();
+        return resultLiveVO.toDto();
     }
 }

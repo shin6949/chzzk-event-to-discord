@@ -3,13 +3,12 @@ package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.time.ZonedDateTime;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Data
 @NoArgsConstructor
@@ -23,10 +22,10 @@ public class ChzzkCategoryEntity {
     @Column(name = "category_name", nullable = false)
     private String categoryName;
 
-    @Column(name = "poster_image_url", length = 32780)
+    @Column(name = "poster_image_url", length = 30000)
     private String posterImageUrl;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = false)
+    @UpdateTimestamp
     private ZonedDateTime updatedAt;
 }

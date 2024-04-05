@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVO;
+import me.cocoblue.chzzkeventtodiscord.vo.ChzzkChannelVo;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChzzkChannelInfoAPIResponseVO extends ChzzkAPICommonResponseVO {
+public class ChzzkChannelInfoApiResponseVo extends ChzzkApiCommonResponseVo {
     @JsonProperty("content")
-    private ChzzkChannelVO content;
+    private ChzzkChannelVo content;
 }

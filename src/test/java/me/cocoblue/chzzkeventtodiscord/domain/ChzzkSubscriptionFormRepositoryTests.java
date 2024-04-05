@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import me.cocoblue.chzzkeventtodiscord.data.LanguageIsoData;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
-import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataEntity;
@@ -23,9 +22,9 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -34,9 +33,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class ChzzkSubscriptionFormRepositoryTests {
     @Autowired
     private ChzzkSubscriptionFormRepository chzzkSubscriptionFormRepository;
-
-    @Autowired
-    private ChzzkChannelRepository chzzkChannelRepository;
 
     @Autowired
     private DiscordWebhookDataRepository discordWebhookDataRepository;
@@ -88,7 +84,6 @@ class ChzzkSubscriptionFormRepositoryTests {
                 .intervalMinute(10)
                 .colorHex("FFFFFF")
                 .enabled(true)
-                .showDetail(false)
                 .content("testContent")
                 .botProfileId(COMMON_BOT_PROFILE_ENTITY)
                 .build());
@@ -102,7 +97,6 @@ class ChzzkSubscriptionFormRepositoryTests {
                 .intervalMinute(10)
                 .colorHex("FFFFFF")
                 .enabled(false)
-                .showDetail(false)
                 .botProfileId(COMMON_BOT_PROFILE_ENTITY)
                 .build());
 

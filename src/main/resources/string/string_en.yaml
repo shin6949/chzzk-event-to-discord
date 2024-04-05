@@ -6,6 +6,8 @@ stream:
     false: "No"
     chat-available-group: "Chat Available Group"
     chat-available-condition: "Chat Available Condition"
+    viewer-count: "viewer"
+    viewer-count-num: "{0}"
     footer: "Naver Chzzk"
 
   offline:

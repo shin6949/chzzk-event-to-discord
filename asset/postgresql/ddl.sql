@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS chzzk_live_status;
 DROP TABLE IF EXISTS chzzk_category;
 DROP TABLE IF EXISTS discord_webhook_data;
 DROP TABLE IF EXISTS chzzk_channel;
+DROP TABLE IF EXISTS chzzk_subscription_stream_online_form;
 
 create table chzzk_channel (
    channel_id varchar(255) not null primary key,
@@ -16,7 +17,6 @@ create table chzzk_channel (
    subscription_availability BOOLEAN DEFAULT FALSE,
    is_verified_mark boolean not null,
    last_check_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP not null
---    version BIGINT DEFAULT 0 not null
 );
 
 create table discord_webhook_data (
@@ -32,25 +32,11 @@ create table chzzk_category (
     category_type varchar(255) not null,
     category_id varchar(255) not null,
     category_name varchar(255) not null,
-    poster_image_url varchar(32780) not null,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP not null,
+    -- NULLABLE added at Ver.0.1.2
+    poster_image_url varchar(32780),
+    updated_at TIMESTAMP WITH TIME ZONE not null,
     primary key (category_id, category_type)
 );
-
--- CREATE TABLE chzzk_live_status (
---    channel_id VARCHAR(255) NOT NULL PRIMARY KEY,
---    live_title VARCHAR(110) NOT NULL,
---    category_id VARCHAR(255),
---    category_type VARCHAR(255),
---    adult boolean NOT NULL DEFAULT false,
---    paid_promotion boolean NOT NULL DEFAULT false,
---    chat_available_group VARCHAR(255) NOT NULL DEFAULT 'ALL',
---    chat_available_condition VARCHAR(255) NOT NULL DEFAULT 'NONE',
---    min_follower_minute BIGINT NOT NULL DEFAULT 0,
---    last_check_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
---    version BIGINT DEFAULT 0 NOT NULL,
---    CONSTRAINT FK_CHZZK_LIVE_INFO_CATEGORY_ID FOREIGN KEY (category_id, category_type) REFERENCES chzzk_category(category_id, category_type)
--- );
 
 create table discord_bot_profile_data (
     id bigserial not null primary key,
@@ -67,7 +53,7 @@ CREATE TABLE chzzk_subscription_form (
     bot_profile_id BIGINT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     webhook_id BIGINT NOT NULL,
-    color_hex VARCHAR(11) NOT NULL,
+    color_hex VARCHAR(11) NOT NULL DEFAULT '000000',
     content VARCHAR(2000) NOT NULL,
     channel_id VARCHAR(255),
     form_owner VARCHAR(255) NOT NULL,
@@ -84,4 +70,13 @@ create table notification_log (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP not null,
     form_id BIGINT not null,
     CONSTRAINT FK_NOTIFICATION_LOG_FORM_ID FOREIGN KEY (form_id) REFERENCES chzzk_subscription_form(id)
+);
+
+-- @since 0.1.3
+CREATE TABLE chzzk_subscription_stream_online_form (
+    id  bigserial   PRIMARY KEY,
+    show_detail  BOOLEAN  NOT NULL DEFAULT 0,
+    show_thumbnail BOOLEAN  NOT NULL DEFAULT 1,
+    show_viewer_count BOOLEAN  NOT NULL DEFAULT 0,
+    FOREIGN KEY (id) REFERENCES chzzk_subscription_form (id) ON DELETE CASCADE
 );

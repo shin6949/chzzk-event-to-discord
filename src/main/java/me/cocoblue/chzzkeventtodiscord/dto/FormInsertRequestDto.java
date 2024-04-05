@@ -1,7 +1,11 @@
 package me.cocoblue.chzzkeventtodiscord.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.data.LanguageIsoData;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 
@@ -10,7 +14,7 @@ import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class FormInsertRequestDTO {
+public class FormInsertRequestDto {
     @JsonProperty("channelId")
     private String channelId;
     @JsonProperty("channelName")

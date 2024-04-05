@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChzzkAPICommonResponseVO {
+public class ChzzkApiCommonResponseVo {
     @JsonProperty("code")
     private int code;
     @JsonProperty("message")

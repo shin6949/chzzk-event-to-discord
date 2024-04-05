@@ -1,13 +1,9 @@
 package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 
+import java.util.List;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface ChzzkSubscriptionFormRepository extends JpaRepository<ChzzkSubscriptionFormEntity, Long> {
@@ -17,7 +13,4 @@ public interface ChzzkSubscriptionFormRepository extends JpaRepository<ChzzkSubs
     List<ChzzkSubscriptionFormEntity> findAllByChzzkChannelEntityAndEnabled(ChzzkChannelEntity chzzkChannelEntity, boolean enabled);
 
     List<ChzzkSubscriptionFormEntity> findAllByEnabled(boolean enabled);
-
-    @Query("SELECT DISTINCT sf.chzzkChannelEntity.channelId FROM chzzk_subscription_form sf WHERE sf.enabled = :enabled")
-    Set<String> findDistinctChannelIdsByEnabled(@Param("enabled") boolean enabled);
 }

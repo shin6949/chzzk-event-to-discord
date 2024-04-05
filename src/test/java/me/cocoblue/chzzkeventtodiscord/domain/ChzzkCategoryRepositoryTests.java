@@ -1,6 +1,5 @@
 package me.cocoblue.chzzkeventtodiscord.domain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkCategoryId;

@@ -8,5 +8,7 @@ import lombok.Getter;
 public enum ChzzkSubscriptionType {
     STREAM_ONLINE,
     STREAM_OFFLINE,
-    CHANNEL_UPDATE
+    CHANNEL_UPDATE,
+    /* @since 1.2 */
+    STREAM_ONLINE_AND_OFFLINE,
 }

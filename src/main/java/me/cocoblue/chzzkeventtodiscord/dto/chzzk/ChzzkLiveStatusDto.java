@@ -12,7 +12,7 @@ import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkLiveStatusType;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChzzkLiveStatusDTO {
+public class ChzzkLiveStatusDto {
     private String liveTitle;
     private ChzzkLiveStatusType status;
     private Long concurrentUserCount;
@@ -27,4 +27,5 @@ public class ChzzkLiveStatusDTO {
     private String categoryType;
     private String categoryId;
     private String categoryValue;
+    private boolean chatDonationRankingExposure;
 }

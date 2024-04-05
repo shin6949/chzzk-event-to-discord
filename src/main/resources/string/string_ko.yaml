@@ -6,6 +6,8 @@ stream:
     false: "아니오"
     chat-available-group: "채팅 이용 대상"
     chat-available-condition: "채팅 이용 조건"
+    viewer-count: "시청자"
+    viewer-count-num: "{0}명"
     footer: "치지직"
 
   offline:

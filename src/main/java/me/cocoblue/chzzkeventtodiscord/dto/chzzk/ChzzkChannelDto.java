@@ -1,6 +1,10 @@
 package me.cocoblue.chzzkeventtodiscord.dto.chzzk;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 
 @Data
@@ -8,7 +12,7 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class ChzzkChannelDTO {
+public class ChzzkChannelDto {
     private String channelId;
     private String channelName;
     private String channelImageUrl;
@@ -18,7 +22,7 @@ public class ChzzkChannelDTO {
     private boolean openLive;
     private boolean subscriptionAvailability;
 
-    public ChzzkChannelDTO(ChzzkChannelEntity entity) {
+    public ChzzkChannelDto(ChzzkChannelEntity entity) {
         this.channelId = entity.getChannelId();
         this.channelName = entity.getChannelName();
         this.channelImageUrl = entity.getProfileUrl();

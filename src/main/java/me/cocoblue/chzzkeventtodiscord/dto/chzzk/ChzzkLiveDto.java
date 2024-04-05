@@ -1,17 +1,16 @@
 package me.cocoblue.chzzkeventtodiscord.dto.chzzk;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChzzkLiveDTO {
+public class ChzzkLiveDto {
     private String liveTitle;
     private String liveImageUrl;
     private String defaultThumbnailImageUrl;
