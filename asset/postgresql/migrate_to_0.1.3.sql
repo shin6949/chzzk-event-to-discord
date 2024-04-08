@@ -4,6 +4,7 @@ CREATE TABLE chzzk_subscription_stream_online_form (
     id  bigserial   PRIMARY KEY,
     show_detail  BOOLEAN  NOT NULL DEFAULT false,
     show_thumbnail BOOLEAN  NOT NULL DEFAULT true,
+    show_viewer_num BOOLEAN  NOT NULL DEFAULT false,
     FOREIGN KEY (id) REFERENCES chzzk_subscription_form (id) ON DELETE CASCADE
 );
 
