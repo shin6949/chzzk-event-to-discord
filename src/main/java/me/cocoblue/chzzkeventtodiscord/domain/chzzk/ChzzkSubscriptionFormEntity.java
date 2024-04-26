@@ -1,19 +1,6 @@
 package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import java.time.ZonedDateTime;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +11,8 @@ import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataEntit
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataEntity;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.ZonedDateTime;
 
 @Data
 @SuperBuilder

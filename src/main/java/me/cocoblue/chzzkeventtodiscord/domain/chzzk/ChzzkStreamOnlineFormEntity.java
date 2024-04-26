@@ -2,11 +2,7 @@ package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -29,4 +25,8 @@ public class ChzzkStreamOnlineFormEntity extends ChzzkSubscriptionFormEntity {
     @Column(name = "show_viewer_count", nullable = false, length = 1)
     @ColumnDefault("0")
     private boolean showViewerCount;
+
+    @Column(name = "show_tags", nullable = false, length = 1)
+    @ColumnDefault("1")
+    private boolean showTags;
 }

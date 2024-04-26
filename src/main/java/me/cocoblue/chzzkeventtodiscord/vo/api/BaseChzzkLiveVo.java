@@ -3,11 +3,13 @@ package me.cocoblue.chzzkeventtodiscord.vo.api;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -40,4 +42,7 @@ public class BaseChzzkLiveVo {
     protected String liveCategoryValue;
     @JsonProperty("livePlaybackJson")
     protected String livePlaybackJson;
+    // After 2024-04-24
+    @JsonProperty("tags")
+    protected List<String> tags;
 }
