@@ -229,10 +229,20 @@ public class ChzzkEventSender {
             fields.add(viewerCountField);
         }
 
+        // 태그를 Field에 보여줄지 여부
+        if(form.isShowTag() && !liveDetailDto.getTags().isEmpty()) {
+            final DiscordEmbed.Field isAdultField = DiscordEmbed.Field.builder()
+                .name(messageSource.getMessage("stream.online.tag", null, locale))
+                .value(String.join(", ", liveDetailDto.getTags()))
+                .inline(true)
+                .build();
+
+            fields.add(isAdultField);
+        }
+
         final DiscordEmbed.Author author = createAuthor(channelData, "stream.online.event-message", locale, ChzzkSubscriptionType.STREAM_ONLINE);
 
         DiscordEmbed.Image image = null;
-        // 기존에 중첩된 조건문을 간소화하여 가독성을 높임
         if (form.isShowThumbnail() && !liveDetailDto.isAdult() && liveDetailDto.getLiveImageUrl() != null) {
             image = DiscordEmbed.Image.builder()
                 .url(liveDetailDto.getLiveImageUrl().replace("{type}", "480"))

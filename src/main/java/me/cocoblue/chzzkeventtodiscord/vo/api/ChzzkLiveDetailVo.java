@@ -38,6 +38,7 @@ public class ChzzkLiveDetailVo extends ChzzkApiCommonResponseVo {
             .chatAvailableGroup(content.getChatAvailableGroup())
             .chatAvailableCondition(content.getChatAvailableCondition())
             .minFollowerMinute(content.getMinFollowerMinute())
+            .tags(content.getTags())
             .build();
     }
 }

@@ -26,7 +26,7 @@ public class ChzzkStreamOnlineFormEntity extends ChzzkSubscriptionFormEntity {
     @ColumnDefault("0")
     private boolean showViewerCount;
 
-    @Column(name = "show_tags", nullable = false, length = 1)
+    @Column(name = "show_tag", nullable = false, length = 1)
     @ColumnDefault("1")
-    private boolean showTags;
+    private boolean showTag;
 }
