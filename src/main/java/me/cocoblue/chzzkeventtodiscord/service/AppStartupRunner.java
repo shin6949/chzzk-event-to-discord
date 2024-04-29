@@ -1,8 +1,5 @@
 package me.cocoblue.chzzkeventtodiscord.service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication;
@@ -12,6 +9,10 @@ import me.cocoblue.chzzkeventtodiscord.service.chzzk.ChzzkChannelService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service

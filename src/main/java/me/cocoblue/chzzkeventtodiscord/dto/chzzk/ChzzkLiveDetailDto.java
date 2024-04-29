@@ -1,12 +1,14 @@
 package me.cocoblue.chzzkeventtodiscord.dto.chzzk;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableGroupType;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -30,4 +32,6 @@ public class ChzzkLiveDetailDto {
     private ChzzkChatAvailableGroupType chatAvailableGroup;
     private ChzzkChatAvailableConditionType chatAvailableCondition;
     private int minFollowerMinute;
+    // After 2024-04-24
+    private List<String> tags;
 }

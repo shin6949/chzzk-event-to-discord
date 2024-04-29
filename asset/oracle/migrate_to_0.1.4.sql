@@ -1,0 +1,1 @@
+ALTER TABLE chzzk_subscription_stream_online_form ADD (show_tag NUMBER(1) DEFAULT 1 NOT NULL);

@@ -1,11 +1,5 @@
 package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
@@ -25,6 +19,13 @@ import me.cocoblue.chzzkeventtodiscord.service.NotificationLogService;
 import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 @Log4j2
 @Service
@@ -72,7 +73,7 @@ public class ChzzkEventSender {
         }
 
         if (subscriptionType == ChzzkSubscriptionType.STREAM_ONLINE) {
-            filteredForms.forEach(form -> processStreamOnlineEvent(form, chzzkChannelDto, chzzkLiveDetailDto, categoryData));
+            filteredForms.parallelStream().forEach(form -> processStreamOnlineEvent(form, chzzkChannelDto, chzzkLiveDetailDto, categoryData));
         }
     }
 
@@ -96,7 +97,7 @@ public class ChzzkEventSender {
             return;
         }
 
-        filteredForms.forEach(form -> processStreamOfflineEvent(form, chzzkChannelDto));
+        filteredForms.parallelStream().forEach(form -> processStreamOfflineEvent(form, chzzkChannelDto));
     }
 
 
@@ -121,7 +122,7 @@ public class ChzzkEventSender {
             return;
         }
 
-        filteredForms.forEach(form -> processChannelUpdateEvent(form, afterChannelData));
+        filteredForms.parallelStream().forEach(form -> processChannelUpdateEvent(form, afterChannelData));
     }
 
     @Async
@@ -228,10 +229,20 @@ public class ChzzkEventSender {
             fields.add(viewerCountField);
         }
 
+        // 태그를 Field에 보여줄지 여부
+        if(form.isShowTag() && !liveDetailDto.getTags().isEmpty()) {
+            final DiscordEmbed.Field isAdultField = DiscordEmbed.Field.builder()
+                .name(messageSource.getMessage("stream.online.tag", null, locale))
+                .value(String.join(", ", liveDetailDto.getTags()))
+                .inline(true)
+                .build();
+
+            fields.add(isAdultField);
+        }
+
         final DiscordEmbed.Author author = createAuthor(channelData, "stream.online.event-message", locale, ChzzkSubscriptionType.STREAM_ONLINE);
 
         DiscordEmbed.Image image = null;
-        // 기존에 중첩된 조건문을 간소화하여 가독성을 높임
         if (form.isShowThumbnail() && !liveDetailDto.isAdult() && liveDetailDto.getLiveImageUrl() != null) {
             image = DiscordEmbed.Image.builder()
                 .url(liveDetailDto.getLiveImageUrl().replace("{type}", "480"))

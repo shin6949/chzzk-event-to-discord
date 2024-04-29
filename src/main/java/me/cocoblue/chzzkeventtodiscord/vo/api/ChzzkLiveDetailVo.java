@@ -2,16 +2,12 @@ package me.cocoblue.chzzkeventtodiscord.vo.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableConditionType;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkChatAvailableGroupType;
 import me.cocoblue.chzzkeventtodiscord.dto.chzzk.ChzzkLiveDetailDto;
+
+import java.time.LocalDateTime;
 
 // For Chzzk Live Detail API
 @Getter
@@ -42,6 +38,7 @@ public class ChzzkLiveDetailVo extends ChzzkApiCommonResponseVo {
             .chatAvailableGroup(content.getChatAvailableGroup())
             .chatAvailableCondition(content.getChatAvailableCondition())
             .minFollowerMinute(content.getMinFollowerMinute())
+            .tags(content.getTags())
             .build();
     }
 }
