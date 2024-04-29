@@ -73,7 +73,7 @@ public class ChzzkEventSender {
         }
 
         if (subscriptionType == ChzzkSubscriptionType.STREAM_ONLINE) {
-            filteredForms.forEach(form -> processStreamOnlineEvent(form, chzzkChannelDto, chzzkLiveDetailDto, categoryData));
+            filteredForms.parallelStream().forEach(form -> processStreamOnlineEvent(form, chzzkChannelDto, chzzkLiveDetailDto, categoryData));
         }
     }
 
@@ -97,7 +97,7 @@ public class ChzzkEventSender {
             return;
         }
 
-        filteredForms.forEach(form -> processStreamOfflineEvent(form, chzzkChannelDto));
+        filteredForms.parallelStream().forEach(form -> processStreamOfflineEvent(form, chzzkChannelDto));
     }
 
 
@@ -122,7 +122,7 @@ public class ChzzkEventSender {
             return;
         }
 
-        filteredForms.forEach(form -> processChannelUpdateEvent(form, afterChannelData));
+        filteredForms.parallelStream().forEach(form -> processChannelUpdateEvent(form, afterChannelData));
     }
 
     @Async
