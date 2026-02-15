@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.3'
-    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot' version '3.5.8'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 jar {
@@ -35,18 +35,18 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'net.rakugakibox.util:yaml-resource-bundle:1.1'
+    implementation 'dev.akkinoc.util:yaml-resource-bundle:2.15.0'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     // https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc10
-    implementation 'com.oracle.database.jdbc:ojdbc10:19.22.0.0'
+    implementation 'com.oracle.database.jdbc:ojdbc10:19.29.0.0'
     // https://mvnrepository.com/artifact/com.oracle.database.security/oraclepki
-    implementation 'com.oracle.database.security:oraclepki:19.22.0.0'
+    implementation 'com.oracle.database.security:oraclepki:19.29.0.0'
     // https://mvnrepository.com/artifact/com.oracle.database.security/osdt_core
-    implementation 'com.oracle.database.security:osdt_core:19.22.0.0'
+    implementation 'com.oracle.database.security:osdt_core:19.29.0.0'
     // https://mvnrepository.com/artifact/com.oracle.database.security/osdt_cert
-    implementation 'com.oracle.database.security:osdt_cert:19.22.0.0'
+    implementation 'com.oracle.database.security:osdt_cert:19.29.0.0'
     annotationProcessor 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.projectlombok:lombok'
