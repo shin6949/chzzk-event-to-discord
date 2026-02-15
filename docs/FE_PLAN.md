@@ -148,33 +148,49 @@
 - ADMIN만 전역 조회 가능, 일반 사용자에게는 항상 본인 범위 필터 적용
 
 ## 6. FE 라우팅 및 UI 업데이트
-### 6.1 Public routes
+### 6.1 FE 스택 결정 (Monorepo 기준)
+- FE는 모노레포 내 `frontend/` 패키지로 운영
+- 기본 스택: React + Vite
+- 패키지 매니저/스크립트 실행은 Yarn 기준(`yarn install`, `yarn dev`, `yarn build`, `yarn test`)
+- UI는 Bootstrap + Bootstrap Icons를 기본 컴포넌트/아이콘 체계로 적극 활용
+  - 네비게이션, 폼, 테이블, 모달, 알림, 배지/상태 표시는 Bootstrap 우선
+  - 아이콘은 Bootstrap Icons를 기본 사용(임의 SVG 혼용 최소화)
+
+### 6.2 라우팅 원칙 (React Router + URL 중심)
+- React Router 기반 SPA로 구현하되, 메뉴/화면 단위 경로를 명시적으로 분리
+- URL을 상태의 1급 인터페이스로 취급(딥링크/북마크/새로고침 복원 가능해야 함)
+- 목록 화면의 검색/필터/정렬/페이지는 query string으로 관리
+  - 예: `/app/subscriptions?keyword=...&page=1&sort=createdAt,desc`
+- 권한 보호는 라우트 레벨에서 적용(`USER`, `ADMIN`)
+
+### 6.3 Public routes
 - `/` (랜딩)
 - `/auth/chzzk/login` (로그인 진입 버튼/redirect 핸들링)
 - `/auth/chzzk/callback` (콜백 처리 화면)
 
-### 6.2 Authenticated routes (`USER`, `ADMIN`)
+### 6.4 Authenticated routes (`USER`, `ADMIN`)
 - `/app/dashboard`
 - `/app/subscriptions`
 - `/app/subscriptions/new`
 - `/app/subscriptions/:id`
 - `/app/settings/account` (Chzzk 계정 연결 상태/해제)
 
-### 6.3 Admin-only routes (`ADMIN`)
+### 6.5 Admin-only routes (`ADMIN`)
 - `/admin/users`
 - `/admin/users/:id`
 - `/admin/subscriptions`
 - `/admin/audit-logs`
 
-### 6.4 FE 동작 규칙
+### 6.6 FE 동작 규칙
 - 로그인 버튼은 `Login with Chzzk` 라벨로 제공하고, 클릭 시 `/auth/chzzk/login`으로 이동
 - `auth/me` 응답으로 세션 복구 + role hydration + 연결된 Chzzk 프로필 표시
 - 계정 카드에 `channelId`, 닉네임, 프로필 이미지, 연결 시각 표시
 - 일반 사용자 UI에서 타인 계정 선택/입력 UI 제거
 - 구독 생성/수정 폼은 현재 로그인 사용자 계정으로만 동작
 - ADMIN 화면에서는 전체 목록/필터/강제 수정 가능
+- 메뉴 클릭 시 URL이 항상 변경되어 직접 접근/북마크가 가능해야 함
 
-### 6.5 FE 인증 UX 플로우 (필수)
+### 6.7 FE 인증 UX 플로우 (필수)
 1. 랜딩/로그인 화면: `Login with Chzzk` 버튼 노출
 2. 버튼 클릭: FE는 `/auth/chzzk/login` 호출, BE가 `state` 생성 후 `https://chzzk.naver.com/account-interlock`로 redirect
 3. 콜백 라우트(`/auth/chzzk/callback`): 로딩/에러 처리 + 성공 시 앱 세션 확정
@@ -193,17 +209,38 @@
   - 기간/사용자/액션 기준 필터
   - 위험 이벤트(권한 변경, 대량 삭제, 강제 disconnect) 빠른 확인
 
-## 8. 로컬 개발/배포 (Docker 포함)
+## 8. 모노레포 디렉터리 구조/로컬 개발/배포 (Docker 포함)
+### 디렉터리 구조 (결정사항)
+```text
+.
+├─ src/                      # Backend(Spring Boot) 소스
+├─ docs/
+├─ frontend/                 # Frontend(React + Vite + Yarn)
+│  ├─ src/
+│  ├─ public/
+│  ├─ package.json
+│  └─ yarn.lock
+├─ Dockerfile                # Backend 컨테이너 빌드
+├─ docker/                   # 선택(optional) 운영/로컬 배포 자산
+│  ├─ backend.Dockerfile
+│  ├─ frontend.Dockerfile
+│  └─ nginx/
+│     └─ default.conf
+└─ docker-compose.yml        # 선택(optional) 통합 실행
+```
+
 ### 로컬 개발
 - BE: 기존 Gradle 실행 유지
-- FE: `frontend/` Vite dev server
+- FE: `frontend/`에서 Yarn 기반 개발 서버 실행(`yarn install` 후 `yarn dev`)
 - OAuth redirect URI를 dev/stage/prod 별도 등록
 - 개발 환경 CORS: FE dev origin(`http://localhost:5173`) 명시 허용 또는 proxy 사용
 
 ### 프로덕션 배포
-- 권장 구조
-  - FE 정적 파일(Nginx) + BE API(Spring Boot) 분리
-  - 역프록시에서 HTTPS 강제 및 보안 헤더 적용
+- 배포 단위는 FE/BE 분리 컨테이너를 기본 원칙으로 적용
+  - FE 컨테이너: Vite build 산출물 서빙(Nginx)
+  - BE 컨테이너: Spring Boot API
+  - 필요 시 `docker/nginx`를 reverse proxy 레이어로 추가
+- 역프록시에서 HTTPS 강제 및 보안 헤더 적용
 - Secret 관리
   - OAuth client id/secret, 토큰 암호화 키, 세션/JWT 키, DB 비밀번호를 GitHub Secrets + 런타임 env로 주입
 
@@ -224,13 +261,26 @@
 - 감사 로그 보존 기간/마스킹 정책 정의
 
 ## 9. CI/CD 업데이트 (GitHub Actions)
-- 기존 백엔드 워크플로(`gradle.yml`, `docker.yml`) 유지 + 보강
-- FE 워크플로 추가
-  - 트리거: `frontend/**` 변경
-  - 작업: install → lint → test → build
-- 통합 검증(권장)
-  - BE API 계약 테스트(auth callback/mock + role + subscriptions ownership)
-  - FE E2E smoke test(OAuth 로그인, 내 구독 생성/수정/삭제, 관리자 접근)
+### 개발 워크플로 (결정사항)
+- `main` 보호 브랜치 + feature branch 기반 개발(`feature/*`, `fix/*`)
+- 모든 변경은 PR 기반으로만 병합(직접 push 금지)
+- PR 머지 조건: CI 통과 + 리뷰 승인
+
+### 테스트 전략 (결정사항)
+- Unit test
+  - BE: JUnit 기반 서비스/컨트롤러 테스트(기존 Gradle test 단계)
+  - FE: Vitest + React Testing Library 권장(컴포넌트/훅/유틸)
+- E2E test
+  - Playwright 권장(대안: Cypress)
+  - 핵심 시나리오: 로그인 콜백, 구독 CRUD, 권한별 접근 제한, 관리자 화면 접근
+
+### CI 파이프라인 반영 위치
+- PR(Feature Branch) 단계
+  - BE: build + unit test
+  - FE(`frontend/**` 변경 시): `yarn install` → lint → unit test → build
+- main 머지 단계
+  - BE/FE 이미지 빌드 및 푸시(분리 컨테이너)
+  - 통합 E2E smoke test(Playwright/Cypress) 실행
 - 릴리즈 전 검증
   - OAuth 설정 누락/잘못된 redirect URI 검사 스크립트 권장
 
