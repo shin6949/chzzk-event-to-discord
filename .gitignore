@@ -3,6 +3,50 @@ firebase-messaging-sw.js
 ./test.db
 *.env
 
+# Frontend/local security and build artifacts
+.env*
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+certs/
+keys/
+credentials*.json
+google-service-account.json
+node_modules/
+dist/
+build/
+playwright-report/
+test-results/
+logs/
+*.log
+*.db
+*.sqlite
+*.sqlite3
+frontend/.env
+frontend/.env.*
+frontend/*.env
+!frontend/.env.example
+frontend/*.pem
+frontend/*.key
+frontend/*.p12
+frontend/*.pfx
+frontend/*.crt
+frontend/*.cer
+frontend/certs/
+frontend/keys/
+frontend/node_modules/
+frontend/dist/
+frontend/playwright-report/
+frontend/test-results/
+frontend/logs/
+frontend/*.log
+frontend/*.db
+frontend/*.sqlite
+frontend/*.sqlite3
+
 # Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos,intellij+all,webstorm+all,vs,yarn,node,gradle,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,intellij+all,webstorm+all,vs,yarn,node,gradle,java
 
