@@ -1,0 +1,87 @@
+package me.cocoblue.chzzkeventtodiscord.security;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+class SecurityConfigTests {
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void loginEndpointIsPublic() throws Exception {
+        mockMvc.perform(get("/api/v1/auth/chzzk/login"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authorizationUrl").value(org.hamcrest.Matchers.containsString("account-interlock")))
+            .andExpect(jsonPath("$.state").isNotEmpty());
+    }
+
+    @Test
+    void meEndpointRequiresAuthentication() throws Exception {
+        mockMvc.perform(get("/api/v1/auth/me"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void callbackCreatesAuthenticatedSessionForMeEndpoint() throws Exception {
+        MvcResult callbackResult = mockMvc.perform(get("/api/v1/auth/chzzk/callback")
+                .param("code", "mock-auth-code")
+                .param("state", "mock-state")
+                .param("mockChannelId", "channel-123")
+                .param("mockRole", "USER"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.channelId").value("channel-123"))
+            .andExpect(jsonPath("$.role").value("USER"))
+            .andReturn();
+
+        MockHttpSession session = (MockHttpSession) callbackResult.getRequest().getSession(false);
+        assertNotNull(session);
+
+        mockMvc.perform(get("/api/v1/auth/me").session(session))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.channelId").value("channel-123"))
+            .andExpect(jsonPath("$.role").value("USER"));
+    }
+
+    @Test
+    void adminRoutesRequireAdminRole() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/placeholder"))
+            .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(get("/api/v1/admin/placeholder").with(user("user").roles("USER")))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void logoutReturnsOkForAuthenticatedSession() throws Exception {
+        MvcResult callbackResult = mockMvc.perform(get("/api/v1/auth/chzzk/callback")
+                .param("code", "mock-auth-code")
+                .param("state", "mock-state")
+                .param("mockChannelId", "channel-logout")
+                .param("mockRole", "USER"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        MockHttpSession session = (MockHttpSession) callbackResult.getRequest().getSession(false);
+        assertNotNull(session);
+
+        mockMvc.perform(post("/api/v1/auth/logout").session(session))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Logged out"));
+    }
+}
