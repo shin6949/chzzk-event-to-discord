@@ -32,6 +32,13 @@ spring:
 chzzk:
   check-interval: 120
   api-url: ${CHZZK_API_URL:null}
+  oauth:
+    auth-base-url: https://chzzk.naver.com
+    token-base-url: http://localhost:65535
+    api-base-url: http://localhost:65535
+    client-id: test-client-id
+    client-secret: test-client-secret
+    redirect-uri: https://example.test/callback
 
 app:
   default-timezone: "Asia/Seoul"
