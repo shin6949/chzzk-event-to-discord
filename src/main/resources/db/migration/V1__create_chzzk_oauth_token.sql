@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS chzzk_oauth_token (
+  channel_id VARCHAR(100) PRIMARY KEY,
+  access_token VARCHAR(3000) NOT NULL,
+  refresh_token VARCHAR(3000),
+  token_type VARCHAR(30),
+  scope VARCHAR(1000),
+  access_token_expires_at TIMESTAMP WITH TIME ZONE,
+  refresh_token_expires_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

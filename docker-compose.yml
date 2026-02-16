@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: chzzk-event-to-discord-backend:latest
+    container_name: chzzk-event-to-discord-backend
+    ports:
+      - "8080:8080"
+    environment:
+      APP_DB_DRIVER: ${APP_DB_DRIVER}
+      APP_DB_URL: ${APP_DB_URL}
+      APP_DB_USER: ${APP_DB_USER}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+      CHZZK_OAUTH_CLIENT_ID: ${CHZZK_OAUTH_CLIENT_ID}
+      CHZZK_OAUTH_CLIENT_SECRET: ${CHZZK_OAUTH_CLIENT_SECRET}
+      CHZZK_OAUTH_REDIRECT_URI: ${CHZZK_OAUTH_REDIRECT_URI}
+      CHZZK_OAUTH_AUTH_BASE_URL: ${CHZZK_OAUTH_AUTH_BASE_URL:-https://chzzk.naver.com}
+      CHZZK_OAUTH_TOKEN_BASE_URL: ${CHZZK_OAUTH_TOKEN_BASE_URL:-https://openapi.chzzk.naver.com}
+      CHZZK_OAUTH_API_BASE_URL: ${CHZZK_OAUTH_API_BASE_URL:-https://openapi.chzzk.naver.com}
+      CHZZK_CHECK_INTERVAL: ${CHZZK_CHECK_INTERVAL:-30}
+      CHZZK_API_URL: ${CHZZK_API_URL:-https://api.chzzk.naver.com}
+      APP_INSERT_PASSWORD: ${APP_INSERT_PASSWORD:-}
+      APP_DEFAULT_TIMEZONE: ${APP_DEFAULT_TIMEZONE:-Asia/Seoul}
+      APP_IS_TEST: ${APP_IS_TEST:-false}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://backend:8080/api/v1}
+    image: chzzk-event-to-discord-frontend:latest
+    container_name: chzzk-event-to-discord-frontend
+    ports:
+      - "3000:80"
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://backend:8080/api/v1}
+    depends_on:
+      - backend
+    restart: unless-stopped
