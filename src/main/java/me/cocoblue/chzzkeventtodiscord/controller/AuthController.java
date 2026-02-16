@@ -43,12 +43,9 @@ public class AuthController {
     public ResponseEntity<AuthUserResponse> handleChzzkCallback(
         @RequestParam(required = false) String code,
         @RequestParam(required = false) String state,
-        @RequestParam(required = false) String mockChannelId,
-        @RequestParam(required = false) AppRole mockRole,
         HttpServletRequest request
     ) {
-        final ChzzkPrincipal principal =
-            chzzkAuthService.authenticateFromCallback(code, state, mockChannelId, mockRole);
+        final ChzzkPrincipal principal = chzzkAuthService.authenticateFromCallback(code, state);
 
         final UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(principal, null, principal.authorities());

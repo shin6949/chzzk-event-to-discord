@@ -1,26 +1,192 @@
 package me.cocoblue.chzzkeventtodiscord.service;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import me.cocoblue.chzzkeventtodiscord.config.ChzzkOAuthProperties;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelEntity;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkOAuthTokenEntity;
+import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkOAuthTokenRepository;
 import me.cocoblue.chzzkeventtodiscord.security.AppRole;
 import me.cocoblue.chzzkeventtodiscord.security.ChzzkPrincipal;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
+@Log4j2
 @Service
+@RequiredArgsConstructor
 public class ChzzkAuthService {
+    private final ChzzkOAuthProperties chzzkOAuthProperties;
+    private final ChzzkOAuthTokenRepository chzzkOAuthTokenRepository;
+    private final ChzzkChannelRepository chzzkChannelRepository;
 
     public String buildAuthorizationUrl(String state) {
-        // TODO: replace TODO placeholders with real CHZZK OAuth client configuration.
-        return "https://chzzk.naver.com/account-interlock?clientId={TODO_CLIENT_ID}&redirectUri={TODO_REDIRECT_URI}&state="
-            + state;
+        if (!StringUtils.hasText(state)) {
+            throw new ResponseStatusException(BAD_REQUEST, "state is required");
+        }
+
+        return UriComponentsBuilder.fromHttpUrl(chzzkOAuthProperties.getAuthBaseUrl())
+            .path("/account-interlock")
+            .queryParam("clientId", chzzkOAuthProperties.getClientId())
+            .queryParam("redirectUri", chzzkOAuthProperties.getRedirectUri())
+            .queryParam("state", state)
+            .build(true)
+            .toUriString();
     }
 
-    public ChzzkPrincipal authenticateFromCallback(String code, String state, String mockChannelId, AppRole mockRole) {
-        // TODO: exchange authorization code for tokens at CHZZK Open API.
-        // TODO: call /open/v1/users/me with the access token and map channelId.
-        final AppRole resolvedRole = mockRole == null ? AppRole.USER : mockRole;
-        final String resolvedChannelId = (mockChannelId == null || mockChannelId.isBlank())
-            ? "todo-channel-id"
-            : mockChannelId;
+    @Transactional
+    public ChzzkPrincipal authenticateFromCallback(String code, String state) {
+        if (!StringUtils.hasText(code)) {
+            throw new ResponseStatusException(BAD_REQUEST, "code is required");
+        }
+        if (!StringUtils.hasText(state)) {
+            throw new ResponseStatusException(BAD_REQUEST, "state is required");
+        }
 
-        return new ChzzkPrincipal(resolvedChannelId, resolvedRole);
+        final TokenResponse tokenResponse = requestToken(code, state);
+        if (tokenResponse == null || !StringUtils.hasText(tokenResponse.accessToken())) {
+            throw new ResponseStatusException(BAD_GATEWAY, "failed to exchange oauth code");
+        }
+
+        final UserMeResponse userMeResponse = requestUserMe(tokenResponse.accessToken());
+        final String channelId = userMeResponse == null ? null : userMeResponse.resolveChannelId();
+        if (!StringUtils.hasText(channelId)) {
+            throw new ResponseStatusException(BAD_GATEWAY, "failed to resolve channel id");
+        }
+
+        upsertToken(channelId, tokenResponse);
+        upsertChannel(userMeResponse, channelId);
+
+        log.info("OAuth callback authenticated for channelId={}", channelId);
+        return new ChzzkPrincipal(channelId, AppRole.USER);
+    }
+
+    private TokenResponse requestToken(String code, String state) {
+        final LinkedMultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("grantType", "authorization_code");
+        formData.add("clientId", chzzkOAuthProperties.getClientId());
+        formData.add("clientSecret", chzzkOAuthProperties.getClientSecret());
+        formData.add("code", code);
+        formData.add("state", state);
+        if (StringUtils.hasText(chzzkOAuthProperties.getRedirectUri())) {
+            formData.add("redirectUri", chzzkOAuthProperties.getRedirectUri());
+        }
+
+        return WebClient.builder()
+            .baseUrl(chzzkOAuthProperties.getTokenBaseUrl())
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .build()
+            .post()
+            .uri("/auth/v1/token")
+            .body(BodyInserters.fromFormData(formData))
+            .retrieve()
+            .bodyToMono(TokenResponse.class)
+            .block();
+    }
+
+    private UserMeResponse requestUserMe(String accessToken) {
+        return WebClient.builder()
+            .baseUrl(chzzkOAuthProperties.getApiBaseUrl())
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .build()
+            .get()
+            .uri("/open/v1/users/me")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .bodyToMono(UserMeResponse.class)
+            .block();
+    }
+
+    private void upsertToken(String channelId, TokenResponse tokenResponse) {
+        final ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+        final ChzzkOAuthTokenEntity tokenEntity = chzzkOAuthTokenRepository.findById(channelId)
+            .orElseGet(() -> ChzzkOAuthTokenEntity.builder().channelId(channelId).build());
+
+        tokenEntity.setAccessToken(tokenResponse.accessToken());
+        tokenEntity.setRefreshToken(tokenResponse.refreshToken());
+        tokenEntity.setTokenType(tokenResponse.tokenType());
+        tokenEntity.setScope(tokenResponse.scope());
+        tokenEntity.setAccessTokenExpiresAt(
+            tokenResponse.expiresIn() == null ? null : now.plusSeconds(tokenResponse.expiresIn())
+        );
+        tokenEntity.setRefreshTokenExpiresAt(
+            tokenResponse.refreshTokenExpiresIn() == null ? null : now.plusSeconds(tokenResponse.refreshTokenExpiresIn())
+        );
+
+        chzzkOAuthTokenRepository.save(tokenEntity);
+    }
+
+    private void upsertChannel(UserMeResponse userMeResponse, String channelId) {
+        final ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+        final String resolvedChannelName = userMeResponse == null ? null : userMeResponse.resolveChannelName();
+
+        final ChzzkChannelEntity channelEntity = chzzkChannelRepository.findById(channelId)
+            .map(existing -> {
+                if (StringUtils.hasText(resolvedChannelName)) {
+                    existing.setChannelName(resolvedChannelName);
+                }
+                existing.setLastCheckTime(now);
+                return existing;
+            })
+            .orElseGet(() -> ChzzkChannelEntity.builder()
+                .channelId(channelId)
+                .channelName(StringUtils.hasText(resolvedChannelName) ? resolvedChannelName : channelId)
+                .profileUrl(null)
+                .isVerifiedMark(false)
+                .channelDescription(null)
+                .subscriptionAvailability(false)
+                .isLive(false)
+                .followerCount(0)
+                .lastCheckTime(now)
+                .build());
+
+        chzzkChannelRepository.save(channelEntity);
+    }
+
+    private record TokenResponse(
+        @com.fasterxml.jackson.annotation.JsonAlias({"accessToken", "access_token"}) String accessToken,
+        @com.fasterxml.jackson.annotation.JsonAlias({"refreshToken", "refresh_token"}) String refreshToken,
+        @com.fasterxml.jackson.annotation.JsonAlias({"tokenType", "token_type"}) String tokenType,
+        String scope,
+        @com.fasterxml.jackson.annotation.JsonAlias({"expiresIn", "expires_in"}) Long expiresIn,
+        @com.fasterxml.jackson.annotation.JsonAlias({"refreshTokenExpiresIn", "refresh_token_expires_in"}) Long refreshTokenExpiresIn
+    ) {
+    }
+
+    private record UserMeResponse(
+        @com.fasterxml.jackson.annotation.JsonAlias({"channelId", "id"}) String channelId,
+        UserMeContent content
+    ) {
+        String resolveChannelId() {
+            if (StringUtils.hasText(channelId)) {
+                return channelId;
+            }
+            return content == null ? null : content.channelId();
+        }
+
+        String resolveChannelName() {
+            return content == null ? null : content.channelName();
+        }
+    }
+
+    private record UserMeContent(
+        @com.fasterxml.jackson.annotation.JsonAlias({"channelId", "id"}) String channelId,
+        @com.fasterxml.jackson.annotation.JsonAlias({"channelName", "name"}) String channelName
+    ) {
     }
 }
