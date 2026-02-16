@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -39,6 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 class SubscriptionControllerTests {
     private static final String OWNER_CHANNEL_ID = "owner-channel-1";
     private static final String OTHER_OWNER_CHANNEL_ID = "owner-channel-2";
@@ -69,9 +71,13 @@ class SubscriptionControllerTests {
         discordWebhookDataRepository.deleteAll();
         chzzkChannelRepository.deleteAll();
 
-        final ChzzkChannelEntity ownerChannel = createChannel(OWNER_CHANNEL_ID, "Owner One");
-        final ChzzkChannelEntity otherOwnerChannel = createChannel(OTHER_OWNER_CHANNEL_ID, "Owner Two");
-        final ChzzkChannelEntity targetChannel = createChannel(TARGET_CHANNEL_ID, "Target");
+        createChannel(OWNER_CHANNEL_ID, "Owner One");
+        createChannel(OTHER_OWNER_CHANNEL_ID, "Owner Two");
+        createChannel(TARGET_CHANNEL_ID, "Target");
+
+        final ChzzkChannelEntity ownerChannel = chzzkChannelRepository.getReferenceById(OWNER_CHANNEL_ID);
+        final ChzzkChannelEntity otherOwnerChannel = chzzkChannelRepository.getReferenceById(OTHER_OWNER_CHANNEL_ID);
+        final ChzzkChannelEntity targetChannel = chzzkChannelRepository.getReferenceById(TARGET_CHANNEL_ID);
 
         ownerWebhook = discordWebhookDataRepository.save(DiscordWebhookDataEntity.builder()
             .name("owner webhook")
@@ -219,7 +225,7 @@ class SubscriptionControllerTests {
     }
 
     private ChzzkChannelEntity createChannel(String channelId, String channelName) {
-        return chzzkChannelRepository.save(ChzzkChannelEntity.builder()
+        return chzzkChannelRepository.saveAndFlush(ChzzkChannelEntity.builder()
             .channelId(channelId)
             .channelName(channelName)
             .profileUrl("https://example.test/profile/" + channelId)
