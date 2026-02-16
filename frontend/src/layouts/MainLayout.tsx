@@ -1,17 +1,26 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { clearSession, getSession } from '../auth/session';
+import { useAuth } from '../auth/AuthContext';
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return `nav-link${isActive ? ' active fw-semibold' : ''}`;
 }
 
+function formatChannelLabel(channelId: string): string {
+  const truncated = channelId.trim();
+  if (truncated.length <= 20) {
+    return truncated;
+  }
+  return `${truncated.slice(0, 20)}…`;
+}
+
+
 export function MainLayout() {
   const navigate = useNavigate();
-  const session = getSession();
+  const { session, logout } = useAuth();
 
-  function handleLogout() {
-    clearSession();
-    navigate('/');
+  async function handleLogout() {
+    await logout();
+    navigate('/login');
   }
 
   return (
@@ -36,31 +45,22 @@ export function MainLayout() {
           <div className="collapse navbar-collapse" id="mainNav">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <NavLink to="/app/dashboard" className={navLinkClass}>
-                  Dashboard
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="/app/subscriptions" className={navLinkClass}>
+                <NavLink to="/subscriptions" className={navLinkClass}>
                   Subscriptions
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="/admin/users" className={navLinkClass}>
-                  Admin
                 </NavLink>
               </li>
             </ul>
             <div className="d-flex align-items-center gap-2">
               {session ? (
                 <>
-                  <span className="badge text-bg-secondary">{session.role}</span>
+                  <span className="badge text-bg-secondary text-uppercase">{session.role}</span>
+                  <span className="text-light small">Channel: {formatChannelLabel(session.channelId)}</span>
                   <button type="button" onClick={handleLogout} className="btn btn-outline-light btn-sm">
                     Logout
                   </button>
                 </>
               ) : (
-                <NavLink to="/auth/chzzk/login" className="btn btn-outline-light btn-sm">
+                <NavLink to="/login" className="btn btn-outline-light btn-sm">
                   Login with Chzzk
                 </NavLink>
               )}
