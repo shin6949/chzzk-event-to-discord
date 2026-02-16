@@ -35,7 +35,7 @@ class FlywayMigrationTests {
         }
 
         final Integer migrationHistoryRows = jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM FLYWAY_SCHEMA_HISTORY WHERE VERSION = '1' AND SUCCESS = TRUE",
+            "SELECT COUNT(*) FROM \"flyway_schema_history\" WHERE \"version\" = '1' AND \"success\" = TRUE",
             Integer.class
         );
         final Integer oauthTokenTableRows = jdbcTemplate.queryForObject(
