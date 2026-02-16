@@ -24,7 +24,7 @@ class SecurityConfigTests {
     private MockMvc mockMvc;
 
     @Test
-    void loginEndpointIsPublic() throws Exception {
+    void chzzkLoginEndpointIsPermitAll() throws Exception {
         mockMvc.perform(get("/api/v1/auth/chzzk/login"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.authorizationUrl").value(org.hamcrest.Matchers.containsString("account-interlock")))
@@ -32,13 +32,7 @@ class SecurityConfigTests {
     }
 
     @Test
-    void meEndpointRequiresAuthentication() throws Exception {
-        mockMvc.perform(get("/api/v1/auth/me"))
-            .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void callbackCreatesAuthenticatedSessionForMeEndpoint() throws Exception {
+    void chzzkCallbackEndpointIsPermitAllAndCreatesAuthenticatedSession() throws Exception {
         MvcResult callbackResult = mockMvc.perform(get("/api/v1/auth/chzzk/callback")
                 .param("code", "mock-auth-code")
                 .param("state", "mock-state")
@@ -59,10 +53,25 @@ class SecurityConfigTests {
     }
 
     @Test
-    void adminRoutesRequireAdminRole() throws Exception {
+    void authMeEndpointRequiresAuthenticationByDesign() throws Exception {
+        mockMvc.perform(get("/api/v1/auth/me"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void logoutEndpointRequiresAuthenticationByDesign() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/logout"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unauthenticatedAccessToProtectedApiReturnsUnauthorized() throws Exception {
         mockMvc.perform(get("/api/v1/admin/placeholder"))
             .andExpect(status().isUnauthorized());
+    }
 
+    @Test
+    void adminRoutesRequireAdminRoleForAuthenticatedUser() throws Exception {
         mockMvc.perform(get("/api/v1/admin/placeholder").with(user("user").roles("USER")))
             .andExpect(status().isForbidden());
     }
