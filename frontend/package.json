@@ -6,6 +6,7 @@
   "packageManager": "yarn@1.22.22",
   "scripts": {
     "dev": "vite",
+    "lint": "tsc --noEmit",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",

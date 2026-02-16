@@ -1,0 +1,38 @@
+name: Frontend Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-tests.yml"
+
+jobs:
+  frontend-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: yarn install
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: yarn lint
+
+      - name: Test frontend
+        working-directory: frontend
+        run: yarn test
+
+      - name: Build frontend
+        working-directory: frontend
+        run: yarn build

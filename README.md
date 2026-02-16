@@ -26,6 +26,10 @@
 ## Docker Image
 Docker Image: ghcr.io/shin6949/chzzk-event-to-discord:latest
 
+## Deployment
+
+- Compose-based FE/BE deployment notes: `docs/DEPLOY.md`
+
 ## Notice
 아직 Chzzk의 정식 API가 나오지 않은 관계로 일정 주기에 따라 API에 요청하여 시간 단위로 데이터를 비교하여 이벤트를 전송하고 있습니다.  
 이 Application은 설정한 주기에 따라 API에 요청을 보냅니다. 서버에 부하를 주지 않기 위해 Database에 데이터를 일부 캐싱하는 등의 방법을 사용 중이지만, 너무 짧은 주기로 설정할 경우 서버에 부하를 줄 수 있으며, 차단될 수 있습니다.   
