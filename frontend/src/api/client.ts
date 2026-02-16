@@ -17,6 +17,9 @@ function buildApiUrl(path: string): string {
   return `${env.apiBaseUrl}${normalizedPath}`;
 }
 
+type JsonBody = string | number | boolean | null | JsonBody[] | { [key: string]: JsonBody };
+type RequestOptions<B = JsonBody> = Omit<RequestInit, 'body'> & { body?: B };
+
 function isJsonResponse(response: Response): boolean {
   return (response.headers.get('content-type') ?? '').includes('application/json');
 }
@@ -53,7 +56,7 @@ function extractErrorMessage(body: unknown, fallback: string): string {
   return fallback;
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function request<T, B = JsonBody>(path: string, init: RequestOptions<B> = {}): Promise<T> {
   const method = init.method ?? 'GET';
   const headers = new Headers(init.headers ?? {});
   headers.set('Accept', 'application/json');
@@ -80,14 +83,14 @@ export async function apiGet<T>(path: string): Promise<T> {
   return request<T>(path, { method: 'GET' });
 }
 
-export async function apiPost<T, B = unknown>(path: string, body?: B): Promise<T> {
+export async function apiPost<T, B extends JsonBody = JsonBody>(path: string, body?: B): Promise<T> {
   return request<T>(path, {
     method: 'POST',
     body,
   });
 }
 
-export async function apiPut<T, B = unknown>(path: string, body: B): Promise<T> {
+export async function apiPut<T, B extends JsonBody = JsonBody>(path: string, body: B): Promise<T> {
   return request<T>(path, {
     method: 'PUT',
     body,
