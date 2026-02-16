@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Local environment and secrets
+.env*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+certs/
+keys/
+credentials*.json
+google-service-account.json
+
+# Build and test artifacts
+dist/
+coverage/
+playwright-report/
+test-results/
+logs/
+*.log
+vite.config.js
+vite.config.d.ts
+*.tsbuildinfo
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
