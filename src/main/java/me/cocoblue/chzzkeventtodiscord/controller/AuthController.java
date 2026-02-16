@@ -74,6 +74,19 @@ public class AuthController {
         return ResponseEntity.ok(new LogoutResponse("Logged out"));
     }
 
+    @PostMapping("/chzzk/revoke")
+    public ResponseEntity<LogoutResponse> revoke(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Authentication authentication
+    ) {
+        final ChzzkPrincipal principal = extractPrincipal(authentication);
+        chzzkAuthService.revokeCurrentUserTokens(principal.channelId());
+        new SecurityContextLogoutHandler().logout(request, response, authentication);
+
+        return ResponseEntity.ok(new LogoutResponse("Tokens revoked"));
+    }
+
     private ChzzkPrincipal extractPrincipal(Authentication authentication) {
         final Object principalObject = authentication.getPrincipal();
         if (principalObject instanceof ChzzkPrincipal chzzkPrincipal) {

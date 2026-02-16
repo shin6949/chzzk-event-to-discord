@@ -75,6 +75,12 @@ class SecurityConfigTests {
     }
 
     @Test
+    void revokeEndpointRequiresAuthenticationByDesign() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/chzzk/revoke"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void unauthenticatedAccessToProtectedApiReturnsUnauthorized() throws Exception {
         mockMvc.perform(get("/api/v1/admin/placeholder"))
             .andExpect(status().isUnauthorized());
