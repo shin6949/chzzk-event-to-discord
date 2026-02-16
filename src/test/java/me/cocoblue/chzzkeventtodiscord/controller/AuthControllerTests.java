@@ -63,6 +63,8 @@ class AuthControllerTests {
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
         registry.add("chzzk.oauth.token-base-url", () -> MOCK_WEB_SERVER.url("/").toString());
+        registry.add("chzzk.oauth.client-id", () -> "test-client-id");
+        registry.add("chzzk.oauth.client-secret", () -> "test-client-secret");
     }
 
     @BeforeEach
