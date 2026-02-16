@@ -15,12 +15,12 @@ export function ChzzkCallbackPage() {
   const mockRole = parseMockRole(searchParams.get('mockRole'));
 
   function handleCompleteSignIn() {
-    if (!mockRole) {
-      return;
+      if (!mockRole) {
+        return;
+      }
+      setMockSession(mockRole);
+      navigate('/subscriptions');
     }
-    setMockSession(mockRole);
-    navigate('/app/dashboard');
-  }
 
   return (
     <PagePlaceholder
