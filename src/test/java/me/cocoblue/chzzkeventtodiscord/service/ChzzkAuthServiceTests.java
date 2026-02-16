@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -144,14 +145,16 @@ class ChzzkAuthServiceTests {
     @Test
     void getValidAccessTokenRefreshesWhenAccessTokenExpired() throws Exception {
         final String channelId = "channel-refresh-test";
+        final ZonedDateTime oldAccessExpiresAt = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(1);
+        final ZonedDateTime oldRefreshExpiresAt = ZonedDateTime.now(ZoneId.of("UTC")).plusHours(1);
         chzzkOAuthTokenRepository.save(ChzzkOAuthTokenEntity.builder()
             .channelId(channelId)
             .accessToken("old-access-token")
             .refreshToken("refresh-token-abc")
-            .tokenType("Bearer")
-            .scope("user.read")
-            .accessTokenExpiresAt(ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(1))
-            .refreshTokenExpiresAt(ZonedDateTime.now(ZoneId.of("UTC")).plusHours(1))
+            .tokenType("OldBearer")
+            .scope("old.scope")
+            .accessTokenExpiresAt(oldAccessExpiresAt)
+            .refreshTokenExpiresAt(oldRefreshExpiresAt)
             .build());
 
         MOCK_WEB_SERVER.enqueue(new MockResponse()
@@ -161,7 +164,7 @@ class ChzzkAuthServiceTests {
                   "access_token": "refreshed-access-token",
                   "refresh_token": "refreshed-refresh-token",
                   "token_type": "Bearer",
-                  "scope": "user.read",
+                  "scope": "user.read.refreshed",
                   "expires_in": 3600,
                   "refresh_token_expires_in": 7200
                 }
@@ -174,8 +177,12 @@ class ChzzkAuthServiceTests {
         final ChzzkOAuthTokenEntity tokenEntity = chzzkOAuthTokenRepository.findById(channelId).orElseThrow();
         assertEquals("refreshed-access-token", tokenEntity.getAccessToken());
         assertEquals("refreshed-refresh-token", tokenEntity.getRefreshToken());
+        assertEquals("Bearer", tokenEntity.getTokenType());
+        assertEquals("user.read.refreshed", tokenEntity.getScope());
         assertNotNull(tokenEntity.getAccessTokenExpiresAt());
         assertNotNull(tokenEntity.getRefreshTokenExpiresAt());
+        assertTrue(tokenEntity.getAccessTokenExpiresAt().isAfter(oldAccessExpiresAt));
+        assertTrue(tokenEntity.getRefreshTokenExpiresAt().isAfter(oldRefreshExpiresAt));
 
         final RecordedRequest refreshRequest = MOCK_WEB_SERVER.takeRequest(1, TimeUnit.SECONDS);
         assertNotNull(refreshRequest);
@@ -203,5 +210,41 @@ class ChzzkAuthServiceTests {
             assertThrows(ResponseStatusException.class, () -> chzzkAuthService.getValidAccessToken(channelId));
 
         assertEquals(401, responseStatusException.getStatusCode().value());
+        assertNull(MOCK_WEB_SERVER.takeRequest(200, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    void getValidAccessTokenReturnsBadGatewayWhenRefreshEndpointFails() throws Exception {
+        final String channelId = "channel-refresh-failure";
+        chzzkOAuthTokenRepository.save(ChzzkOAuthTokenEntity.builder()
+            .channelId(channelId)
+            .accessToken("old-access-token")
+            .refreshToken("refresh-token-failure")
+            .tokenType("Bearer")
+            .scope("user.read")
+            .accessTokenExpiresAt(ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(1))
+            .refreshTokenExpiresAt(ZonedDateTime.now(ZoneId.of("UTC")).plusHours(1))
+            .build());
+
+        MOCK_WEB_SERVER.enqueue(new MockResponse()
+            .setResponseCode(500)
+            .addHeader("Content-Type", "application/json")
+            .setBody("""
+                {
+                  "message": "oauth server down"
+                }
+                """));
+
+        final ResponseStatusException responseStatusException =
+            assertThrows(ResponseStatusException.class, () -> chzzkAuthService.getValidAccessToken(channelId));
+        assertEquals(502, responseStatusException.getStatusCode().value());
+
+        final ChzzkOAuthTokenEntity persisted = chzzkOAuthTokenRepository.findById(channelId).orElseThrow();
+        assertEquals("old-access-token", persisted.getAccessToken());
+        assertEquals("refresh-token-failure", persisted.getRefreshToken());
+
+        final RecordedRequest refreshRequest = MOCK_WEB_SERVER.takeRequest(1, TimeUnit.SECONDS);
+        assertNotNull(refreshRequest);
+        assertEquals("/auth/v1/token", refreshRequest.getPath());
     }
 }

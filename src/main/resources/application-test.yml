@@ -7,6 +7,8 @@ spring:
       mode: always
   main:
     allow-bean-definition-overriding: true
+  flyway:
+    enabled: true
   datasource:
     # DB Config
 #    driver-class-name: oracle.jdbc.OracleDriver
