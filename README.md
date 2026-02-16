@@ -3,7 +3,7 @@
 
 ## Dev Stack
 - Java 17 (Microsoft OpenJDK 17)
-- Spring Boot 3.2.3
+- Spring Boot 3.5.8
 - Gradle 8.5
 - PostgreSQL 16
 - Docker
