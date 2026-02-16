@@ -133,9 +133,41 @@ class SubscriptionControllerTests {
         mockMvc.perform(get("/api/v1/subscriptions")
                 .with(SecurityMockMvcRequestPostProcessors.user(OWNER_CHANNEL_ID).roles("USER")))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.number").value(0))
+            .andExpect(jsonPath("$.size").value(20))
+            .andExpect(jsonPath("$.totalElements").value(1))
+            .andExpect(jsonPath("$.totalPages").value(1))
+            .andExpect(jsonPath("$.first").value(true))
+            .andExpect(jsonPath("$.last").value(true))
             .andExpect(jsonPath("$.content", hasSize(1)))
             .andExpect(jsonPath("$.content[0].id").value(ownerSubscription.getId()))
             .andExpect(jsonPath("$.content[0].formOwnerChannelId").value(OWNER_CHANNEL_ID));
+    }
+
+    @Test
+    void createReturnsBadRequestWhenRequiredFieldsAreMissing() throws Exception {
+        final String missingChannelPayload = objectMapper.writeValueAsString(Map.of(
+            "subscriptionType", "STREAM_OFFLINE",
+            "webhookId", ownerWebhook.getId(),
+            "botProfileId", ownerBotProfile.getId()
+        ));
+        mockMvc.perform(post("/api/v1/subscriptions")
+                .with(SecurityMockMvcRequestPostProcessors.user(OWNER_CHANNEL_ID).roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(missingChannelPayload))
+            .andExpect(status().isBadRequest());
+
+        final String adminMissingOwnerPayload = objectMapper.writeValueAsString(Map.of(
+            "channelId", TARGET_CHANNEL_ID,
+            "subscriptionType", "STREAM_OFFLINE",
+            "webhookId", ownerWebhook.getId(),
+            "botProfileId", ownerBotProfile.getId()
+        ));
+        mockMvc.perform(post("/api/v1/subscriptions")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(adminMissingOwnerPayload))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -162,6 +194,10 @@ class SubscriptionControllerTests {
         mockMvc.perform(get("/api/v1/subscriptions")
                 .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.number").value(0))
+            .andExpect(jsonPath("$.size").value(20))
+            .andExpect(jsonPath("$.totalElements").value(2))
+            .andExpect(jsonPath("$.totalPages").value(1))
             .andExpect(jsonPath("$.content", hasSize(2)));
 
         mockMvc.perform(get("/api/v1/subscriptions/{id}", otherOwnerSubscription.getId())

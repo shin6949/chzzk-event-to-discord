@@ -81,6 +81,52 @@ class AuthControllerTests {
     }
 
     @Test
+    void meEndpointReturnsPrincipalInfoWhenAuthenticated() throws Exception {
+        final MockHttpSession session = new MockHttpSession();
+        final var context = createEmptyContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(
+            new ChzzkPrincipal(CHANNEL_ID, AppRole.USER),
+            null,
+            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        ));
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+
+        mockMvc.perform(get("/api/v1/auth/me")
+                .session(session)
+                .with(authentication(context.getAuthentication())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.channelId").value(CHANNEL_ID))
+            .andExpect(jsonPath("$.role").value("USER"));
+    }
+
+    @Test
+    void logoutEndpointClearsSession() throws Exception {
+        final MockHttpSession session = new MockHttpSession();
+        final var context = createEmptyContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(
+            new ChzzkPrincipal(CHANNEL_ID, AppRole.USER),
+            null,
+            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        ));
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+
+        mockMvc.perform(post("/api/v1/auth/logout")
+                .session(session)
+                .with(authentication(context.getAuthentication())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Logged out"));
+
+        mockMvc.perform(get("/api/v1/auth/me").session(session))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void revokeEndpointRequiresAuthentication() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/chzzk/revoke"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void revokeEndpointCallsChzzkRevokeAndClearsSession() throws Exception {
         chzzkOAuthTokenRepository.save(ChzzkOAuthTokenEntity.builder()
             .channelId(CHANNEL_ID)

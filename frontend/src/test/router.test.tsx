@@ -69,6 +69,17 @@ describe('router scaffold', () => {
     );
   });
 
+  it('allows authenticated users to open protected /subscriptions routes', async () => {
+    mockAuthMe(200, { channelId: 'channel-user', role: 'USER' });
+
+    const { router } = renderWithSession('/subscriptions');
+    expect(await screen.findByText('Manage your notification subscriptions.')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/subscriptions');
+    });
+    expect(screen.getByText('No subscriptions found.')).toBeInTheDocument();
+  });
+
   it('redirects to authorization URL from /login', async () => {
     mockAuthMe(401, { message: 'Unauthorized' });
 
