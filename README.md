@@ -15,13 +15,24 @@
 - 채널 정보 변경 이벤트 (CHANNEL_UPDATE)
 
 ## Environment variables
-- APP_DB_URL: PostgreSQL JDBC URL
-- APP_DB_USER: PostgreSQL Username
-- APP_DB_PASSWORD: PostgreSQL Password
-- APP_IS_TEST: Test Run 여부 (기본 false, true 시, 스케쥴링이 작동하지 않음)
-- APP_INSERT_PASSWORD: Insert API Password를 지정합니다.
-- CHZZK_API_CALL_INTERVAL: API 요청 주기 (단위: 초) - Default: 30
-- CHZZK_API_URL: API 주소 (기본: "https://api.chzzk.naver.com")
+- Backend required:
+  - `APP_DB_DRIVER`, `APP_DB_URL`, `APP_DB_USER`, `APP_DB_PASSWORD`
+  - `CHZZK_OAUTH_CLIENT_ID`, `CHZZK_OAUTH_CLIENT_SECRET`, `CHZZK_OAUTH_REDIRECT_URI`
+- Backend optional (defaults):
+  - `CHZZK_OAUTH_AUTH_BASE_URL` (`https://chzzk.naver.com`)
+  - `CHZZK_OAUTH_TOKEN_BASE_URL` (`https://openapi.chzzk.naver.com`)
+  - `CHZZK_OAUTH_API_BASE_URL` (`https://openapi.chzzk.naver.com`)
+  - `CHZZK_CHECK_INTERVAL` (`30`)
+  - `CHZZK_API_URL` (`https://api.chzzk.naver.com`)
+  - `APP_DEFAULT_TIMEZONE` (`Asia/Seoul`)
+  - `APP_IS_TEST` (`false`)
+  - `APP_INSERT_PASSWORD` (empty)
+- Frontend:
+  - `VITE_API_BASE_URL`
+  - Local example: `http://localhost:8080/api/v1`
+  - `docker-compose` example: `http://backend:8080/api/v1`
+
+For full setup details, see `docs/DEPLOY.md`.
 
 ## Docker Image
 Docker Image: ghcr.io/shin6949/chzzk-event-to-discord:latest
