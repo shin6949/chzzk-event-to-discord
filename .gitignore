@@ -3,6 +3,10 @@ firebase-messaging-sw.js
 ./test.db
 *.env
 
+# Local-only Docker test stack files
+docker-compose.local.yml
+.env.local
+
 # Frontend/local security and build artifacts
 .env*
 *.pem
