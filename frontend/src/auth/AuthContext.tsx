@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ApiError, apiGet, apiPost } from '../api/client';
-import { AppSession, clearSession, setSession } from './session';
+import { AppSession, clearSession, getSession, setSession } from './session';
 
 type AuthContextValue = {
   session: AppSession | null;
@@ -12,7 +12,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSessionState] = useState<AppSession | null>(null);
+  const [session, setSessionState] = useState<AppSession | null>(() => getSession());
   const [loading, setLoading] = useState(true);
 
   const reloadSession = useCallback(async () => {
@@ -26,8 +26,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error instanceof ApiError && error.status === 401) {
         setSessionState(null);
         clearSession();
-      } else {
-        setSessionState(null);
       }
     } finally {
       setLoading(false);

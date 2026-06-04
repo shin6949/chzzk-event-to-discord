@@ -24,6 +24,17 @@ public class DiscordBotProfileDataEntity {
     @Column(name = "username", length = 100, nullable = false)
     private String username;
 
+    @Column(name = "alias", length = 500, nullable = false)
+    private String alias;
+
     @Column(name = "avatar_url", length = 30000, nullable = false)
     private String avatarUrl;
+
+    @PrePersist
+    @PreUpdate
+    private void fillAliasWhenMissing() {
+        if (alias == null || alias.isBlank()) {
+            alias = username;
+        }
+    }
 }

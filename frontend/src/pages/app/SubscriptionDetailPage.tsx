@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiError, apiDelete, apiGet, apiPut } from '../../api/client';
 import { PagePlaceholder } from '../../components/PagePlaceholder';
 
@@ -25,6 +25,21 @@ type FormState = {
   content: string;
 };
 
+type ResourcePage<T> = {
+  content: T[];
+};
+
+type WebhookOption = {
+  id: number;
+  alias: string;
+};
+
+type BotProfileOption = {
+  id: number;
+  alias: string;
+  username: string;
+};
+
 const emptyForm: FormState = {
   channelId: '',
   subscriptionType: 'STREAM_ONLINE',
@@ -39,9 +54,12 @@ export function SubscriptionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [formState, setFormState] = useState<FormState>(emptyForm);
+  const [webhooks, setWebhooks] = useState<WebhookOption[]>([]);
+  const [botProfiles, setBotProfiles] = useState<BotProfileOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState('');
 
   const canSubmit = useMemo(() => {
     return Boolean(formState.channelId.trim() && formState.webhookId.trim() && formState.botProfileId.trim());
@@ -49,25 +67,41 @@ export function SubscriptionDetailPage() {
 
   useEffect(() => {
     if (!id) {
-      setError('Missing subscription id.');
+      setLoadError('Missing subscription id.');
       setLoading(false);
       return;
     }
 
     async function loadSubscription() {
       try {
-        const response = await apiGet<SubscriptionPayload>(`/subscriptions/${id}`);
+        setLoadError('');
+        setError('');
+        const subscriptionResponse = await apiGet<SubscriptionPayload>(`/subscriptions/${id}`);
         setFormState({
-          channelId: response.channelId,
-          subscriptionType: response.subscriptionType as SubscriptionType,
-          webhookId: String(response.webhookId),
-          botProfileId: String(response.botProfileId),
-          intervalMinute: String(response.intervalMinute ?? 10),
-          enabled: response.enabled,
-          content: response.content ?? '',
+          channelId: subscriptionResponse.channelId,
+          subscriptionType: subscriptionResponse.subscriptionType as SubscriptionType,
+          webhookId: String(subscriptionResponse.webhookId),
+          botProfileId: String(subscriptionResponse.botProfileId),
+          intervalMinute: String(subscriptionResponse.intervalMinute ?? 10),
+          enabled: subscriptionResponse.enabled,
+          content: subscriptionResponse.content ?? '',
         });
       } catch (err) {
         const message = err instanceof ApiError ? err.message : 'Unable to load subscription.';
+        setLoadError(message);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const [webhookResponse, botProfileResponse] = await Promise.all([
+          apiGet<ResourcePage<WebhookOption>>('/discord/webhooks?size=100&sort=id,desc'),
+          apiGet<ResourcePage<BotProfileOption>>('/discord/bot-profiles?size=100&sort=id,desc'),
+        ]);
+        setWebhooks(webhookResponse.content ?? []);
+        setBotProfiles(botProfileResponse.content ?? []);
+      } catch (err) {
+        const message = err instanceof ApiError ? err.message : 'Unable to load Discord resources.';
         setError(message);
       } finally {
         setLoading(false);
@@ -94,7 +128,7 @@ export function SubscriptionDetailPage() {
     const intervalMinute = Number(formState.intervalMinute);
 
     if (!Number.isFinite(webhookId) || !Number.isFinite(botProfileId) || !Number.isFinite(intervalMinute)) {
-      setError('Please enter valid numeric values.');
+      setError('Please choose Discord resources and enter a valid interval.');
       setSaving(false);
       return;
     }
@@ -137,6 +171,25 @@ export function SubscriptionDetailPage() {
     return <div className="py-5 text-center">Loading subscription...</div>;
   }
 
+  if (loadError) {
+    return (
+      <PagePlaceholder title={`Subscription ${id ?? ''}`} description="This subscription cannot be opened.">
+        <div className="alert alert-danger mb-3">{loadError}</div>
+        <dl className="row mb-4">
+          <dt className="col-sm-3">Subscription ID</dt>
+          <dd className="col-sm-9">{id ?? 'Unknown'}</dd>
+        </dl>
+        <Link to="/subscriptions" className="btn btn-primary">
+          <i className="bi bi-arrow-left me-1" aria-hidden="true" />
+          Back to subscriptions
+        </Link>
+      </PagePlaceholder>
+    );
+  }
+
+  const selectedWebhookIsMissing = formState.webhookId && !webhooks.some((webhook) => String(webhook.id) === formState.webhookId);
+  const selectedBotProfileIsMissing = formState.botProfileId && !botProfiles.some((botProfile) => String(botProfile.id) === formState.botProfileId);
+
   return (
     <PagePlaceholder title={`Edit subscription ${id ?? ''}`} description="Update an existing subscription configuration.">
       {error ? <div className="alert alert-danger">{error}</div> : null}
@@ -172,29 +225,43 @@ export function SubscriptionDetailPage() {
         </div>
         <div className="col-md-6">
           <label htmlFor="webhookId" className="form-label">
-            Webhook ID
+            Webhook
           </label>
-          <input
+          <select
             id="webhookId"
-            className="form-control"
-            inputMode="numeric"
+            className="form-select"
             value={formState.webhookId}
             onChange={(event) => updateField('webhookId', event.target.value)}
             required
-          />
+          >
+            <option value="">Choose webhook</option>
+            {selectedWebhookIsMissing ? <option value={formState.webhookId}>Webhook #{formState.webhookId}</option> : null}
+            {webhooks.map((webhook) => (
+              <option key={webhook.id} value={webhook.id}>
+                {webhook.alias}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="col-md-6">
           <label htmlFor="botProfileId" className="form-label">
-            Bot Profile ID
+            Bot Profile
           </label>
-          <input
+          <select
             id="botProfileId"
-            className="form-control"
-            inputMode="numeric"
+            className="form-select"
             value={formState.botProfileId}
             onChange={(event) => updateField('botProfileId', event.target.value)}
             required
-          />
+          >
+            <option value="">Choose bot profile</option>
+            {selectedBotProfileIsMissing ? <option value={formState.botProfileId}>Bot Profile #{formState.botProfileId}</option> : null}
+            {botProfiles.map((botProfile) => (
+              <option key={botProfile.id} value={botProfile.id}>
+                {botProfile.alias} ({botProfile.username})
+              </option>
+            ))}
+          </select>
         </div>
         <div className="col-md-4">
           <label htmlFor="intervalMinute" className="form-label">

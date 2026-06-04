@@ -3,6 +3,8 @@ export type AppRole = 'USER' | 'ADMIN';
 export type AppSession = {
   channelId: string;
   role: AppRole;
+  channelName?: string | null;
+  profileUrl?: string | null;
 };
 
 const SESSION_STORAGE_KEY = 'chzzk:event-to-discord:session';
@@ -24,6 +26,8 @@ function parseSession(value: string | null): AppSession | null {
     return {
       channelId: parsed.channelId,
       role: parsed.role,
+      channelName: typeof parsed.channelName === 'string' ? parsed.channelName : undefined,
+      profileUrl: typeof parsed.profileUrl === 'string' ? parsed.profileUrl : undefined,
     };
   } catch {
     return null;
@@ -48,6 +52,8 @@ export function setMockSession(role: AppRole): void {
   setSession({
     channelId: role === 'ADMIN' ? 'mock-admin-channel' : 'mock-user-channel',
     role,
+    channelName: role === 'ADMIN' ? 'Mock Admin' : 'Mock User',
+    profileUrl: null,
   });
 }
 

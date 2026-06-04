@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
@@ -13,10 +13,12 @@ function formatChannelLabel(channelId: string): string {
   return `${truncated.slice(0, 20)}…`;
 }
 
-
 export function MainLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { session, logout } = useAuth();
+  const displayName = session?.channelName?.trim() || (session ? formatChannelLabel(session.channelId) : '');
+  const discordResourcesActive = location.pathname === '/discord' || location.pathname.startsWith('/discord/');
 
   async function handleLogout() {
     await logout();
@@ -49,12 +51,31 @@ export function MainLayout() {
                   Subscriptions
                 </NavLink>
               </li>
+              <li className="nav-item">
+                <NavLink to="/discord/webhooks" className={({ isActive }) => navLinkClass({ isActive: isActive || discordResourcesActive })}>
+                  Discord Resources
+                </NavLink>
+              </li>
             </ul>
             <div className="d-flex align-items-center gap-2">
               {session ? (
                 <>
-                  <span className="badge text-bg-secondary text-uppercase">{session.role}</span>
-                  <span className="text-light small">Channel: {formatChannelLabel(session.channelId)}</span>
+                  <div className="channel-user-summary d-flex align-items-center gap-2">
+                    <span className="channel-avatar" aria-hidden="true">
+                      <i className="bi bi-person-fill" aria-hidden="true" />
+                      {session.profileUrl ? (
+                        <img
+                          src={session.profileUrl}
+                          alt=""
+                          referrerPolicy="no-referrer"
+                          onError={(event) => {
+                            event.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                    </span>
+                    <span className="channel-name text-light small fw-semibold">{displayName}</span>
+                  </div>
                   <button type="button" onClick={handleLogout} className="btn btn-outline-light btn-sm">
                     Logout
                   </button>

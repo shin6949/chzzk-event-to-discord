@@ -47,6 +47,9 @@ describe('router scaffold', () => {
       if (url.includes('/auth/chzzk/login')) {
         return jsonResponse(200, { authorizationUrl: 'https://auth.example/login' });
       }
+      if (url.includes('/auth/refresh')) {
+        return jsonResponse(status, body);
+      }
       if (url.includes('/subscriptions')) {
         return jsonResponse(200, { content: [], first: true, last: true, number: 0, size: 10, totalElements: 0, totalPages: 1 });
       }
@@ -70,14 +73,78 @@ describe('router scaffold', () => {
   });
 
   it('allows authenticated users to open protected /subscriptions routes', async () => {
-    mockAuthMe(200, { channelId: 'channel-user', role: 'USER' });
+    mockAuthMe(200, {
+      channelId: 'channel-user',
+      role: 'USER',
+      channelName: 'Channel User',
+      profileUrl: 'https://example.test/channel-user.png',
+    });
 
     const { router } = renderWithSession('/subscriptions');
     expect(await screen.findByText('Manage your notification subscriptions.')).toBeInTheDocument();
     await waitFor(() => {
       expect(router.state.location.pathname).toBe('/subscriptions');
     });
+    expect(screen.getByText('Channel User')).toBeInTheDocument();
+    expect(screen.queryByText('USER')).not.toBeInTheDocument();
     expect(screen.getByText('No subscriptions found.')).toBeInTheDocument();
+  });
+
+  it('marks Discord Resources active for bot profile routes', async () => {
+    mockAuthMe(200, {
+      channelId: 'channel-user',
+      role: 'USER',
+      channelName: 'Channel User',
+      profileUrl: 'https://example.test/channel-user.png',
+    });
+
+    const { router } = renderWithSession('/discord/bot-profiles');
+    expect(await screen.findByRole('heading', { name: 'Bot Profiles' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/discord/bot-profiles');
+    });
+
+    expect(screen.getByRole('link', { name: 'Discord Resources' })).toHaveClass('active', 'fw-semibold');
+  });
+
+  it('marks only the exact subscription sidebar item active', async () => {
+    mockAuthMe(200, {
+      channelId: 'channel-user',
+      role: 'USER',
+      channelName: 'Channel User',
+      profileUrl: 'https://example.test/channel-user.png',
+    });
+
+    const { router } = renderWithSession('/subscriptions/new');
+    expect(await screen.findByRole('heading', { name: 'New Subscription' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/subscriptions/new');
+    });
+
+    const subscriptionSidebarLink = screen
+      .getAllByRole('link', { name: 'Subscriptions' })
+      .find((link) => link.classList.contains('list-group-item'));
+    expect(subscriptionSidebarLink).toBeDefined();
+    expect(subscriptionSidebarLink).not.toHaveClass('active');
+    expect(screen.getByRole('link', { name: 'New subscription' })).toHaveClass('active');
+  });
+
+  it('marks only the exact Discord resource sidebar item active', async () => {
+    mockAuthMe(200, {
+      channelId: 'channel-user',
+      role: 'USER',
+      channelName: 'Channel User',
+      profileUrl: 'https://example.test/channel-user.png',
+    });
+
+    const { router } = renderWithSession('/discord/bot-profiles');
+    expect(await screen.findByRole('heading', { name: 'Bot Profiles' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/discord/bot-profiles');
+    });
+
+    expect(screen.getByRole('link', { name: 'Webhooks' })).not.toHaveClass('active');
+    expect(screen.getByRole('link', { name: 'Bot Profiles' })).toHaveClass('active');
   });
 
   it('redirects to authorization URL from /login', async () => {

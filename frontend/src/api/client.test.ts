@@ -72,4 +72,35 @@ describe('api client', () => {
     expect(apiError.message).toBe('Unauthorized');
     expect(apiError.body).toEqual({ message: 'Unauthorized' });
   });
+
+  it('refreshes auth once and retries when a request returns 401', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(jsonResponse(401, { message: 'Expired' }))
+      .mockResolvedValueOnce(jsonResponse(200, { channelId: 'channel-1', role: 'USER' }))
+      .mockResolvedValueOnce(jsonResponse(200, { channelId: 'channel-1', role: 'USER' }));
+
+    const result = await apiGet<{ channelId: string }>('/auth/me');
+
+    expect(result.channelId).toBe('channel-1');
+    expect(globalThis.fetch).toHaveBeenNthCalledWith(
+      2,
+      'http://localhost:8080/api/v1/auth/refresh',
+      expect.objectContaining({ method: 'POST', credentials: 'include' }),
+    );
+  });
+
+  it('uses error and detail fields when message is not present', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(jsonResponse(404, { error: 'Not Found' }))
+      .mockResolvedValueOnce(jsonResponse(403, { detail: 'Access denied' }));
+
+    await expect(apiGet('/missing')).rejects.toMatchObject({
+      status: 404,
+      message: 'Not Found',
+    });
+    await expect(apiGet('/denied')).rejects.toMatchObject({
+      status: 403,
+      message: 'Access denied',
+    });
+  });
 });

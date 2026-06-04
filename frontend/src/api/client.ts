@@ -20,6 +20,8 @@ function buildApiUrl(path: string): string {
 type JsonBody = string | number | boolean | null | JsonBody[] | { [key: string]: JsonBody };
 type RequestOptions<B = JsonBody> = Omit<RequestInit, 'body'> & { body?: B };
 
+const REFRESH_PATH = '/auth/refresh';
+
 function isJsonResponse(response: Response): boolean {
   return (response.headers.get('content-type') ?? '').includes('application/json');
 }
@@ -47,19 +49,46 @@ function extractErrorMessage(body: unknown, fallback: string): string {
   }
 
   if (body && typeof body === 'object') {
-    const value = (body as { message?: unknown }).message;
-    if (typeof value === 'string' && value.trim().length > 0) {
-      return value.trim();
+    const fields = body as { message?: unknown; error?: unknown; detail?: unknown };
+    for (const value of [fields.message, fields.error, fields.detail]) {
+      if (typeof value === 'string' && value.trim().length > 0) {
+        return value.trim();
+      }
     }
   }
 
   return fallback;
 }
 
-async function request<T, B = JsonBody>(path: string, init: RequestOptions<B> = {}): Promise<T> {
+function shouldAttemptRefresh(path: string, response: Response, retryOnUnauthorized: boolean): boolean {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return retryOnUnauthorized && response.status === 401 && normalizedPath !== REFRESH_PATH;
+}
+
+async function refreshAuth(): Promise<boolean> {
+  const headers = new Headers();
+  headers.set('Accept', 'application/json');
+
+  const response = await fetch(buildApiUrl(REFRESH_PATH), {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+  });
+
+  return response.ok;
+}
+
+async function request<T, B = JsonBody>(
+  path: string,
+  init: RequestOptions<B> = {},
+  retryOnUnauthorized = true,
+): Promise<T> {
   const method = init.method ?? 'GET';
   const headers = new Headers(init.headers ?? {});
   headers.set('Accept', 'application/json');
+  if (init.body !== undefined && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
 
   const response = await fetch(buildApiUrl(path), {
     ...init,
@@ -72,11 +101,45 @@ async function request<T, B = JsonBody>(path: string, init: RequestOptions<B> = 
   const body = await parseResponseBody(response);
 
   if (!response.ok) {
+    if (shouldAttemptRefresh(path, response, retryOnUnauthorized) && await refreshAuth()) {
+      return request<T, B>(path, init, false);
+    }
+
     const message = extractErrorMessage(body, `Request failed with status ${response.status}`);
     throw new ApiError(response.status, message, body);
   }
 
   return body as T;
+}
+
+async function formRequest<T>(
+  path: string,
+  method: 'POST' | 'PUT',
+  body: FormData,
+  retryOnUnauthorized = true,
+): Promise<T> {
+  const headers = new Headers();
+  headers.set('Accept', 'application/json');
+
+  const response = await fetch(buildApiUrl(path), {
+    method,
+    headers,
+    credentials: 'include',
+    body,
+  });
+
+  const responseBody = await parseResponseBody(response);
+
+  if (!response.ok) {
+    if (shouldAttemptRefresh(path, response, retryOnUnauthorized) && await refreshAuth()) {
+      return formRequest<T>(path, method, body, false);
+    }
+
+    const message = extractErrorMessage(responseBody, `Request failed with status ${response.status}`);
+    throw new ApiError(response.status, message, responseBody);
+  }
+
+  return responseBody as T;
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
@@ -99,4 +162,12 @@ export async function apiPut<T, B extends JsonBody = JsonBody>(path: string, bod
 
 export async function apiDelete<T = void>(path: string): Promise<T> {
   return request<T>(path, { method: 'DELETE' });
+}
+
+export async function apiPostForm<T>(path: string, body: FormData): Promise<T> {
+  return formRequest<T>(path, 'POST', body);
+}
+
+export async function apiPutForm<T>(path: string, body: FormData): Promise<T> {
+  return formRequest<T>(path, 'PUT', body);
 }

@@ -102,7 +102,7 @@ class SubscriptionControllerTests {
             .build());
 
         ownerSubscription = chzzkSubscriptionFormRepository.save(ChzzkSubscriptionFormEntity.builder()
-            .chzzkChannelEntity(targetChannel)
+            .chzzkChannelEntity(ownerChannel)
             .formOwner(ownerChannel)
             .chzzkSubscriptionType(ChzzkSubscriptionType.STREAM_OFFLINE)
             .webhookId(ownerWebhook)
@@ -115,7 +115,7 @@ class SubscriptionControllerTests {
             .build());
 
         otherOwnerSubscription = chzzkSubscriptionFormRepository.save(ChzzkSubscriptionFormEntity.builder()
-            .chzzkChannelEntity(targetChannel)
+            .chzzkChannelEntity(otherOwnerChannel)
             .formOwner(otherOwnerChannel)
             .chzzkSubscriptionType(ChzzkSubscriptionType.CHANNEL_UPDATE)
             .webhookId(otherWebhook)
@@ -139,6 +139,8 @@ class SubscriptionControllerTests {
             .andExpect(jsonPath("$.totalPages").value(1))
             .andExpect(jsonPath("$.first").value(true))
             .andExpect(jsonPath("$.last").value(true))
+            .andExpect(jsonPath("$.pageable").doesNotExist())
+            .andExpect(jsonPath("$.sort").doesNotExist())
             .andExpect(jsonPath("$.content", hasSize(1)))
             .andExpect(jsonPath("$.content[0].id").value(ownerSubscription.getId()))
             .andExpect(jsonPath("$.content[0].formOwnerChannelId").value(OWNER_CHANNEL_ID));
@@ -146,15 +148,14 @@ class SubscriptionControllerTests {
 
     @Test
     void createReturnsBadRequestWhenRequiredFieldsAreMissing() throws Exception {
-        final String missingChannelPayload = objectMapper.writeValueAsString(Map.of(
-            "subscriptionType", "STREAM_OFFLINE",
+        final String missingTypePayload = objectMapper.writeValueAsString(Map.of(
             "webhookId", ownerWebhook.getId(),
             "botProfileId", ownerBotProfile.getId()
         ));
         mockMvc.perform(post("/api/v1/subscriptions")
                 .with(SecurityMockMvcRequestPostProcessors.user(OWNER_CHANNEL_ID).roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(missingChannelPayload))
+                .content(missingTypePayload))
             .andExpect(status().isBadRequest());
 
         final String adminMissingOwnerPayload = objectMapper.writeValueAsString(Map.of(
@@ -168,6 +169,39 @@ class SubscriptionControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(adminMissingOwnerPayload))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void userCreateDefaultsTargetChannelToAuthenticatedChannel() throws Exception {
+        final String createPayload = objectMapper.writeValueAsString(Map.of(
+            "subscriptionType", "STREAM_OFFLINE",
+            "webhookId", ownerWebhook.getId(),
+            "botProfileId", ownerBotProfile.getId()
+        ));
+
+        mockMvc.perform(post("/api/v1/subscriptions")
+                .with(SecurityMockMvcRequestPostProcessors.user(OWNER_CHANNEL_ID).roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(createPayload))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.channelId").value(OWNER_CHANNEL_ID))
+            .andExpect(jsonPath("$.formOwnerChannelId").value(OWNER_CHANNEL_ID));
+    }
+
+    @Test
+    void userCannotCreateSubscriptionForAnotherTargetChannel() throws Exception {
+        final String createPayload = objectMapper.writeValueAsString(Map.of(
+            "channelId", TARGET_CHANNEL_ID,
+            "subscriptionType", "STREAM_OFFLINE",
+            "webhookId", ownerWebhook.getId(),
+            "botProfileId", ownerBotProfile.getId()
+        ));
+
+        mockMvc.perform(post("/api/v1/subscriptions")
+                .with(SecurityMockMvcRequestPostProcessors.user(OWNER_CHANNEL_ID).roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(createPayload))
+            .andExpect(status().isForbidden());
     }
 
     @Test
@@ -210,7 +244,7 @@ class SubscriptionControllerTests {
     @Test
     void userCanCreateUpdateAndDeleteOwnedSubscription() throws Exception {
         final String createPayload = objectMapper.writeValueAsString(Map.of(
-            "channelId", TARGET_CHANNEL_ID,
+            "channelId", OWNER_CHANNEL_ID,
             "subscriptionType", "STREAM_OFFLINE",
             "webhookId", ownerWebhook.getId(),
             "botProfileId", ownerBotProfile.getId(),
@@ -227,6 +261,7 @@ class SubscriptionControllerTests {
                 .content(createPayload))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id", not(nullValue())))
+            .andExpect(jsonPath("$.channelId").value(OWNER_CHANNEL_ID))
             .andExpect(jsonPath("$.formOwnerChannelId").value(OWNER_CHANNEL_ID))
             .andReturn()
             .getResponse()

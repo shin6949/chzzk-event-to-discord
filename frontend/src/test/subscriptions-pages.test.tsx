@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AuthProvider } from '../auth/AuthContext';
 import { NewSubscriptionPage } from '../pages/app/NewSubscriptionPage';
 import { SubscriptionDetailPage } from '../pages/app/SubscriptionDetailPage';
 import { SubscriptionsPage } from '../pages/app/SubscriptionsPage';
@@ -15,6 +16,7 @@ function jsonResponse(status: number, body: unknown) {
 
 describe('subscriptions UI', () => {
   beforeEach(() => {
+    window.localStorage.clear();
     vi.restoreAllMocks();
   });
 
@@ -102,15 +104,34 @@ describe('subscriptions UI', () => {
     expect(await screen.findByText('failed to load subscriptions')).toBeInTheDocument();
   });
 
-  it('validates create form before calling API', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse(201, { id: 1 }));
+  it('requires Discord resources before calling API', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input: string | URL | Request, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (url.includes('/auth/me')) {
+        return jsonResponse(200, {
+          channelId: 'owner-channel',
+          role: 'USER',
+          channelName: 'Owner Channel',
+          profileUrl: 'https://example.test/owner.png',
+        });
+      }
+      if (url.includes('/discord/webhooks') || url.includes('/discord/bot-profiles')) {
+        return jsonResponse(200, { content: [] });
+      }
+      if (url.includes('/subscriptions') && init?.method === 'POST') {
+        return jsonResponse(201, { id: 1 });
+      }
+      return jsonResponse(404, { message: 'not handled' });
+    });
 
     render(
       <MemoryRouter initialEntries={['/subscriptions/new']}>
-        <Routes>
-          <Route path="/subscriptions/new" element={<NewSubscriptionPage />} />
-          <Route path="/subscriptions" element={<h1>Subscriptions destination</h1>} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/subscriptions/new" element={<NewSubscriptionPage />} />
+            <Route path="/subscriptions" element={<h1>Subscriptions destination</h1>} />
+          </Routes>
+        </AuthProvider>
       </MemoryRouter>,
     );
 
@@ -118,15 +139,69 @@ describe('subscriptions UI', () => {
     const submitButton = screen.getByRole('button', { name: 'Create subscription' });
     expect(submitButton).toBeDisabled();
 
-    await user.type(screen.getByLabelText('Channel ID (target channel)'), 'target-channel');
-    await user.type(screen.getByLabelText('Webhook ID'), 'abc');
-    await user.type(screen.getByLabelText('Bot Profile ID'), '3');
+    expect(await screen.findByText('Owner Channel')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('owner-channel')).not.toBeInTheDocument();
+    expect(document.querySelector('.subscription-channel-summary img')).toHaveAttribute('src', 'https://example.test/owner.png');
 
-    expect(submitButton).toBeEnabled();
+    expect(await screen.findByText('Create at least one webhook and one bot profile before adding a subscription.')).toBeInTheDocument();
+    expect(submitButton).toBeDisabled();
     await user.click(submitButton);
 
-    expect(await screen.findByText('Please fill required fields with valid numeric values.')).toBeInTheDocument();
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(fetchSpy.mock.calls.some(([input, init]) => String(input).includes('/subscriptions') && init?.method === 'POST')).toBe(false);
+  });
+
+  it('submits the authenticated channel id when creating a subscription', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input: string | URL | Request, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (url.includes('/auth/me')) {
+        return jsonResponse(200, {
+          channelId: 'owner-channel',
+          role: 'USER',
+          channelName: 'Owner Channel',
+          profileUrl: 'https://example.test/owner.png',
+        });
+      }
+      if (url.includes('/discord/webhooks')) {
+        return jsonResponse(200, { content: [{ id: 11, alias: 'Main webhook', url: 'https://example.test/webhook' }] });
+      }
+      if (url.includes('/discord/bot-profiles')) {
+        return jsonResponse(200, {
+          content: [{ id: 12, alias: 'Main bot', username: 'Notifier', avatarUrl: 'https://example.test/avatar.png' }],
+        });
+      }
+      if (url.includes('/subscriptions') && init?.method === 'POST') {
+        return jsonResponse(201, { id: 1 });
+      }
+      return jsonResponse(404, { message: 'not handled' });
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/subscriptions/new']}>
+        <AuthProvider>
+          <Routes>
+            <Route path="/subscriptions/new" element={<NewSubscriptionPage />} />
+            <Route path="/subscriptions" element={<h1>Subscriptions destination</h1>} />
+          </Routes>
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    const user = userEvent.setup();
+    await screen.findByText('Owner Channel');
+    expect(await screen.findByRole('option', { name: 'Main webhook' })).toBeInTheDocument();
+    expect(await screen.findByRole('option', { name: 'Main bot (Notifier)' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Create subscription' }));
+
+    await screen.findByRole('heading', { name: 'Subscriptions destination' });
+    const postCall = fetchSpy.mock.calls.find(([input, init]) => String(input).includes('/subscriptions') && init?.method === 'POST');
+    expect(postCall).toBeDefined();
+    expect(JSON.parse(String(postCall?.[1]?.body))).toEqual(
+      expect.objectContaining({
+        channelId: 'owner-channel',
+        webhookId: 11,
+        botProfileId: 12,
+      }),
+    );
   });
 
   it('loads subscription detail payload for an existing subscription', async () => {
@@ -143,6 +218,12 @@ describe('subscriptions UI', () => {
           content: 'payload content',
         });
       }
+      if (url.includes('/discord/webhooks')) {
+        return jsonResponse(200, { content: [{ id: 11, alias: 'Main webhook' }] });
+      }
+      if (url.includes('/discord/bot-profiles')) {
+        return jsonResponse(200, { content: [{ id: 12, alias: 'Main bot', username: 'Notifier' }] });
+      }
 
       return jsonResponse(404, { message: 'not handled' });
     });
@@ -157,12 +238,22 @@ describe('subscriptions UI', () => {
 
     const channelInput = (await screen.findByLabelText('Channel ID (target channel)')) as HTMLInputElement;
     expect(channelInput.value).toBe('target-channel');
-    expect(screen.getByDisplayValue('11')).toBeInTheDocument();
+    expect((screen.getByLabelText('Webhook') as HTMLSelectElement).value).toBe('11');
+    expect((screen.getByLabelText('Bot Profile') as HTMLSelectElement).value).toBe('12');
     expect(screen.getByDisplayValue('payload content')).toBeInTheDocument();
   });
 
   it('shows not found error on subscription detail page when API returns 404', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse(404, { message: 'subscription not found' }));
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input: string | URL | Request) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (url.includes('/subscriptions/999')) {
+        return jsonResponse(404, { message: 'subscription not found' });
+      }
+      if (url.includes('/discord/webhooks') || url.includes('/discord/bot-profiles')) {
+        return jsonResponse(200, { content: [] });
+      }
+      return jsonResponse(404, { message: 'not handled' });
+    });
 
     render(
       <MemoryRouter initialEntries={['/subscriptions/999']}>
@@ -173,5 +264,12 @@ describe('subscriptions UI', () => {
     );
 
     expect(await screen.findByText('subscription not found')).toBeInTheDocument();
+    expect(screen.getByText('Subscription ID')).toBeInTheDocument();
+    expect(screen.getByText('999')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back to subscriptions' })).toHaveAttribute('href', '/subscriptions');
+    expect(screen.queryByLabelText('Channel ID (target channel)')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    expect(fetchSpy.mock.calls.some(([input]) => String(input).includes('/discord/webhooks'))).toBe(false);
+    expect(fetchSpy.mock.calls.some(([input]) => String(input).includes('/discord/bot-profiles'))).toBe(false);
   });
 });

@@ -1,6 +1,7 @@
 package me.cocoblue.chzzkeventtodiscord.controller;
 
 import lombok.RequiredArgsConstructor;
+import me.cocoblue.chzzkeventtodiscord.dto.PageResponseDto;
 import me.cocoblue.chzzkeventtodiscord.dto.subscription.SubscriptionRequestDto;
 import me.cocoblue.chzzkeventtodiscord.dto.subscription.SubscriptionResponseDto;
 import me.cocoblue.chzzkeventtodiscord.security.AppRole;
@@ -40,12 +41,12 @@ public class SubscriptionController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<SubscriptionResponseDto>> list(Pageable pageable, Authentication authentication) {
+    public ResponseEntity<PageResponseDto<SubscriptionResponseDto>> list(Pageable pageable, Authentication authentication) {
         final ChzzkPrincipal principal = extractPrincipal(authentication);
         final Page<SubscriptionResponseDto> response = subscriptionCrudService.list(principal, pageable)
             .map(SubscriptionResponseDto::fromEntity);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(PageResponseDto.from(response));
     }
 
     @GetMapping("/{subscriptionId}")

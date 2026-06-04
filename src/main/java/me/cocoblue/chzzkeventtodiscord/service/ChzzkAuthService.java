@@ -13,15 +13,15 @@ import me.cocoblue.chzzkeventtodiscord.security.ChzzkPrincipal;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -31,6 +31,8 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @Service
 @RequiredArgsConstructor
 public class ChzzkAuthService {
+    private static final String USER_AGENT = "chzzk-event-to-discord/0.1.4";
+
     private final ChzzkOAuthProperties chzzkOAuthProperties;
     private final ChzzkOAuthTokenRepository chzzkOAuthTokenRepository;
     private final ChzzkChannelRepository chzzkChannelRepository;
@@ -59,13 +61,15 @@ public class ChzzkAuthService {
         }
 
         final TokenResponse tokenResponse = requestToken(code, state);
-        if (tokenResponse == null || !StringUtils.hasText(tokenResponse.accessToken())) {
+        if (tokenResponse == null || !StringUtils.hasText(tokenResponse.resolveAccessToken())) {
+            log.warn("CHZZK OAuth token response did not include an access token");
             throw new ResponseStatusException(BAD_GATEWAY, "failed to exchange oauth code");
         }
 
-        final UserMeResponse userMeResponse = requestUserMe(tokenResponse.accessToken());
+        final UserMeResponse userMeResponse = requestUserMe(tokenResponse.resolveAccessToken());
         final String channelId = userMeResponse == null ? null : userMeResponse.resolveChannelId();
         if (!StringUtils.hasText(channelId)) {
+            log.warn("CHZZK user info response did not include a channel id");
             throw new ResponseStatusException(BAD_GATEWAY, "failed to resolve channel id");
         }
 
@@ -100,12 +104,12 @@ public class ChzzkAuthService {
         } catch (Exception e) {
             throw new ResponseStatusException(BAD_GATEWAY, "failed to refresh oauth token", e);
         }
-        if (tokenResponse == null || !StringUtils.hasText(tokenResponse.accessToken())) {
+        if (tokenResponse == null || !StringUtils.hasText(tokenResponse.resolveAccessToken())) {
             throw new ResponseStatusException(BAD_GATEWAY, "failed to refresh oauth token");
         }
 
         upsertTokenByRefreshToken(channelId, tokenResponse);
-        return tokenResponse.accessToken();
+        return tokenResponse.resolveAccessToken();
     }
 
     @Transactional
@@ -118,13 +122,13 @@ public class ChzzkAuthService {
 
         if (StringUtils.hasText(tokenEntity.getRefreshToken())) {
             try {
-                revokeToken(tokenEntity.getRefreshToken());
+                revokeToken(tokenEntity.getRefreshToken(), "refresh_token");
             } catch (Exception e) {
                 throw new ResponseStatusException(BAD_GATEWAY, "failed to revoke refresh token", e);
             }
         } else if (StringUtils.hasText(tokenEntity.getAccessToken())) {
             try {
-                revokeToken(tokenEntity.getAccessToken());
+                revokeToken(tokenEntity.getAccessToken(), "access_token");
             } catch (Exception e) {
                 throw new ResponseStatusException(BAD_GATEWAY, "failed to revoke access token", e);
             }
@@ -134,57 +138,71 @@ public class ChzzkAuthService {
     }
 
     private TokenResponse requestToken(String code, String state) {
-        final LinkedMultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grantType", "authorization_code");
-        formData.add("clientId", chzzkOAuthProperties.getClientId());
-        formData.add("clientSecret", chzzkOAuthProperties.getClientSecret());
-        formData.add("code", code);
-        formData.add("state", state);
-        if (StringUtils.hasText(chzzkOAuthProperties.getRedirectUri())) {
-            formData.add("redirectUri", chzzkOAuthProperties.getRedirectUri());
-        }
+        final Map<String, String> requestBody = new LinkedHashMap<>();
+        requestBody.put("grantType", "authorization_code");
+        requestBody.put("clientId", chzzkOAuthProperties.getClientId());
+        requestBody.put("clientSecret", chzzkOAuthProperties.getClientSecret());
+        requestBody.put("code", code);
+        requestBody.put("state", state);
 
-        return requestTokenInternal(formData);
+        return requestTokenInternal(requestBody);
     }
 
     private TokenResponse requestRefreshToken(String refreshToken) {
-        final LinkedMultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grantType", "refresh_token");
-        formData.add("clientId", chzzkOAuthProperties.getClientId());
-        formData.add("clientSecret", chzzkOAuthProperties.getClientSecret());
-        formData.add("refreshToken", refreshToken);
+        final Map<String, String> requestBody = new LinkedHashMap<>();
+        requestBody.put("grantType", "refresh_token");
+        requestBody.put("clientId", chzzkOAuthProperties.getClientId());
+        requestBody.put("clientSecret", chzzkOAuthProperties.getClientSecret());
+        requestBody.put("refreshToken", refreshToken);
 
-        return requestTokenInternal(formData);
+        return requestTokenInternal(requestBody);
     }
 
-    private void revokeToken(String token) {
-        final LinkedMultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("clientId", chzzkOAuthProperties.getClientId());
-        formData.add("clientSecret", chzzkOAuthProperties.getClientSecret());
-        formData.add("token", token);
-        formData.add("refreshToken", token);
+    private void revokeToken(String token, String tokenTypeHint) {
+        final Map<String, String> requestBody = new LinkedHashMap<>();
+        requestBody.put("clientId", chzzkOAuthProperties.getClientId());
+        requestBody.put("clientSecret", chzzkOAuthProperties.getClientSecret());
+        requestBody.put("token", token);
+        requestBody.put("tokenTypeHint", tokenTypeHint);
 
         WebClient.builder()
             .baseUrl(chzzkOAuthProperties.getTokenBaseUrl())
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .defaultHeader(HttpHeaders.USER_AGENT, USER_AGENT)
             .build()
             .post()
             .uri("/auth/v1/token/revoke")
-            .body(BodyInserters.fromFormData(formData))
+            .accept(MediaType.APPLICATION_JSON)
+            .bodyValue(requestBody)
             .retrieve()
             .toBodilessEntity()
             .block();
     }
 
-    private TokenResponse requestTokenInternal(LinkedMultiValueMap<String, String> formData) {
+    private TokenResponse requestTokenInternal(Map<String, String> requestBody) {
         return WebClient.builder()
             .baseUrl(chzzkOAuthProperties.getTokenBaseUrl())
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .defaultHeader(HttpHeaders.USER_AGENT, USER_AGENT)
             .build()
             .post()
             .uri("/auth/v1/token")
-            .body(BodyInserters.fromFormData(formData))
+            .accept(MediaType.APPLICATION_JSON)
+            .bodyValue(requestBody)
             .retrieve()
+            .onStatus(
+                status -> status.isError(),
+                response -> response.bodyToMono(String.class)
+                    .defaultIfEmpty("")
+                    .map(body -> {
+                        log.warn(
+                            "CHZZK OAuth token request failed. status={}, body={}",
+                            response.statusCode().value(),
+                            abbreviateResponseBody(body)
+                        );
+                        return new ResponseStatusException(BAD_GATEWAY, "failed to exchange oauth token");
+                    })
+            )
             .bodyToMono(TokenResponse.class)
             .block();
     }
@@ -193,12 +211,26 @@ public class ChzzkAuthService {
         return WebClient.builder()
             .baseUrl(chzzkOAuthProperties.getApiBaseUrl())
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .defaultHeader(HttpHeaders.USER_AGENT, USER_AGENT)
             .build()
             .get()
             .uri("/open/v1/users/me")
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
+            .onStatus(
+                status -> status.isError(),
+                response -> response.bodyToMono(String.class)
+                    .defaultIfEmpty("")
+                    .map(body -> {
+                        log.warn(
+                            "CHZZK user info request failed. status={}, body={}",
+                            response.statusCode().value(),
+                            abbreviateResponseBody(body)
+                        );
+                        return new ResponseStatusException(BAD_GATEWAY, "failed to resolve chzzk user info");
+                    })
+            )
             .bodyToMono(UserMeResponse.class)
             .block();
     }
@@ -208,15 +240,15 @@ public class ChzzkAuthService {
         final ChzzkOAuthTokenEntity tokenEntity = chzzkOAuthTokenRepository.findById(channelId)
             .orElseGet(() -> ChzzkOAuthTokenEntity.builder().channelId(channelId).build());
 
-        tokenEntity.setAccessToken(tokenResponse.accessToken());
-        tokenEntity.setRefreshToken(tokenResponse.refreshToken());
-        tokenEntity.setTokenType(tokenResponse.tokenType());
-        tokenEntity.setScope(tokenResponse.scope());
+        tokenEntity.setAccessToken(tokenResponse.resolveAccessToken());
+        tokenEntity.setRefreshToken(tokenResponse.resolveRefreshToken());
+        tokenEntity.setTokenType(tokenResponse.resolveTokenType());
+        tokenEntity.setScope(tokenResponse.resolveScope());
         tokenEntity.setAccessTokenExpiresAt(
-            tokenResponse.expiresIn() == null ? null : now.plusSeconds(tokenResponse.expiresIn())
+            tokenResponse.resolveExpiresIn() == null ? null : now.plusSeconds(tokenResponse.resolveExpiresIn())
         );
         tokenEntity.setRefreshTokenExpiresAt(
-            tokenResponse.refreshTokenExpiresIn() == null ? null : now.plusSeconds(tokenResponse.refreshTokenExpiresIn())
+            tokenResponse.resolveRefreshTokenExpiresIn() == null ? null : now.plusSeconds(tokenResponse.resolveRefreshTokenExpiresIn())
         );
 
         chzzkOAuthTokenRepository.save(tokenEntity);
@@ -227,23 +259,23 @@ public class ChzzkAuthService {
         final ChzzkOAuthTokenEntity tokenEntity = chzzkOAuthTokenRepository.findById(channelId)
             .orElseGet(() -> ChzzkOAuthTokenEntity.builder().channelId(channelId).build());
 
-        if (StringUtils.hasText(tokenResponse.accessToken())) {
-            tokenEntity.setAccessToken(tokenResponse.accessToken());
+        if (StringUtils.hasText(tokenResponse.resolveAccessToken())) {
+            tokenEntity.setAccessToken(tokenResponse.resolveAccessToken());
         }
-        if (StringUtils.hasText(tokenResponse.refreshToken())) {
-            tokenEntity.setRefreshToken(tokenResponse.refreshToken());
+        if (StringUtils.hasText(tokenResponse.resolveRefreshToken())) {
+            tokenEntity.setRefreshToken(tokenResponse.resolveRefreshToken());
         }
-        if (StringUtils.hasText(tokenResponse.tokenType())) {
-            tokenEntity.setTokenType(tokenResponse.tokenType());
+        if (StringUtils.hasText(tokenResponse.resolveTokenType())) {
+            tokenEntity.setTokenType(tokenResponse.resolveTokenType());
         }
-        if (StringUtils.hasText(tokenResponse.scope())) {
-            tokenEntity.setScope(tokenResponse.scope());
+        if (StringUtils.hasText(tokenResponse.resolveScope())) {
+            tokenEntity.setScope(tokenResponse.resolveScope());
         }
         tokenEntity.setAccessTokenExpiresAt(
-            tokenResponse.expiresIn() == null ? tokenEntity.getAccessTokenExpiresAt() : now.plusSeconds(tokenResponse.expiresIn())
+            tokenResponse.resolveExpiresIn() == null ? tokenEntity.getAccessTokenExpiresAt() : now.plusSeconds(tokenResponse.resolveExpiresIn())
         );
         tokenEntity.setRefreshTokenExpiresAt(
-            tokenResponse.refreshTokenExpiresIn() == null ? tokenEntity.getRefreshTokenExpiresAt() : now.plusSeconds(tokenResponse.refreshTokenExpiresIn())
+            tokenResponse.resolveRefreshTokenExpiresIn() == null ? tokenEntity.getRefreshTokenExpiresAt() : now.plusSeconds(tokenResponse.resolveRefreshTokenExpiresIn())
         );
 
         chzzkOAuthTokenRepository.save(tokenEntity);
@@ -280,7 +312,48 @@ public class ChzzkAuthService {
         return ZonedDateTime.now(ZoneId.of("UTC"));
     }
 
+    private static String abbreviateResponseBody(String responseBody) {
+        if (!StringUtils.hasText(responseBody)) {
+            return "<empty>";
+        }
+        return responseBody.length() <= 500 ? responseBody : responseBody.substring(0, 500) + "...";
+    }
+
     private record TokenResponse(
+        @com.fasterxml.jackson.annotation.JsonAlias({"accessToken", "access_token"}) String accessToken,
+        @com.fasterxml.jackson.annotation.JsonAlias({"refreshToken", "refresh_token"}) String refreshToken,
+        @com.fasterxml.jackson.annotation.JsonAlias({"tokenType", "token_type"}) String tokenType,
+        String scope,
+        @com.fasterxml.jackson.annotation.JsonAlias({"expiresIn", "expires_in"}) Long expiresIn,
+        @com.fasterxml.jackson.annotation.JsonAlias({"refreshTokenExpiresIn", "refresh_token_expires_in"}) Long refreshTokenExpiresIn,
+        TokenContent content
+    ) {
+        String resolveAccessToken() {
+            return StringUtils.hasText(accessToken) ? accessToken : content == null ? null : content.accessToken();
+        }
+
+        String resolveRefreshToken() {
+            return StringUtils.hasText(refreshToken) ? refreshToken : content == null ? null : content.refreshToken();
+        }
+
+        String resolveTokenType() {
+            return StringUtils.hasText(tokenType) ? tokenType : content == null ? null : content.tokenType();
+        }
+
+        String resolveScope() {
+            return StringUtils.hasText(scope) ? scope : content == null ? null : content.scope();
+        }
+
+        Long resolveExpiresIn() {
+            return expiresIn == null && content != null ? content.expiresIn() : expiresIn;
+        }
+
+        Long resolveRefreshTokenExpiresIn() {
+            return refreshTokenExpiresIn == null && content != null ? content.refreshTokenExpiresIn() : refreshTokenExpiresIn;
+        }
+    }
+
+    private record TokenContent(
         @com.fasterxml.jackson.annotation.JsonAlias({"accessToken", "access_token"}) String accessToken,
         @com.fasterxml.jackson.annotation.JsonAlias({"refreshToken", "refresh_token"}) String refreshToken,
         @com.fasterxml.jackson.annotation.JsonAlias({"tokenType", "token_type"}) String tokenType,
@@ -292,6 +365,7 @@ public class ChzzkAuthService {
 
     private record UserMeResponse(
         @com.fasterxml.jackson.annotation.JsonAlias({"channelId", "id"}) String channelId,
+        @com.fasterxml.jackson.annotation.JsonAlias({"channelName", "name"}) String channelName,
         UserMeContent content
     ) {
         String resolveChannelId() {
@@ -302,6 +376,9 @@ public class ChzzkAuthService {
         }
 
         String resolveChannelName() {
+            if (StringUtils.hasText(channelName)) {
+                return channelName;
+            }
             return content == null ? null : content.channelName();
         }
     }

@@ -3,7 +3,7 @@ import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '../auth/AuthContext';
 import { RequireAdmin } from '../auth/RouteGuards';
-import { clearSession } from '../auth/session';
+import { clearSession, setSession } from '../auth/session';
 
 function jsonResponse(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
@@ -16,6 +16,9 @@ function mockAuthMe(status: number, body: object = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (input: string | URL | Request) => {
     const url = typeof input === 'string' ? input : input.toString();
     if (url.includes('/auth/me')) {
+      return jsonResponse(status, body);
+    }
+    if (url.includes('/auth/refresh')) {
       return jsonResponse(status, body);
     }
     return jsonResponse(200, {});
@@ -84,6 +87,18 @@ describe('route guards', () => {
 
   it('allows admin users to stay on admin routes', async () => {
     mockAuthMe(200, { channelId: 'channel-admin', role: 'ADMIN' });
+
+    const router = renderGuard('/admin');
+
+    expect(await screen.findByRole('heading', { name: 'Admin page' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/admin');
+    });
+  });
+
+  it('keeps cached session when auth check fails transiently', async () => {
+    setSession({ channelId: 'channel-admin', role: 'ADMIN' });
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
 
     const router = renderGuard('/admin');
 

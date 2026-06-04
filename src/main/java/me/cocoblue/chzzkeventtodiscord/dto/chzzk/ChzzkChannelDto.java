@@ -33,7 +33,7 @@ public class ChzzkChannelDto {
         return ChzzkChannelEntity.builder()
                 .channelId(channelId)
                 .channelName(channelName)
-                .isVerifiedMark(verifiedMark)
+                .isVerifiedMark(Boolean.TRUE.equals(verifiedMark))
                 .profileUrl(channelImageUrl)
                 .channelDescription(channelDescription)
                 .followerCount(followerCount)

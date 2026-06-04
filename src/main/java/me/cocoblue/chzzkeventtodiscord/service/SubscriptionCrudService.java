@@ -41,7 +41,8 @@ public class SubscriptionCrudService {
     @Transactional
     public ChzzkSubscriptionFormEntity create(SubscriptionRequestDto request, ChzzkPrincipal principal) {
         final String ownerChannelId = resolveOwnerChannelId(request.getFormOwnerChannelId(), principal, false);
-        final ChzzkChannelEntity targetChannel = resolveChannel(request.getChannelId(), "channelId");
+        final String targetChannelId = resolveTargetChannelId(request.getChannelId(), principal, null);
+        final ChzzkChannelEntity targetChannel = resolveChannel(targetChannelId, "channelId");
         final ChzzkChannelEntity ownerChannel = resolveChannel(ownerChannelId, "formOwnerChannelId");
         final DiscordWebhookDataEntity webhook = resolveWebhook(request.getWebhookId(), ownerChannelId, principal);
         final DiscordBotProfileDataEntity botProfile = resolveBotProfile(request.getBotProfileId(), ownerChannelId, principal);
@@ -89,9 +90,10 @@ public class SubscriptionCrudService {
         ensureTypeIsNotMutatedAcrossHierarchy(entity, nextType);
 
         final String ownerChannelId = resolveOwnerChannelId(request.getFormOwnerChannelId(), principal, true);
-        final ChzzkChannelEntity targetChannel = request.getChannelId() == null
+        final String targetChannelId = resolveTargetChannelId(request.getChannelId(), principal, entity);
+        final ChzzkChannelEntity targetChannel = targetChannelId == null
             ? entity.getChzzkChannelEntity()
-            : resolveChannel(request.getChannelId(), "channelId");
+            : resolveChannel(targetChannelId, "channelId");
         final ChzzkChannelEntity ownerChannel = ownerChannelId == null
             ? entity.getFormOwner()
             : resolveChannel(ownerChannelId, "formOwnerChannelId");
@@ -159,6 +161,23 @@ public class SubscriptionCrudService {
 
         if (StringUtils.hasText(requestedOwnerChannelId) && !Objects.equals(requestedOwnerChannelId, principal.channelId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "formOwnerChannelId does not match authenticated user");
+        }
+        return principal.channelId();
+    }
+
+    private String resolveTargetChannelId(String requestedChannelId, ChzzkPrincipal principal, ChzzkSubscriptionFormEntity existingEntity) {
+        if (principal.role() == AppRole.ADMIN) {
+            if (StringUtils.hasText(requestedChannelId)) {
+                return requestedChannelId;
+            }
+            if (existingEntity != null) {
+                return null;
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "channelId is required");
+        }
+
+        if (StringUtils.hasText(requestedChannelId) && !Objects.equals(requestedChannelId, principal.channelId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "channelId does not match authenticated user");
         }
         return principal.channelId();
     }

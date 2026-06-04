@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 type NavItem = {
   to: string;
   label: string;
+  end?: boolean;
 };
 
 type SectionLayoutProps = {
@@ -21,7 +22,7 @@ export function SectionLayout({ title, navItems }: SectionLayoutProps) {
         <h2 className="h5 mb-3">{title}</h2>
         <div className="list-group shadow-sm">
           {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className={sidebarClass}>
+            <NavLink key={item.to} to={item.to} end={item.end ?? true} className={sidebarClass}>
               {item.label}
             </NavLink>
           ))}

@@ -13,3 +13,86 @@ body {
 #root {
   min-height: 100vh;
 }
+
+.channel-user-summary {
+  min-width: 0;
+}
+
+.channel-avatar {
+  align-items: center;
+  background: #495057;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  color: #f8f9fa;
+  display: inline-flex;
+  flex: 0 0 32px;
+  height: 32px;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  width: 32px;
+}
+
+.channel-avatar img {
+  display: block;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.channel-name {
+  display: inline-block;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subscription-channel-summary {
+  min-width: 0;
+}
+
+.subscription-channel-avatar {
+  flex-basis: 40px;
+  height: 40px;
+  width: 40px;
+}
+
+.subscription-channel-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bot-profile-avatar,
+.bot-profile-preview {
+  align-items: center;
+  background: #f1f3f5;
+  border: 1px solid #dee2e6;
+  border-radius: 50%;
+  color: #6c757d;
+  display: inline-flex;
+  height: 40px;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  width: 40px;
+}
+
+.bot-profile-preview {
+  height: 56px;
+  width: 56px;
+}
+
+.bot-profile-avatar img,
+.bot-profile-preview img {
+  display: block;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}

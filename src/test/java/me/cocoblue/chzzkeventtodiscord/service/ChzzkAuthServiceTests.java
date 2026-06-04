@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -80,12 +81,16 @@ class ChzzkAuthServiceTests {
             .addHeader("Content-Type", "application/json")
             .setBody("""
                 {
-                  "access_token": "access-token-123",
-                  "refresh_token": "refresh-token-123",
-                  "token_type": "Bearer",
-                  "scope": "user.read",
-                  "expires_in": 3600,
-                  "refresh_token_expires_in": 7200
+                  "code": 200,
+                  "message": null,
+                  "content": {
+                    "accessToken": "access-token-123",
+                    "refreshToken": "refresh-token-123",
+                    "tokenType": "Bearer",
+                    "scope": "user.read",
+                    "expiresIn": 3600,
+                    "refreshTokenExpiresIn": 7200
+                  }
                 }
                 """));
         MOCK_WEB_SERVER.enqueue(new MockResponse()
@@ -119,17 +124,21 @@ class ChzzkAuthServiceTests {
         assertNotNull(tokenRequest);
         assertEquals("POST", tokenRequest.getMethod());
         assertEquals("/auth/v1/token", tokenRequest.getPath());
+        assertEquals("application/json", tokenRequest.getHeader("Content-Type"));
+        assertEquals("chzzk-event-to-discord/0.1.4", tokenRequest.getHeader("User-Agent"));
         final String tokenBody = tokenRequest.getBody().readUtf8();
-        assertTrue(tokenBody.contains("grantType=authorization_code"));
-        assertTrue(tokenBody.contains("code=code-123"));
-        assertTrue(tokenBody.contains("state=state-123"));
-        assertTrue(tokenBody.contains("clientId=test-client-id"));
+        assertTrue(tokenBody.contains("\"grantType\":\"authorization_code\""));
+        assertTrue(tokenBody.contains("\"code\":\"code-123\""));
+        assertTrue(tokenBody.contains("\"state\":\"state-123\""));
+        assertTrue(tokenBody.contains("\"clientId\":\"test-client-id\""));
+        assertFalse(tokenBody.contains("redirectUri"));
 
         final RecordedRequest userMeRequest = MOCK_WEB_SERVER.takeRequest(1, TimeUnit.SECONDS);
         assertNotNull(userMeRequest);
         assertEquals("GET", userMeRequest.getMethod());
         assertEquals("/open/v1/users/me", userMeRequest.getPath());
         assertEquals("Bearer access-token-123", userMeRequest.getHeader("Authorization"));
+        assertEquals("chzzk-event-to-discord/0.1.4", userMeRequest.getHeader("User-Agent"));
     }
 
     @Test
@@ -161,12 +170,16 @@ class ChzzkAuthServiceTests {
             .addHeader("Content-Type", "application/json")
             .setBody("""
                 {
-                  "access_token": "refreshed-access-token",
-                  "refresh_token": "refreshed-refresh-token",
-                  "token_type": "Bearer",
-                  "scope": "user.read.refreshed",
-                  "expires_in": 3600,
-                  "refresh_token_expires_in": 7200
+                  "code": 200,
+                  "message": null,
+                  "content": {
+                    "accessToken": "refreshed-access-token",
+                    "refreshToken": "refreshed-refresh-token",
+                    "tokenType": "Bearer",
+                    "scope": "user.read.refreshed",
+                    "expiresIn": 3600,
+                    "refreshTokenExpiresIn": 7200
+                  }
                 }
                 """));
 
@@ -188,10 +201,12 @@ class ChzzkAuthServiceTests {
         assertNotNull(refreshRequest);
         assertEquals("POST", refreshRequest.getMethod());
         assertEquals("/auth/v1/token", refreshRequest.getPath());
+        assertEquals("application/json", refreshRequest.getHeader("Content-Type"));
+        assertEquals("chzzk-event-to-discord/0.1.4", refreshRequest.getHeader("User-Agent"));
         final String refreshBody = refreshRequest.getBody().readUtf8();
-        assertTrue(refreshBody.contains("grantType=refresh_token"));
-        assertTrue(refreshBody.contains("refreshToken=refresh-token-abc"));
-        assertTrue(refreshBody.contains("clientId=test-client-id"));
+        assertTrue(refreshBody.contains("\"grantType\":\"refresh_token\""));
+        assertTrue(refreshBody.contains("\"refreshToken\":\"refresh-token-abc\""));
+        assertTrue(refreshBody.contains("\"clientId\":\"test-client-id\""));
     }
 
     @Test

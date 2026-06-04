@@ -99,6 +99,7 @@ public class FormInsertService {
                     DiscordBotProfileDataEntity newBotProfile = DiscordBotProfileDataEntity.builder()
                             .avatarUrl(dto.getBotAvatarUrl())
                             .username(dto.getBotUsername())
+                            .alias(dto.getBotUsername())
                             .ownerId(owner)
                             .build();
                     return discordBotProfileDataRepository.save(newBotProfile);

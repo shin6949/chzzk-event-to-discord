@@ -21,4 +21,8 @@ public interface ChzzkSubscriptionFormRepository extends JpaRepository<ChzzkSubs
     Page<ChzzkSubscriptionFormEntity> findAllByFormOwner_ChannelId(String channelId, Pageable pageable);
 
     Optional<ChzzkSubscriptionFormEntity> findByIdAndFormOwner_ChannelId(Long id, String channelId);
+
+    boolean existsByWebhookId_Id(Long webhookId);
+
+    boolean existsByBotProfileId_Id(Long botProfileId);
 }

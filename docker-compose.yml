@@ -1,17 +1,83 @@
 services:
+  # Docker Compose reads .env from this directory for ${...} interpolation.
+  # Start from .env.example and keep the real .env out of git.
+  postgres:
+    image: postgres:17.4-alpine
+    container_name: chzzk-event-to-discord-postgres
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_DB: ${APP_DB_NAME:-chzzk_event_to_discord}
+      POSTGRES_USER: ${APP_DB_USER:-chzzk}
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD:-chzzk}
+      TZ: ${APP_DEFAULT_TIMEZONE:-Asia/Seoul}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    container_name: chzzk-event-to-discord-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      TZ: ${APP_DEFAULT_TIMEZONE:-Asia/Seoul}
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  minio-bootstrap:
+    image: minio/mc:latest
+    container_name: chzzk-event-to-discord-minio-bootstrap
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      APP_STORAGE_S3_BUCKET: ${APP_STORAGE_S3_BUCKET:-${STORAGE_S3_BUCKET:-chzzk-event-assets}}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 \"$${MINIO_ROOT_USER}\" \"$${MINIO_ROOT_PASSWORD}\";
+      mc mb --ignore-existing local/\"$${APP_STORAGE_S3_BUCKET}\";
+      mc anonymous set download local/\"$${APP_STORAGE_S3_BUCKET}\"/bot-profiles;
+      "
+
   backend:
     build:
       context: .
       dockerfile: Dockerfile
     image: chzzk-event-to-discord-backend:latest
     container_name: chzzk-event-to-discord-backend
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
-      APP_DB_DRIVER: ${APP_DB_DRIVER}
-      APP_DB_URL: ${APP_DB_URL}
-      APP_DB_USER: ${APP_DB_USER}
-      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+      APP_DB_DRIVER: ${APP_DB_DRIVER:-org.postgresql.Driver}
+      APP_DB_URL: ${APP_DB_URL:-jdbc:postgresql://postgres:5432/${APP_DB_NAME:-chzzk_event_to_discord}}
+      APP_DB_USER: ${APP_DB_USER:-chzzk}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:-chzzk}
+      APP_DB_MAX_POOL_SIZE: ${APP_DB_MAX_POOL_SIZE:-10}
+      APP_DB_MIN_IDLE: ${APP_DB_MIN_IDLE:-2}
+      APP_DB_CONNECTION_TIMEOUT_MS: ${APP_DB_CONNECTION_TIMEOUT_MS:-9000}
+      APP_DB_IDLE_TIMEOUT_MS: ${APP_DB_IDLE_TIMEOUT_MS:-600000}
+      APP_DB_MAX_LIFETIME_MS: ${APP_DB_MAX_LIFETIME_MS:-1800000}
+      APP_DB_KEEPALIVE_TIME_MS: ${APP_DB_KEEPALIVE_TIME_MS:-0}
       CHZZK_OAUTH_CLIENT_ID: ${CHZZK_OAUTH_CLIENT_ID}
       CHZZK_OAUTH_CLIENT_SECRET: ${CHZZK_OAUTH_CLIENT_SECRET}
       CHZZK_OAUTH_REDIRECT_URI: ${CHZZK_OAUTH_REDIRECT_URI}
@@ -23,6 +89,37 @@ services:
       APP_INSERT_PASSWORD: ${APP_INSERT_PASSWORD:-}
       APP_DEFAULT_TIMEZONE: ${APP_DEFAULT_TIMEZONE:-Asia/Seoul}
       APP_IS_TEST: ${APP_IS_TEST:-false}
+      APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET:-local-development-jwt-secret-change-me-32-bytes-minimum}
+      APP_AUTH_JWT_ISSUER: ${APP_AUTH_JWT_ISSUER:-chzzk-event-to-discord}
+      APP_AUTH_JWT_ACCESS_TOKEN_TTL: ${APP_AUTH_JWT_ACCESS_TOKEN_TTL:-PT1H}
+      APP_AUTH_JWT_REFRESH_TOKEN_TTL: ${APP_AUTH_JWT_REFRESH_TOKEN_TTL:-P30D}
+      APP_AUTH_OAUTH_STATE_TTL: ${APP_AUTH_OAUTH_STATE_TTL:-PT5M}
+      APP_AUTH_COOKIE_SECURE: ${APP_AUTH_COOKIE_SECURE:-false}
+      APP_AUTH_COOKIE_SAME_SITE: ${APP_AUTH_COOKIE_SAME_SITE:-Lax}
+      APP_STATIC_CONTENT_URL_PREFIX: ${APP_STATIC_CONTENT_URL_PREFIX:-http://localhost:9000/chzzk-event-assets}
+      APP_STORAGE_S3_ENDPOINT: ${APP_STORAGE_S3_ENDPOINT:-${STORAGE_S3_ENDPOINT:-http://minio:9000}}
+      APP_STORAGE_S3_BUCKET: ${APP_STORAGE_S3_BUCKET:-${STORAGE_S3_BUCKET:-chzzk-event-assets}}
+      APP_STORAGE_S3_REGION: ${APP_STORAGE_S3_REGION:-${STORAGE_S3_REGION:-ap-northeast-2}}
+      APP_STORAGE_S3_ACCESS_KEY: ${APP_STORAGE_S3_ACCESS_KEY:-${STORAGE_S3_ACCESS_KEY:-${MINIO_ROOT_USER:-minioadmin}}}
+      APP_STORAGE_S3_SECRET_KEY: ${APP_STORAGE_S3_SECRET_KEY:-${STORAGE_S3_SECRET_KEY:-${MINIO_ROOT_PASSWORD:-minioadmin}}}
+      APP_STORAGE_S3_FORCE_PATH_STYLE: ${APP_STORAGE_S3_FORCE_PATH_STYLE:-${STORAGE_S3_FORCE_PATH_STYLE:-true}}
+      APP_STORAGE_S3_DISABLE_CHUNKED_ENCODING: ${APP_STORAGE_S3_DISABLE_CHUNKED_ENCODING:-${STORAGE_S3_DISABLE_CHUNKED_ENCODING:-true}}
+      APP_STORAGE_S3_PREFIX: ${APP_STORAGE_S3_PREFIX:-${STORAGE_S3_PREFIX:-bot-profiles}}
+      APP_STORAGE_S3_CONNECTION_TIMEOUT_MS: ${APP_STORAGE_S3_CONNECTION_TIMEOUT_MS:-${STORAGE_S3_CONNECTION_TIMEOUT_MS:-5000}}
+      APP_STORAGE_S3_SOCKET_TIMEOUT_MS: ${APP_STORAGE_S3_SOCKET_TIMEOUT_MS:-${STORAGE_S3_SOCKET_TIMEOUT_MS:-60000}}
+      APP_STORAGE_S3_API_CALL_ATTEMPT_TIMEOUT_MS: ${APP_STORAGE_S3_API_CALL_ATTEMPT_TIMEOUT_MS:-${STORAGE_S3_API_CALL_ATTEMPT_TIMEOUT_MS:-120000}}
+      APP_STORAGE_S3_API_CALL_TIMEOUT_MS: ${APP_STORAGE_S3_API_CALL_TIMEOUT_MS:-${STORAGE_S3_API_CALL_TIMEOUT_MS:-120000}}
+      APP_STORAGE_S3_AVAILABILITY_CHECK_ENABLED: ${APP_STORAGE_S3_AVAILABILITY_CHECK_ENABLED:-${STORAGE_S3_AVAILABILITY_CHECK_ENABLED:-true}}
+      APP_STORAGE_S3_REQUIRED_ON_STARTUP: ${APP_STORAGE_S3_REQUIRED_ON_STARTUP:-${STORAGE_S3_REQUIRED_ON_STARTUP:-false}}
+      APP_STORAGE_S3_AVAILABILITY_CHECK_INTERVAL_MS: ${APP_STORAGE_S3_AVAILABILITY_CHECK_INTERVAL_MS:-${STORAGE_S3_AVAILABILITY_CHECK_INTERVAL_MS:-60000}}
+      APP_STORAGE_S3_AVAILABILITY_CHECK_TIMEOUT_MS: ${APP_STORAGE_S3_AVAILABILITY_CHECK_TIMEOUT_MS:-${STORAGE_S3_AVAILABILITY_CHECK_TIMEOUT_MS:-5000}}
+      APP_STORAGE_UPLOAD_MAX_BYTES: ${APP_STORAGE_UPLOAD_MAX_BYTES:-${STORAGE_UPLOAD_MAX_BYTES:-5242880}}
+      APP_STORAGE_UPLOAD_ALLOWED_TYPES: ${APP_STORAGE_UPLOAD_ALLOWED_TYPES:-${STORAGE_UPLOAD_ALLOWED_TYPES:-image/png,image/jpeg,image/webp}}
+    depends_on:
+      postgres:
+        condition: service_healthy
+#      minio-bootstrap:
+#        condition: service_completed_successfully
     restart: unless-stopped
 
   frontend:
@@ -30,13 +127,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://backend:8080/api/v1}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
     image: chzzk-event-to-discord-frontend:latest
     container_name: chzzk-event-to-discord-frontend
     ports:
       - "3000:80"
-    environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://backend:8080/api/v1}
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  postgres-data:
+  minio-data:

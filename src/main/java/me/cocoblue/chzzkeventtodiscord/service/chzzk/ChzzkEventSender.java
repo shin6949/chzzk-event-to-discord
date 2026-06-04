@@ -16,6 +16,7 @@ import me.cocoblue.chzzkeventtodiscord.service.ChzzkStreamOnlineFormService;
 import me.cocoblue.chzzkeventtodiscord.service.ChzzkSubscriptionFormService;
 import me.cocoblue.chzzkeventtodiscord.service.DiscordWebhookService;
 import me.cocoblue.chzzkeventtodiscord.service.NotificationLogService;
+import me.cocoblue.chzzkeventtodiscord.service.StaticContentUrlResolver;
 import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ public class ChzzkEventSender {
     private final NotificationLogRepository notificationLogRepository;
     private final ChzzkCategoryService categoryService;
     private final MessageSource messageSource;
+    private final StaticContentUrlResolver staticContentUrlResolver;
     private final String chzzkUrl = "https://chzzk.naver.com";
     private final String chzzkFaviconUrl = "https://play-lh.googleusercontent.com/wvo3IB5dTJHyjpIHvkdzpgbFnG3LoVsqKdQ7W3IoRm-EVzISMz9tTaIYoRdZm1phL_8=w120-h120-rw";
 
@@ -262,7 +264,7 @@ public class ChzzkEventSender {
         discordEmbeds.add(discordEmbed);
 
         return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
-                form.getBotProfileId().getAvatarUrl(), form.getContent(), discordEmbeds);
+                staticContentUrlResolver.resolve(form.getBotProfileId().getAvatarUrl()), form.getContent(), discordEmbeds);
     }
 
     private DiscordEmbed.Webhook makeStreamOfflineDiscordWebhook(final ChzzkSubscriptionFormEntity form, final ChzzkChannelDto channelData) {
@@ -294,7 +296,7 @@ public class ChzzkEventSender {
         discordEmbeds.add(discordEmbed);
 
         return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
-                form.getBotProfileId().getAvatarUrl(), form.getContent(), discordEmbeds);
+                staticContentUrlResolver.resolve(form.getBotProfileId().getAvatarUrl()), form.getContent(), discordEmbeds);
     }
 
     private DiscordEmbed.Webhook makeChannelUpdateDiscordWebhook(final ChzzkSubscriptionFormEntity form, final ChzzkChannelDto afterChannelData) {
@@ -364,7 +366,7 @@ public class ChzzkEventSender {
         discordEmbeds.add(discordEmbed);
 
         return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
-                form.getBotProfileId().getAvatarUrl(), form.getContent(), discordEmbeds);
+                staticContentUrlResolver.resolve(form.getBotProfileId().getAvatarUrl()), form.getContent(), discordEmbeds);
     }
 
     private DiscordEmbed.Author createAuthor(final ChzzkChannelDto channelData, final String messageKey,

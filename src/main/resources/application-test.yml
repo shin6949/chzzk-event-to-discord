@@ -18,9 +18,12 @@ spring:
     username: sa
     password:
     hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
       connection-timeout: 9000
-      idle-timeout: 20000
-      max-lifetime: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      keepalive-time: 0
   # JPA
   jpa:
     hibernate:
@@ -46,3 +49,16 @@ app:
   default-timezone: "Asia/Seoul"
   insert-password: "test1234"
   is-test: true
+  auth:
+    jwt:
+      secret: "test-jwt-secret-change-me-32-bytes-minimum"
+      issuer: "chzzk-event-to-discord-test"
+      access-token-ttl: "PT1H"
+      refresh-token-ttl: "P30D"
+      oauth-state-ttl: "PT5M"
+      cookie-secure: false
+      cookie-same-site: "Lax"
+
+storage:
+  s3:
+    availability-check-enabled: false

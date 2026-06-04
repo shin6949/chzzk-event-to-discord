@@ -1,7 +1,7 @@
-google-service-account.json
 firebase-messaging-sw.js
 ./test.db
 *.env
+!.env.example
 
 # Local-only Docker test stack files
 docker-compose.local.yml
@@ -9,6 +9,7 @@ docker-compose.local.yml
 
 # Frontend/local security and build artifacts
 .env*
+!.env.example
 *.pem
 *.key
 *.p12
