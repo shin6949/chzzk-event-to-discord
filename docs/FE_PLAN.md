@@ -197,6 +197,13 @@
 4. 링크 상태 화면(`/app/settings/account`): 계정 연결 상태(`linked`, `disconnected`, `token_expired`)와 `channelId` 표시
 5. 연결 해제 액션: 사용자 확인 후 `/api/v1/auth/disconnect` 호출, 성공 시 링크 상태 즉시 반영
 
+### 6.8 Bootstrap UI/UX 개선 반영 계획 (2026-06-11)
+- Bootstrap 기본 컴포넌트 우선 사용: navbar, list-group, card, alert, badge, form, table, modal, button group을 화면별 기본 구조로 사용한다.
+- Bootstrap Icons 적극 적용: 상단/섹션 내비게이션, 주요 CTA, 설정 단계, 경고/상태, 수정/삭제 액션에 `bi-*` 아이콘을 배치하고 장식 아이콘은 `aria-hidden` 처리한다.
+- 초보 사용자용 단순화: 첫 화면과 각 작업 화면에 `웹훅 -> 봇 프로필 -> 구독` 순서를 반복 노출하고, 일반 사용자가 내부 ID나 소유자 입력을 직접 다루지 않게 한다.
+- 실행 화면 우선: 랜딩을 마케팅 설명보다 로그인/설정 시작 CTA와 3단계 작업 흐름이 먼저 보이는 화면으로 구성한다.
+- 검증 계획: Vitest로 랜딩/구독/Discord 리소스/라우팅/보안 유틸 단위 테스트를 수행하고, Playwright와 브라우저 수동 점검으로 게스트 라우팅 및 반응형 화면을 확인한다.
+
 ## 7. Admin UI 요구사항
 - 사용자 관리
   - 사용자 목록/검색/상세

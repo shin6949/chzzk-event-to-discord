@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS refresh_token_session (
+  token_id VARCHAR(64) PRIMARY KEY,
+  channel_id VARCHAR(100) NOT NULL,
+  role VARCHAR(30) NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  revoked_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_refresh_token_session_channel_id
+  ON refresh_token_session(channel_id);

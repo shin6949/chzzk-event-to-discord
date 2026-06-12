@@ -1,6 +1,11 @@
 message:
   basenames: string/string
 
+server:
+  tomcat:
+    accesslog:
+      condition-unless: skipAccessLog
+
 spring:
   main:
     allow-bean-definition-overriding: true
@@ -53,16 +58,24 @@ app:
   is-test: ${APP_IS_TEST:false}
   auth:
     jwt:
-      secret: ${APP_AUTH_JWT_SECRET:local-development-jwt-secret-change-me-32-bytes-minimum}
-      issuer: ${APP_AUTH_JWT_ISSUER:chzzk-event-to-discord}
+      secret: ${APP_AUTH_JWT_SECRET:}
+      issuer: ${APP_AUTH_JWT_ISSUER:streaming-alert-service}
       access-token-ttl: ${APP_AUTH_JWT_ACCESS_TOKEN_TTL:PT1H}
       refresh-token-ttl: ${APP_AUTH_JWT_REFRESH_TOKEN_TTL:P30D}
       oauth-state-ttl: ${APP_AUTH_OAUTH_STATE_TTL:PT5M}
-      access-cookie-name: ${APP_AUTH_ACCESS_COOKIE_NAME:chzzk_app_access}
-      refresh-cookie-name: ${APP_AUTH_REFRESH_COOKIE_NAME:chzzk_app_refresh}
-      oauth-state-cookie-name: ${APP_AUTH_OAUTH_STATE_COOKIE_NAME:chzzk_oauth_state}
+      access-cookie-name: ${APP_AUTH_ACCESS_COOKIE_NAME:streaming_alert_access}
+      refresh-cookie-name: ${APP_AUTH_REFRESH_COOKIE_NAME:streaming_alert_refresh}
+      oauth-state-cookie-name: ${APP_AUTH_OAUTH_STATE_COOKIE_NAME:streaming_alert_oauth_state}
       cookie-secure: ${APP_AUTH_COOKIE_SECURE:false}
       cookie-same-site: ${APP_AUTH_COOKIE_SAME_SITE:Lax}
+  secret:
+    encryption-key: ${APP_SECRET_ENCRYPTION_KEY:}
+  legacy-form-insert:
+    enabled: ${APP_LEGACY_FORM_INSERT_ENABLED:false}
+  discord:
+    webhook-allowed-hosts: ${APP_DISCORD_WEBHOOK_ALLOWED_HOSTS:discord.com,discordapp.com}
+  security:
+    max-page-size: ${APP_SECURITY_MAX_PAGE_SIZE:100}
   static-content:
     url-prefix: ${APP_STATIC_CONTENT_URL_PREFIX:}
 
@@ -70,9 +83,9 @@ storage:
   s3:
     endpoint: ${APP_STORAGE_S3_ENDPOINT:${STORAGE_S3_ENDPOINT:http://localhost:9000}}
     region: ${APP_STORAGE_S3_REGION:${STORAGE_S3_REGION:ap-northeast-2}}
-    bucket: ${APP_STORAGE_S3_BUCKET:${STORAGE_S3_BUCKET:chzzk-event-assets}}
-    access-key: ${APP_STORAGE_S3_ACCESS_KEY:${STORAGE_S3_ACCESS_KEY:minioadmin}}
-    secret-key: ${APP_STORAGE_S3_SECRET_KEY:${STORAGE_S3_SECRET_KEY:minioadmin}}
+    bucket: ${APP_STORAGE_S3_BUCKET:${STORAGE_S3_BUCKET:streaming-alert-service-assets}}
+    access-key: ${APP_STORAGE_S3_ACCESS_KEY:${STORAGE_S3_ACCESS_KEY:}}
+    secret-key: ${APP_STORAGE_S3_SECRET_KEY:${STORAGE_S3_SECRET_KEY:}}
     force-path-style: ${APP_STORAGE_S3_FORCE_PATH_STYLE:${STORAGE_S3_FORCE_PATH_STYLE:true}}
     disable-chunked-encoding: ${APP_STORAGE_S3_DISABLE_CHUNKED_ENCODING:${STORAGE_S3_DISABLE_CHUNKED_ENCODING:true}}
     prefix: ${APP_STORAGE_S3_PREFIX:${STORAGE_S3_PREFIX:bot-profiles}}
@@ -87,3 +100,6 @@ storage:
   upload:
     max-bytes: ${APP_STORAGE_UPLOAD_MAX_BYTES:${STORAGE_UPLOAD_MAX_BYTES:5242880}}
     allowed-types: ${APP_STORAGE_UPLOAD_ALLOWED_TYPES:${STORAGE_UPLOAD_ALLOWED_TYPES:image/png,image/jpeg,image/webp}}
+    max-width: ${APP_STORAGE_UPLOAD_MAX_WIDTH:${STORAGE_UPLOAD_MAX_WIDTH:4096}}
+    max-height: ${APP_STORAGE_UPLOAD_MAX_HEIGHT:${STORAGE_UPLOAD_MAX_HEIGHT:4096}}
+    max-pixels: ${APP_STORAGE_UPLOAD_MAX_PIXELS:${STORAGE_UPLOAD_MAX_PIXELS:16777216}}

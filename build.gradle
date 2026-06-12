@@ -1,7 +1,9 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.8'
+    id 'org.springframework.boot' version '3.5.14'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.owasp.dependencycheck' version '12.2.2'
+    id 'com.diffplug.spotless' version '6.25.0'
 }
 
 jar {
@@ -16,6 +18,13 @@ version = '0.1.4'
 
 java {
     sourceCompatibility = '17'
+}
+
+ext {
+    // Security overrides until the Spring Boot BOM catches up.
+    set('tomcat.version', '10.1.55')
+    set('netty.version', '4.1.133.Final')
+    set('postgresql.version', '42.7.11')
 }
 
 bootJar {
@@ -36,6 +45,7 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.29.52')
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.flywaydb:flyway-core'
@@ -67,4 +77,28 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
     systemProperty 'spring.profiles.active', System.getProperty('spring.profiles.active', 'test')
+}
+
+dependencyCheck {
+    failBuildOnCVSS = 7.0
+    formats = ['HTML', 'JSON', 'JUNIT']
+    if (file('config/dependency-check-suppressions.xml').exists()) {
+        suppressionFile = 'config/dependency-check-suppressions.xml'
+    }
+    analyzers {
+        assemblyEnabled = false
+        nodeAuditEnabled = false
+        nodeEnabled = false
+    }
+}
+
+spotless {
+    java {
+        target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+        googleJavaFormat('1.22.0').reflowLongStrings()
+        importOrder()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }

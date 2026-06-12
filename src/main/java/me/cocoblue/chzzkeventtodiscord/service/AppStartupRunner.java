@@ -1,5 +1,8 @@
 package me.cocoblue.chzzkeventtodiscord.service;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.ChzzkEventToDiscordApplication;
@@ -10,50 +13,65 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+/**
+ * {@code AppStartupRunner}는 관련 도메인 책임을 캡슐화합니다.
+ *
+ * <p>Git 이력: 생성 2024-03-01 00:49:18 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 ad3cd2f.
+ *
+ * @since Ver.0.1
+ */
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class AppStartupRunner implements CommandLineRunner {
-    @Value("${chzzk.api-url:null}")
-    private String CHZZK_API_URL;
-    @Value("${app.is-test:false}")
-    private boolean isTest;
-    private final ChzzkSubscriptionFormService subscriptionFormService;
-    private final ChzzkChannelService chzzkChannelService;
+  @Value("${chzzk.api-url:null}")
+  private String CHZZK_API_URL;
 
-    @Override
-    public void run(String[] args) {
-        // 신규 API URL이 설정되어 있다면, 기본 URL을 변경한다.
-        if (!CHZZK_API_URL.equals("null") && !CHZZK_API_URL.isEmpty() &&
-                !CHZZK_API_URL.equals(ChzzkEventToDiscordApplication.CHZZK_API_URL)) {
+  @Value("${app.is-test:false}")
+  private boolean isTest;
 
-            if (CHZZK_API_URL.endsWith("/")) {
-                log.info("Removing the trailing slash from the other Chzzk API URL: " + CHZZK_API_URL);
-                CHZZK_API_URL = CHZZK_API_URL.substring(0, CHZZK_API_URL.length() - 1);
-            }
+  private final ChzzkSubscriptionFormService subscriptionFormService;
+  private final ChzzkChannelService chzzkChannelService;
 
-            log.info("Other Chzzk API URL is presented. Overriding the default URL: " + CHZZK_API_URL);
-            ChzzkEventToDiscordApplication.CHZZK_API_URL = CHZZK_API_URL;
-        }
+  /**
+   * {@code run}은 관련 처리 흐름을 실행합니다.
+   *
+   * <p>Git 이력: 생성 2024-03-01 00:49:18 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 ad3cd2f.
+   *
+   * @since Ver.0.1
+   */
+  @Override
+  public void run(String[] args) {
+    // 신규 API URL이 설정되어 있다면, 기본 URL을 변경한다.
+    if (!CHZZK_API_URL.equals("null")
+        && !CHZZK_API_URL.isEmpty()
+        && !CHZZK_API_URL.equals(ChzzkEventToDiscordApplication.CHZZK_API_URL)) {
 
-        // 첫 실행 때, 활성화된 Subscription의 Channel Database 갱신
-        if(isTest) {
-            log.info("Test mode is enabled. Skip Renew Channel Database.");
-        } else {
-            final List<ChzzkSubscriptionFormEntity> subscriptionFormsAllEnabled = subscriptionFormService.findAllByEnabled(true);
-            log.info("Renew Channel Database at the first run.");
-            log.info("Need to renew channel ids count: {}", subscriptionFormsAllEnabled.size());
-            final Set<String> needToFetchChannelIds = subscriptionFormsAllEnabled.parallelStream()
-                .map(ChzzkSubscriptionFormEntity::getChzzkChannelEntity)
-                .map(ChzzkChannelEntity::getChannelId)
-                .collect(Collectors.toSet());
+      if (CHZZK_API_URL.endsWith("/")) {
+        log.info("Removing the trailing slash from the other Chzzk API URL: " + CHZZK_API_URL);
+        CHZZK_API_URL = CHZZK_API_URL.substring(0, CHZZK_API_URL.length() - 1);
+      }
 
-            needToFetchChannelIds.forEach(chzzkChannelService::getChannelByChannelIdAtAPI);
-            log.info("Renew Channel Database finished.");
-        }
+      log.info("Other Chzzk API URL is presented. Overriding the default URL: " + CHZZK_API_URL);
+      ChzzkEventToDiscordApplication.CHZZK_API_URL = CHZZK_API_URL;
     }
+
+    // 첫 실행 때, 활성화된 Subscription의 Channel Database 갱신
+    if (isTest) {
+      log.info("Test mode is enabled. Skip Renew Channel Database.");
+    } else {
+      final List<ChzzkSubscriptionFormEntity> subscriptionFormsAllEnabled =
+          subscriptionFormService.findAllByEnabled(true);
+      log.info("Renew Channel Database at the first run.");
+      log.info("Need to renew channel ids count: {}", subscriptionFormsAllEnabled.size());
+      final Set<String> needToFetchChannelIds =
+          subscriptionFormsAllEnabled.parallelStream()
+              .map(ChzzkSubscriptionFormEntity::getChzzkChannelEntity)
+              .map(ChzzkChannelEntity::getChannelId)
+              .collect(Collectors.toSet());
+
+      needToFetchChannelIds.forEach(chzzkChannelService::getChannelByChannelIdAtAPI);
+      log.info("Renew Channel Database finished.");
+    }
+  }
 }

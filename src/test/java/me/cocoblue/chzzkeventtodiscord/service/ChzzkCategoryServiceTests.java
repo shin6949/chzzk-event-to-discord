@@ -1,5 +1,7 @@
 package me.cocoblue.chzzkeventtodiscord.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
@@ -15,80 +17,101 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * {@code ChzzkCategoryServiceTests}는 관련 도메인 책임을 캡슐화합니다.
+ *
+ * <p>Git 이력: 생성 2024-03-04 14:56:25 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 1dee623.
+ *
+ * @since Ver.0.1
+ */
 @Log4j2
 @SpringBootTest
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ChzzkCategoryServiceTests {
-    @Autowired
-    private ChzzkCategoryService chzzkCategoryService;
+  @Autowired private ChzzkCategoryService chzzkCategoryService;
 
-    @Autowired
-    private ChzzkCategoryRepository chzzkCategoryRepository;
+  @Autowired private ChzzkCategoryRepository chzzkCategoryRepository;
 
-    private boolean ObjectMapperTestsSucceeded = false;
+  private boolean ObjectMapperTestsSucceeded = false;
 
-    @Test
-    void ObjectMapperTests() throws JsonProcessingException {
-        final String testCategoryResult = "{\n" +
-                "    \"code\": 200,\n" +
-                "    \"message\": null,\n" +
-                "    \"content\": {\n" +
-                "        \"categoryType\": \"GAME\",\n" +
-                "        \"categoryId\": \"Splatoon3\",\n" +
-                "        \"categoryValue\": \"스플래툰 3\",\n" +
-                "        \"posterImageUrl\": \"https://nng-phinf.pstatic.net/MjAyMzEyMTJfMjI1/MDAxNzAyMzY0NDUwMzk3.EjW-bu7O6TENO5F-0JOPOyoXfcQ1QJTVpCvCkGodtiQg.St5IQ_KiAIvH6K_D_bZBBpTy1npgx04bUDooDJ5IID0g.JPEG/247.%EC%8A%A4%ED%94%8C%EB%9E%98%ED%88%B0_3_%EC%99%84%EC%84%B1%EB%B3%B8_%EA%B0%95%EB%AF%B8%EC%95%A0.jpg\",\n" +
-                "        \"openLiveCount\": 3,\n" +
-                "        \"concurrentUserCount\": 17,\n" +
-                "        \"tags\": [\n" +
-                "            \"스플래툰 3\",\n" +
-                "            \"TPS\",\n" +
-                "            \"콘솔\",\n" +
-                "            \"액션\",\n" +
-                "            \"슈팅\",\n" +
-                "            \"닌텐도\",\n" +
-                "            \"멀티플레이\",\n" +
-                "            \"스플래툰\"\n" +
-                "        ],\n" +
-                "        \"existLounge\": true\n" +
-                "    }\n" +
-                "}";
-        ObjectMapper objectMapper = new ObjectMapper();
-        final ChzzkCategoryApiResponseVo apiResponseVO = objectMapper.readValue(testCategoryResult, ChzzkCategoryApiResponseVo.class);
-        final ChzzkCategoryDto chzzkCategoryDTO = apiResponseVO.toDto();
+  /**
+   * {@code ObjectMapperTests}은 해당 클래스의 세부 동작을 수행합니다.
+   *
+   * <p>Git 이력: 생성 2024-03-04 14:56:25 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 1dee623.
+   *
+   * @since Ver.0.1
+   */
+  @Test
+  void ObjectMapperTests() throws JsonProcessingException {
+    final String testCategoryResult =
+        "{\n"
+            + "    \"code\": 200,\n"
+            + "    \"message\": null,\n"
+            + "    \"content\": {\n"
+            + "        \"categoryType\": \"GAME\",\n"
+            + "        \"categoryId\": \"Splatoon3\",\n"
+            + "        \"categoryValue\": \"스플래툰 3\",\n"
+            + "        \"posterImageUrl\":"
+            + " \"https://nng-phinf.pstatic.net/MjAyMzEyMTJfMjI1/MDAxNzAyMzY0NDUwMzk3.EjW-bu7O6TENO5F-0JOPOyoXfcQ1QJTVpCvCkGodtiQg.St5IQ_KiAIvH6K_D_bZBBpTy1npgx04bUDooDJ5IID0g.JPEG/247.%EC%8A%A4%ED%94%8C%EB%9E%98%ED%88%B0_3_%EC%99%84%EC%84%B1%EB%B3%B8_%EA%B0%95%EB%AF%B8%EC%95%A0.jpg\",\n"
+            + "        \"openLiveCount\": 3,\n"
+            + "        \"concurrentUserCount\": 17,\n"
+            + "        \"tags\": [\n"
+            + "            \"스플래툰 3\",\n"
+            + "            \"TPS\",\n"
+            + "            \"콘솔\",\n"
+            + "            \"액션\",\n"
+            + "            \"슈팅\",\n"
+            + "            \"닌텐도\",\n"
+            + "            \"멀티플레이\",\n"
+            + "            \"스플래툰\"\n"
+            + "        ],\n"
+            + "        \"existLounge\": true\n"
+            + "    }\n"
+            + "}";
+    ObjectMapper objectMapper = new ObjectMapper();
+    final ChzzkCategoryApiResponseVo apiResponseVO =
+        objectMapper.readValue(testCategoryResult, ChzzkCategoryApiResponseVo.class);
+    final ChzzkCategoryDto chzzkCategoryDTO = apiResponseVO.toDto();
 
-        log.info("DTO Result: {}", chzzkCategoryDTO);
-        assertEquals(apiResponseVO.getCode(), 200);
-        assertNull(apiResponseVO.getMessage());
-        assertNotNull(chzzkCategoryDTO.getCategoryId());
-        assertNotNull(chzzkCategoryDTO.getCategoryType());
-        assertNotNull(chzzkCategoryDTO.getCategoryValue());
-        assertNotNull(chzzkCategoryDTO.getPosterImageUrl());
-        ObjectMapperTestsSucceeded = true;
-    }
+    log.info("DTO Result: {}", chzzkCategoryDTO);
+    assertEquals(apiResponseVO.getCode(), 200);
+    assertNull(apiResponseVO.getMessage());
+    assertNotNull(chzzkCategoryDTO.getCategoryId());
+    assertNotNull(chzzkCategoryDTO.getCategoryType());
+    assertNotNull(chzzkCategoryDTO.getCategoryValue());
+    assertNotNull(chzzkCategoryDTO.getPosterImageUrl());
+    ObjectMapperTestsSucceeded = true;
+  }
 
-    @Test
-    void getChzzkCategoryByCategoryIdAtAPI() {
-        Assumptions.assumeTrue(ObjectMapperTestsSucceeded);
-        final String categoryType = "GAME";
-        final String categoryId = "Splatoon3";
-        final ChzzkCategoryDto chzzkCategoryDTO = chzzkCategoryService.getCategoryInfo(categoryType, categoryId);
+  /**
+   * {@code getChzzkCategoryByCategoryIdAtAPI}은 필요한 데이터를 조회하거나 해석합니다.
+   *
+   * <p>Git 이력: 생성 2024-03-04 14:56:25 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 1dee623.
+   *
+   * @since Ver.0.1
+   */
+  @Test
+  void getChzzkCategoryByCategoryIdAtAPI() {
+    Assumptions.assumeTrue(ObjectMapperTestsSucceeded);
+    final String categoryType = "GAME";
+    final String categoryId = "Splatoon3";
+    final ChzzkCategoryDto chzzkCategoryDTO =
+        chzzkCategoryService.getCategoryInfo(categoryType, categoryId);
 
-        log.info("DTO Result: {}", chzzkCategoryDTO);
-        assertNotNull(chzzkCategoryDTO.getCategoryId());
-        assertNotNull(chzzkCategoryDTO.getCategoryType());
-        assertNotNull(chzzkCategoryDTO.getCategoryValue());
-        assertNotNull(chzzkCategoryDTO.getPosterImageUrl());
+    log.info("DTO Result: {}", chzzkCategoryDTO);
+    assertNotNull(chzzkCategoryDTO.getCategoryId());
+    assertNotNull(chzzkCategoryDTO.getCategoryType());
+    assertNotNull(chzzkCategoryDTO.getCategoryValue());
+    assertNotNull(chzzkCategoryDTO.getPosterImageUrl());
 
-        final ChzzkCategoryEntity chzzkCategoryEntity = chzzkCategoryDTO.toEntity();
-        log.info("Entity Result: {}", chzzkCategoryEntity);
-        assertNotNull(chzzkCategoryEntity.getId().getCategoryId());
-        assertNotNull(chzzkCategoryEntity.getId().getCategoryType());
-        assertNotNull(chzzkCategoryEntity.getCategoryName());
-        assertNotNull(chzzkCategoryEntity.getPosterImageUrl());
+    final ChzzkCategoryEntity chzzkCategoryEntity = chzzkCategoryDTO.toEntity();
+    log.info("Entity Result: {}", chzzkCategoryEntity);
+    assertNotNull(chzzkCategoryEntity.getId().getCategoryId());
+    assertNotNull(chzzkCategoryEntity.getId().getCategoryType());
+    assertNotNull(chzzkCategoryEntity.getCategoryName());
+    assertNotNull(chzzkCategoryEntity.getPosterImageUrl());
 
-        chzzkCategoryRepository.save(chzzkCategoryEntity);
-    }
+    chzzkCategoryRepository.save(chzzkCategoryEntity);
+  }
 }

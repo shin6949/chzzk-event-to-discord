@@ -9,12 +9,12 @@ Backend (Spring Boot) uses environment variables prefixed with `APP_` and `CHZZK
 - `APP_DB_DRIVER`: JDBC driver class, defaults to `org.postgresql.Driver` in docker-compose
   - PostgreSQL 17.4: `org.postgresql.Driver`
   - Oracle DB 21c: `oracle.jdbc.OracleDriver`
-- `APP_DB_URL`: JDBC URL, defaults to `jdbc:postgresql://postgres:5432/chzzk_event_to_discord` in docker-compose
-  - PostgreSQL 17.4: `jdbc:postgresql://postgres:5432/chzzk_event_to_discord`
+- `APP_DB_URL`: JDBC URL, defaults to `jdbc:postgresql://postgres:5432/streaming_alert_service` in docker-compose
+  - PostgreSQL 17.4: `jdbc:postgresql://postgres:5432/streaming_alert_service`
   - Oracle DB 21c: `jdbc:oracle:thin:@//<host>:1521/<service_name>`
-- `APP_DB_USER`: DB user, defaults to `chzzk` in docker-compose
+- `APP_DB_USER`: DB user, defaults to `streaming_alert` in docker-compose
 - `APP_DB_PASSWORD`: DB password, defaults to `chzzk` in docker-compose
-- `APP_DB_NAME`: Postgres database name for docker-compose, defaults to `chzzk_event_to_discord`
+- `APP_DB_NAME`: Postgres database name for docker-compose, defaults to `streaming_alert_service`
 - `APP_DB_MAX_POOL_SIZE`, `APP_DB_MIN_IDLE`, `APP_DB_CONNECTION_TIMEOUT_MS`,
   `APP_DB_IDLE_TIMEOUT_MS`, `APP_DB_MAX_LIFETIME_MS`, `APP_DB_KEEPALIVE_TIME_MS`:
   optional Hikari pool settings. Defaults are tuned to avoid fixed-size pool and
@@ -39,12 +39,16 @@ Optional backend variables:
 - `APP_AUTH_JWT_ISSUER`, `APP_AUTH_JWT_ACCESS_TOKEN_TTL`, `APP_AUTH_JWT_REFRESH_TOKEN_TTL`,
   `APP_AUTH_OAUTH_STATE_TTL`, `APP_AUTH_COOKIE_SECURE`, `APP_AUTH_COOKIE_SAME_SITE`:
   optional JWT and auth cookie settings. Set `APP_AUTH_COOKIE_SECURE=true` when serving over HTTPS.
+- `APP_SECRET_ENCRYPTION_KEY`: high-entropy value of at least 32 bytes used to encrypt stored Discord webhook URLs.
+- `APP_LEGACY_FORM_INSERT_ENABLED`: defaults to `false`. When `true`, `/form/insert` requires `APP_INSERT_PASSWORD` to be at least 32 bytes and is intended only for trusted legacy clients.
+- `APP_DISCORD_WEBHOOK_ALLOWED_HOSTS`: comma-separated Discord webhook hosts, default `discord.com,discordapp.com`.
+- `APP_SECURITY_MAX_PAGE_SIZE`: maximum accepted page size for pageable API endpoints.
 - `APP_STATIC_CONTENT_URL_PREFIX`: display URL prefix for uploaded images. Set this when images are served through a web server/CDN/proxy. If omitted, the backend falls back to `<APP_STORAGE_S3_ENDPOINT>/<bucket>/<objectKey>`.
 
 S3-compatible object storage:
 
 - `APP_STORAGE_S3_ENDPOINT`: S3 API endpoint. Local compose defaults to `http://minio:9000`; OCI uses `https://<namespace>.compat.objectstorage.<region>.oraclecloud.com`.
-- `APP_STORAGE_S3_BUCKET`: object bucket name, defaults to `chzzk-event-assets` in docker-compose
+- `APP_STORAGE_S3_BUCKET`: object bucket name, defaults to `streaming-alert-service-assets` in docker-compose
 - `APP_STORAGE_S3_REGION`: signing region
 - `APP_STORAGE_S3_ACCESS_KEY`, `APP_STORAGE_S3_SECRET_KEY`: S3-compatible credentials
 - `APP_STORAGE_S3_FORCE_PATH_STYLE`: defaults to `true` for MinIO and OCI path-style compatibility
@@ -63,7 +67,9 @@ S3-compatible object storage:
 - `APP_STORAGE_S3_AVAILABILITY_CHECK_INTERVAL_MS`,
   `APP_STORAGE_S3_AVAILABILITY_CHECK_TIMEOUT_MS`: periodic probe interval and
   per-probe timeout. Defaults are `60000` and `5000`.
-- `APP_STORAGE_UPLOAD_MAX_BYTES`, `APP_STORAGE_UPLOAD_ALLOWED_TYPES`: upload validation settings
+- `APP_STORAGE_UPLOAD_MAX_BYTES`, `APP_STORAGE_UPLOAD_ALLOWED_TYPES`,
+  `APP_STORAGE_UPLOAD_MAX_WIDTH`, `APP_STORAGE_UPLOAD_MAX_HEIGHT`,
+  `APP_STORAGE_UPLOAD_MAX_PIXELS`: upload validation settings
 
 Frontend build config:
 
@@ -80,7 +86,8 @@ From repository root:
 ```bash
 cp .env.example .env
 # edit .env and set at least CHZZK_OAUTH_CLIENT_ID, CHZZK_OAUTH_CLIENT_SECRET,
-# CHZZK_OAUTH_REDIRECT_URI, APP_DB_PASSWORD, and APP_AUTH_JWT_SECRET
+# CHZZK_OAUTH_REDIRECT_URI, APP_DB_PASSWORD, APP_AUTH_JWT_SECRET,
+# APP_SECRET_ENCRYPTION_KEY, and MINIO_ROOT_PASSWORD
 
 docker compose up --build
 ```
@@ -88,15 +95,15 @@ docker compose up --build
 Containers:
 
 - `postgres`: PostgreSQL 17.4, stores data in the `postgres-data` Docker volume, and is only reachable inside the Compose network
-- `minio`: local/test S3-compatible object storage, exposes API port 9000 and console port 9001
+- `minio`: local/test S3-compatible object storage, pinned to a specific release tag, exposes API port 9000 and console port 9001
 - `minio-bootstrap`: creates the asset bucket and grants anonymous download access for `bot-profiles/`
 - `backend`: listens on port 8080 inside the Compose network; frontend Nginx proxies `/api/` to it
-- `frontend`: serves static files with Nginx, exposes port 80 internally and maps to host port 3000 by default
+- `frontend`: serves static files with Nginx, exposes port 8080 internally as a non-root user, and maps to host port 3000 by default
 
 For local compose, uploaded bot profile images are stored in MinIO and shown through:
 
 ```text
-APP_STATIC_CONTENT_URL_PREFIX=http://localhost:9000/chzzk-event-assets
+APP_STATIC_CONTENT_URL_PREFIX=http://localhost:9000/streaming-alert-service-assets
 ```
 
 For OCI production, keep the storage endpoint pointed at OCI Object Storage and set

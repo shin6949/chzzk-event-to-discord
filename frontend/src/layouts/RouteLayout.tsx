@@ -1,21 +1,41 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import {NavLink, Outlet} from 'react-router-dom';
 
+/**
+ * `NavItem`는 데이터 계약을 정의합니다.
+ *
+ * Git 이력: 생성 2026-02-16 22:09:10 +0900, 작성자 COCOBLUE, 작성 버전 unreleased after Ver.0.1.4, 근거 커밋 0abb6a3.
+ */
 type NavItem = {
   to: string;
   label: string;
 };
 
+/**
+ * `RouteLayoutProps`는 데이터 계약을 정의합니다.
+ *
+ * Git 이력: 생성 2026-02-16 22:09:10 +0900, 작성자 COCOBLUE, 작성 버전 unreleased after Ver.0.1.4, 근거 커밋 0abb6a3.
+ */
 type RouteLayoutProps = {
   title: string;
   subtitle: string;
   navItems: NavItem[];
 };
 
+/**
+ * `navClassName`는 관련 프론트엔드 기능을 수행합니다.
+ *
+ * Git 이력: 생성 2026-02-16 22:09:10 +0900, 작성자 COCOBLUE, 작성 버전 unreleased after Ver.0.1.4, 근거 커밋 0abb6a3.
+ */
 function navClassName(isActive: boolean): string {
   return isActive ? 'nav-link active' : 'nav-link';
 }
 
-export function RouteLayout({ title, subtitle, navItems }: RouteLayoutProps) {
+/**
+ * `RouteLayout`는 화면 컴포넌트를 렌더링합니다.
+ *
+ * Git 이력: 생성 2026-02-16 22:09:10 +0900, 작성자 COCOBLUE, 작성 버전 unreleased after Ver.0.1.4, 근거 커밋 0abb6a3.
+ */
+export function RouteLayout({title, subtitle, navItems}: RouteLayoutProps) {
   return (
     <div className="container py-4">
       <header className="mb-4">
@@ -29,7 +49,7 @@ export function RouteLayout({ title, subtitle, navItems }: RouteLayoutProps) {
             <NavLink
               key={item.to}
               to={item.to}
-              className={({ isActive }) => navClassName(isActive)}
+              className={({isActive}) => navClassName(isActive)}
             >
               {item.label}
             </NavLink>

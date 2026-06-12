@@ -1,4 +1,4 @@
-# Chzzk Event To Discord
+# Streaming Alert Service
 네이버 치지직의 방송 시작, 방송 종료 이벤트를 Discord Webhook을 통해 전송하는 Application 입니다.
 
 ## 프로젝트 역할
@@ -62,7 +62,7 @@
 For full setup details, see `docs/DEPLOY.md`.
 
 ## Docker Image
-Docker Image: ghcr.io/shin6949/chzzk-event-to-discord:latest
+Docker Image: ghcr.io/shin6949/streaming-alert-service:latest
 
 ## Deployment
 

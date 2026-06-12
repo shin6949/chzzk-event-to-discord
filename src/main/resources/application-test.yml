@@ -52,13 +52,21 @@ app:
   auth:
     jwt:
       secret: "test-jwt-secret-change-me-32-bytes-minimum"
-      issuer: "chzzk-event-to-discord-test"
+      issuer: "streaming-alert-service-test"
       access-token-ttl: "PT1H"
       refresh-token-ttl: "P30D"
       oauth-state-ttl: "PT5M"
       cookie-secure: false
       cookie-same-site: "Lax"
+  secret:
+    encryption-key: "test-secret-encryption-key-32-bytes-minimum"
+  legacy-form-insert:
+    enabled: false
+  security:
+    max-page-size: 100
 
 storage:
   s3:
+    access-key: test-s3-access-key
+    secret-key: test-s3-secret-key
     availability-check-enabled: false

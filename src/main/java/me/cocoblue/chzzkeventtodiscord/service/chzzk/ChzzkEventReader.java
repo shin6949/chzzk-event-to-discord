@@ -1,5 +1,9 @@
 package me.cocoblue.chzzkeventtodiscord.service.chzzk;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.chzzkeventtodiscord.data.chzzk.ChzzkSubscriptionType;
@@ -13,71 +17,99 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+/**
+ * {@code ChzzkEventReader}는 관련 도메인 책임을 캡슐화합니다.
+ *
+ * <p>Git 이력: 생성 2024-02-27 02:04:45 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 5150c0f.
+ *
+ * @since Ver.0.1
+ */
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class ChzzkEventReader {
-    private final ChzzkSubscriptionFormService subscriptionFormService;
-    private final ChzzkChannelRepository chzzkChannelRepository;
-    private final ChzzkChannelService chzzkChannelService;
-    private final ChzzkEventSender chzzkEventSender;
-    private final ChzzkEventClassifier chzzkEventClassifier;
-    @Value("${app.is-test:false}")
-    private boolean isTest;
-    @Value("${chzzk.check-interval:30}")
-    private int checkInterval;
+  private final ChzzkSubscriptionFormService subscriptionFormService;
+  private final ChzzkChannelRepository chzzkChannelRepository;
+  private final ChzzkChannelService chzzkChannelService;
+  private final ChzzkEventSender chzzkEventSender;
+  private final ChzzkEventClassifier chzzkEventClassifier;
 
-    @Scheduled(fixedRateString = "#{${chzzk.check-interval:30} * 1000}")
-    public void readEvent() {
-        log.info("Read event from Chzzk API. time: {}", LocalDateTime.now());
-        if (isTest) {
-            log.info("Test mode is enabled. Skip scheduled task.");
-            return;
-        }
+  @Value("${app.is-test:false}")
+  private boolean isTest;
 
-        final List<ChzzkSubscriptionFormEntity> subscriptionFormsAllEnabled = subscriptionFormService.findAllByEnabled(true);
-        final Set<String> needToFetchChannelIds = subscriptionFormsAllEnabled.parallelStream()
-                .map(ChzzkSubscriptionFormEntity::getChzzkChannelEntity)
-                .map(ChzzkChannelEntity::getChannelId)
-                .collect(Collectors.toSet());
+  @Value("${chzzk.check-interval:30}")
+  private int checkInterval;
 
-        log.info("Need to fetch channel ids count: {}", needToFetchChannelIds.size());
-        needToFetchChannelIds.forEach(this::classifyEventAndRunTrigger);
-
-        log.info("Scheduled task finished.");
+  /**
+   * {@code readEvent}은 필요한 데이터를 조회하거나 해석합니다.
+   *
+   * <p>Git 이력: 생성 2024-03-01 23:49:24 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 de44356.
+   *
+   * @since Ver.0.1
+   */
+  @Scheduled(fixedRateString = "#{${chzzk.check-interval:30} * 1000}")
+  public void readEvent() {
+    log.info("Read event from Chzzk API. time: {}", LocalDateTime.now());
+    if (isTest) {
+      log.info("Test mode is enabled. Skip scheduled task.");
+      return;
     }
 
-    @Async
-    public void classifyEventAndRunTrigger(final String channelId) {
-        log.info("Classify event and send to Discord. channelId: {}", channelId);
-        final ChzzkChannelEntity channelEntityFromDatabase = chzzkChannelRepository.findById(channelId).orElseThrow();
-        final ChzzkChannelDto channelDataFromDatabase = new ChzzkChannelDto(channelEntityFromDatabase);
-        // API 상에서 채널 정보를 가져오면 정보는 자동으로 DB에 업데이트 되므로 별도의 로직이 필요 없음. 즉, 상기 코드가 선행되어야 비교가 가능하다.
-        final ChzzkChannelDto channelDataFromApi = chzzkChannelService.getChannelByChannelIdAtAPI(channelId);
+    final List<ChzzkSubscriptionFormEntity> subscriptionFormsAllEnabled =
+        subscriptionFormService.findAllByEnabled(true);
+    final Set<String> needToFetchChannelIds =
+        subscriptionFormsAllEnabled.parallelStream()
+            .map(ChzzkSubscriptionFormEntity::getChzzkChannelEntity)
+            .map(ChzzkChannelEntity::getChannelId)
+            .collect(Collectors.toSet());
 
-        // channelDataFromDatabase와 channelDataFromApi의 Update 시간이 CHZZK_CHECK_INTERVAL + 60초 차이가 난다면, 이벤트를 트리거 하지 않음. (최초 실행 시 오안내 방지)
-//        if (ZonedDateTime.now().minusSeconds(checkInterval + 60).isBefore(channelEntityFromDatabase.getLastCheckTime())) {
-//            log.info("Skip event trigger. Channel data in database is too old. channelId: {}", channelId);
-//            return;
-//        }
+    log.info("Need to fetch channel ids count: {}", needToFetchChannelIds.size());
+    needToFetchChannelIds.forEach(this::classifyEventAndRunTrigger);
 
-        // Database에서 가져온 데이터와 API에서 가져온 데이터를 비교하여 이벤트를 분류한다.
-        // Live 이벤트와 Offline 이벤트는 공존할 수 없으므로 else if로 구분하여 불필요한 로직 실행을 막음.
-        if (chzzkEventClassifier.isOnNewLive(channelDataFromDatabase, channelDataFromApi)) {
-            chzzkEventSender.sendStreamOnlineEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_ONLINE);
-        } else if (chzzkEventClassifier.isOnNewOffline(channelDataFromDatabase, channelDataFromApi)) {
-            chzzkEventSender.sendStreamOfflineEvent(channelDataFromApi, ChzzkSubscriptionType.STREAM_OFFLINE);
-        }
+    log.info("Scheduled task finished.");
+  }
 
-        // Channel 정보가 변경되었을 때, Discord로 알림을 보낸다.
-        if (chzzkEventClassifier.isChannelInformationChanged(channelDataFromDatabase, channelDataFromApi)) {
-            log.info("Channel information changed. channelId: {}", channelId);
-            chzzkEventSender.sendChannelUpdateEvent(channelDataFromApi);
-        }
+  /**
+   * {@code classifyEventAndRunTrigger}은 관련 처리 흐름을 실행합니다.
+   *
+   * <p>Git 이력: 생성 2024-03-03 02:51:29 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 4bc1c09.
+   *
+   * @since Ver.0.1
+   */
+  @Async
+  public void classifyEventAndRunTrigger(final String channelId) {
+    log.info("Classify event and send to Discord. channelId: {}", channelId);
+    final ChzzkChannelEntity channelEntityFromDatabase =
+        chzzkChannelRepository.findById(channelId).orElseThrow();
+    final ChzzkChannelDto channelDataFromDatabase = new ChzzkChannelDto(channelEntityFromDatabase);
+    // API 상에서 채널 정보를 가져오면 정보는 자동으로 DB에 업데이트 되므로 별도의 로직이 필요 없음. 즉, 상기 코드가 선행되어야 비교가 가능하다.
+    final ChzzkChannelDto channelDataFromApi =
+        chzzkChannelService.getChannelByChannelIdAtAPI(channelId);
+
+    // channelDataFromDatabase와 channelDataFromApi의 Update 시간이 CHZZK_CHECK_INTERVAL + 60초 차이가 난다면,
+    // 이벤트를 트리거 하지 않음. (최초 실행 시 오안내 방지)
+    //        if (ZonedDateTime.now().minusSeconds(checkInterval +
+    // 60).isBefore(channelEntityFromDatabase.getLastCheckTime())) {
+    //            log.info("Skip event trigger. Channel data in database is too old. channelId: {}",
+    // channelId);
+    //            return;
+    //        }
+
+    // Database에서 가져온 데이터와 API에서 가져온 데이터를 비교하여 이벤트를 분류한다.
+    // Live 이벤트와 Offline 이벤트는 공존할 수 없으므로 else if로 구분하여 불필요한 로직 실행을 막음.
+    if (chzzkEventClassifier.isOnNewLive(channelDataFromDatabase, channelDataFromApi)) {
+      chzzkEventSender.sendStreamOnlineEvent(
+          channelDataFromApi, ChzzkSubscriptionType.STREAM_ONLINE);
+    } else if (chzzkEventClassifier.isOnNewOffline(channelDataFromDatabase, channelDataFromApi)) {
+      chzzkEventSender.sendStreamOfflineEvent(
+          channelDataFromApi, ChzzkSubscriptionType.STREAM_OFFLINE);
     }
+
+    // Channel 정보가 변경되었을 때, Discord로 알림을 보낸다.
+    if (chzzkEventClassifier.isChannelInformationChanged(
+        channelDataFromDatabase, channelDataFromApi)) {
+      log.info("Channel information changed. channelId: {}", channelId);
+      chzzkEventSender.sendChannelUpdateEvent(channelDataFromApi);
+    }
+  }
 }

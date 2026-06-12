@@ -1,13 +1,33 @@
 package me.cocoblue.chzzkeventtodiscord.domain.chzzk;
 
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
+/**
+ * {@code ChzzkChannelRepository}는 엔티티의 데이터 접근과 조회 메서드를 제공합니다.
+ *
+ * <p>Git 이력: 생성 2024-02-27 02:04:45 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 5150c0f.
+ *
+ * @since Ver.0.1
+ */
 @Repository
 public interface ChzzkChannelRepository extends JpaRepository<ChzzkChannelEntity, String> {
-    Optional<ChzzkChannelEntity> findChzzkChannelEntityByChannelId(String channelId);
+  /**
+   * {@code findChzzkChannelEntityByChannelId}은 필요한 데이터를 조회하거나 해석합니다.
+   *
+   * <p>Git 이력: 생성 2024-03-04 02:28:28 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 db09ddc.
+   *
+   * @since Ver.0.1
+   */
+  Optional<ChzzkChannelEntity> findChzzkChannelEntityByChannelId(String channelId);
 
-    Optional<ChzzkChannelEntity> findChzzkChannelEntityByChannelName(String channelName);
+  /**
+   * {@code findChzzkChannelEntityByChannelName}은 필요한 데이터를 조회하거나 해석합니다.
+   *
+   * <p>Git 이력: 생성 2024-03-04 02:28:28 +0900, 작성자 shin6949, 작성 버전 Ver.0.1, 근거 커밋 db09ddc.
+   *
+   * @since Ver.0.1
+   */
+  Optional<ChzzkChannelEntity> findChzzkChannelEntityByChannelName(String channelName);
 }

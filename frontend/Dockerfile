@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
 COPY package.json yarn.lock ./
@@ -13,12 +13,16 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 RUN yarn build
 
-FROM nginx:1.27-alpine
+FROM nginx:1.30.2-alpine
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 
 COPY --from=build /app/dist/ .
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+RUN sed -i 's#pid .*nginx.pid;#pid /tmp/nginx.pid;#' /etc/nginx/nginx.conf \
+    && chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/run /var/log/nginx
 
-EXPOSE 80
+USER nginx
+
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]

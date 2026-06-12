@@ -1,6 +1,6 @@
 # Frontend Scaffold
 
-React + Vite + TypeScript frontend scaffold for the Chzzk Event to Discord app.
+React + Vite + TypeScript frontend scaffold for the Streaming Alert Service app.
 
 ## Prerequisites
 - Node.js 20+
