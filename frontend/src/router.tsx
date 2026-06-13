@@ -3,7 +3,9 @@ import { RequireAuth } from './auth/RouteGuards';
 import { MainLayout } from './layouts/MainLayout';
 import { SectionLayout } from './layouts/SectionLayout';
 import { BotProfilesPage } from './pages/app/BotProfilesPage';
+import { NewSoopSubscriptionPage } from './pages/app/NewSoopSubscriptionPage';
 import { NewSubscriptionPage } from './pages/app/NewSubscriptionPage';
+import { SoopSubscriptionsPage } from './pages/app/SoopSubscriptionsPage';
 import { SubscriptionDetailPage } from './pages/app/SubscriptionDetailPage';
 import { TwitchSubscriptionsPage } from './pages/app/TwitchSubscriptionsPage';
 import { SubscriptionsPage } from './pages/app/SubscriptionsPage';
@@ -18,6 +20,11 @@ const subscriptionNavItems = [
   { to: '/subscriptions/new', label: 'New subscription' },
   { to: '/subscriptions/twitch', label: 'Twitch EventSub' },
   { to: '/subscriptions/youtube', label: 'YouTube' },
+];
+
+const soopNavItems = [
+  { to: '/soop/subscriptions', label: 'SOOP subscriptions' },
+  { to: '/soop/subscriptions/new', label: 'New SOOP subscription' },
 ];
 
 const discordNavItems = [
@@ -45,6 +52,15 @@ export const routes = [
               { path: 'twitch', element: <TwitchSubscriptionsPage /> },
               { path: 'youtube', element: <YouTubeSubscriptionsPage /> },
               { path: ':id', element: <SubscriptionDetailPage /> },
+            ],
+          },
+          {
+            path: 'soop',
+            element: <SectionLayout title="SOOP" navItems={soopNavItems} />,
+            children: [
+              { index: true, element: <Navigate to="/soop/subscriptions" replace /> },
+              { path: 'subscriptions', element: <SoopSubscriptionsPage /> },
+              { path: 'subscriptions/new', element: <NewSoopSubscriptionPage /> },
             ],
           },
           {

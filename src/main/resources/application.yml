@@ -36,6 +36,12 @@ spring:
         format_sql: false
         use_sql_comments: true
 
+soop:
+  api-base-url: ${SOOP_API_BASE_URL:https://openapi.sooplive.com}
+  client-id: ${SOOP_CLIENT_ID:}
+  check-interval: ${SOOP_CHECK_INTERVAL:30}
+  max-pages: ${SOOP_MAX_PAGES:20}
+
 chzzk:
   check-interval: ${CHZZK_CHECK_INTERVAL:30}
   api-url: ${CHZZK_API_URL:null}

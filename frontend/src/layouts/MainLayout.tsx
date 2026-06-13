@@ -19,6 +19,7 @@ export function MainLayout() {
   const { session, logout } = useAuth();
   const displayName = session?.channelName?.trim() || (session ? formatChannelLabel(session.channelId) : '');
   const discordResourcesActive = location.pathname === '/discord' || location.pathname.startsWith('/discord/');
+  const soopActive = location.pathname === '/soop' || location.pathname.startsWith('/soop/');
 
   async function handleLogout() {
     await logout();
@@ -49,6 +50,11 @@ export function MainLayout() {
               <li className="nav-item">
                 <NavLink to="/subscriptions" className={navLinkClass}>
                   Subscriptions
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/soop/subscriptions" className={({ isActive }) => navLinkClass({ isActive: isActive || soopActive })}>
+                  SOOP
                 </NavLink>
               </li>
               <li className="nav-item">
