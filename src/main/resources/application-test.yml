@@ -62,3 +62,8 @@ app:
 storage:
   s3:
     availability-check-enabled: false
+
+youtube:
+  check-interval: 120
+  api-base-url: http://localhost:65535
+  api-key: test-youtube-api-key
