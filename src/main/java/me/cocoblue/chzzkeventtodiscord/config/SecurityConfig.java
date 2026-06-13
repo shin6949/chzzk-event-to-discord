@@ -30,9 +30,11 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/api/v1/auth/chzzk/login",
                     "/api/v1/auth/chzzk/callback",
-                    "/api/v1/auth/refresh"
+                    "/api/v1/auth/refresh",
+                    "/api/v1/twitch/eventsub"
                 ).permitAll()
                 .requestMatchers("/api/v1/subscriptions/**").authenticated()
+                .requestMatchers("/api/v1/twitch/subscriptions/**").authenticated()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/**").authenticated()
                 .anyRequest().permitAll()
