@@ -87,3 +87,8 @@ storage:
   upload:
     max-bytes: ${APP_STORAGE_UPLOAD_MAX_BYTES:${STORAGE_UPLOAD_MAX_BYTES:5242880}}
     allowed-types: ${APP_STORAGE_UPLOAD_ALLOWED_TYPES:${STORAGE_UPLOAD_ALLOWED_TYPES:image/png,image/jpeg,image/webp}}
+
+youtube:
+  check-interval: ${YOUTUBE_CHECK_INTERVAL:60}
+  api-base-url: ${YOUTUBE_API_BASE_URL:https://www.googleapis.com/youtube/v3}
+  api-key: ${YOUTUBE_API_KEY:}
