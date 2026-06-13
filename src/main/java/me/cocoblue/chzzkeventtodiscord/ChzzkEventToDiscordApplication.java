@@ -1,8 +1,10 @@
 package me.cocoblue.chzzkeventtodiscord;
 
+import me.cocoblue.chzzkeventtodiscord.config.soop.SoopProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -12,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableScheduling
 @EnableJpaAuditing
+@EnableConfigurationProperties(SoopProperties.class)
 public class ChzzkEventToDiscordApplication extends SpringBootServletInitializer {
     public static String CHZZK_API_URL = "https://api.chzzk.naver.com";
 
