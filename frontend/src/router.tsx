@@ -5,6 +5,7 @@ import { SectionLayout } from './layouts/SectionLayout';
 import { BotProfilesPage } from './pages/app/BotProfilesPage';
 import { NewSubscriptionPage } from './pages/app/NewSubscriptionPage';
 import { SubscriptionDetailPage } from './pages/app/SubscriptionDetailPage';
+import { TwitchSubscriptionsPage } from './pages/app/TwitchSubscriptionsPage';
 import { SubscriptionsPage } from './pages/app/SubscriptionsPage';
 import { WebhooksPage } from './pages/app/WebhooksPage';
 import { ChzzkLoginPage } from './pages/auth/ChzzkLoginPage';
@@ -14,6 +15,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 const subscriptionNavItems = [
   { to: '/subscriptions', label: 'Subscriptions' },
   { to: '/subscriptions/new', label: 'New subscription' },
+  { to: '/subscriptions/twitch', label: 'Twitch EventSub' },
 ];
 
 const discordNavItems = [
@@ -38,6 +40,7 @@ export const routes = [
             children: [
               { index: true, element: <SubscriptionsPage /> },
               { path: 'new', element: <NewSubscriptionPage /> },
+              { path: 'twitch', element: <TwitchSubscriptionsPage /> },
               { path: ':id', element: <SubscriptionDetailPage /> },
             ],
           },
