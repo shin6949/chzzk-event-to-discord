@@ -11,6 +11,7 @@ import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.youtube.YouTubeChannelEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.youtube.YouTubeChannelRepository;
+import me.cocoblue.chzzkeventtodiscord.domain.youtube.YouTubeNotificationLogRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.youtube.YouTubeSubscriptionEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.youtube.YouTubeSubscriptionRepository;
 import me.cocoblue.chzzkeventtodiscord.dto.youtube.YouTubeDtos;
@@ -36,6 +37,7 @@ public class YouTubeSubscriptionService {
     private final ChzzkChannelRepository chzzkChannelRepository;
     private final DiscordWebhookDataRepository webhookRepository;
     private final DiscordBotProfileDataRepository botProfileRepository;
+    private final YouTubeNotificationLogRepository notificationLogRepository;
     private final YouTubeApiService apiService;
 
     @Transactional
@@ -81,6 +83,7 @@ public class YouTubeSubscriptionService {
     public void delete(Long id, ChzzkPrincipal principal) {
         YouTubeSubscriptionEntity entity = findById(id);
         ensureReadable(entity, principal);
+        notificationLogRepository.deleteBySubscription(entity);
         subscriptionRepository.delete(entity);
     }
 
@@ -94,13 +97,16 @@ public class YouTubeSubscriptionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "youtubeChannelId is required");
         }
         return youtubeChannelRepository.findById(channelId).orElseGet(() -> {
-            YouTubeChannelSnapshot channel = apiService.getChannel(channelId);
-            YouTubeVideoSnapshot latestVideo = apiService.getLatestVideo(channelId);
+            YouTubeChannelState state = apiService.getChannelState(channelId);
+            YouTubeChannelSnapshot channel = state.channel();
+            YouTubeVideoSnapshot liveVideo = state.liveVideo();
+            YouTubeVideoSnapshot latestVideo = state.latestVideo();
             return youtubeChannelRepository.save(YouTubeChannelEntity.builder()
                 .channelId(channel.channelId())
                 .title(channel.title())
                 .thumbnailUrl(channel.thumbnailUrl())
-                .currentlyLive(false)
+                .currentlyLive(state.live())
+                .currentLiveVideoId(liveVideo == null ? null : liveVideo.videoId())
                 .lastVideoId(latestVideo == null ? null : latestVideo.videoId())
                 .build());
         });

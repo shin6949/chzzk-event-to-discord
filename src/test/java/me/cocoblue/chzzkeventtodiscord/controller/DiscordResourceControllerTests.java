@@ -11,6 +11,8 @@ import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataEntit
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataRepository;
+import me.cocoblue.chzzkeventtodiscord.domain.soop.SoopSubscriptionEntity;
+import me.cocoblue.chzzkeventtodiscord.domain.soop.SoopSubscriptionRepository;
 import me.cocoblue.chzzkeventtodiscord.service.BotProfileImageStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,6 +66,8 @@ class DiscordResourceControllerTests {
     private DiscordBotProfileDataRepository discordBotProfileDataRepository;
     @Autowired
     private ChzzkSubscriptionFormRepository subscriptionFormRepository;
+    @Autowired
+    private SoopSubscriptionRepository soopSubscriptionRepository;
 
     @MockBean
     private BotProfileImageStorageService botProfileImageStorageService;
@@ -73,6 +77,7 @@ class DiscordResourceControllerTests {
 
     @BeforeEach
     void setUp() {
+        soopSubscriptionRepository.deleteAll();
         subscriptionFormRepository.deleteAll();
         discordBotProfileDataRepository.deleteAll();
         discordWebhookDataRepository.deleteAll();
@@ -197,6 +202,42 @@ class DiscordResourceControllerTests {
             .intervalMinute(10)
             .enabled(true)
             .colorHex("000000")
+            .build());
+
+        mockMvc.perform(delete("/api/v1/discord/webhooks/{id}", webhook.getId())
+                .with(SecurityMockMvcRequestPostProcessors.user(OWNER_CHANNEL_ID).roles("USER")))
+            .andExpect(status().isConflict());
+
+        mockMvc.perform(delete("/api/v1/discord/bot-profiles/{id}", botProfile.getId())
+                .with(SecurityMockMvcRequestPostProcessors.user(OWNER_CHANNEL_ID).roles("USER")))
+            .andExpect(status().isConflict());
+    }
+
+    @Test
+    void userCannotDeleteResourcesReferencedOnlyBySoopSubscription() throws Exception {
+        final DiscordWebhookDataEntity webhook = discordWebhookDataRepository.save(DiscordWebhookDataEntity.builder()
+            .ownerId(ownerChannel)
+            .name("Main webhook")
+            .webhookUrl("https://example.test/webhook/soop")
+            .build());
+        final DiscordBotProfileDataEntity botProfile = discordBotProfileDataRepository.save(DiscordBotProfileDataEntity.builder()
+            .ownerId(ownerChannel)
+            .alias("Main bot")
+            .username("Notifier")
+            .avatarUrl("bot-profiles/owner/avatar.png")
+            .build());
+        soopSubscriptionRepository.save(SoopSubscriptionEntity.builder()
+            .soopUserId("soop123")
+            .soopChannelName("SOOP streamer")
+            .live(false)
+            .enabled(true)
+            .notifyOnline(true)
+            .notifyOffline(true)
+            .content("hello")
+            .colorHex("9146FF")
+            .webhook(webhook)
+            .botProfile(botProfile)
+            .formOwner(ownerChannel)
             .build());
 
         mockMvc.perform(delete("/api/v1/discord/webhooks/{id}", webhook.getId())

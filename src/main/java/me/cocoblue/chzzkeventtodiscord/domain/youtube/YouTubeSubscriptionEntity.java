@@ -77,7 +77,7 @@ public class YouTubeSubscriptionEntity {
     private String content;
 
     @Column(name = "color_hex", nullable = false, length = 11)
-    @ColumnDefault("ff0000")
+    @ColumnDefault("'ff0000'")
     private String colorHex;
 
     public int getDecimalColor() {

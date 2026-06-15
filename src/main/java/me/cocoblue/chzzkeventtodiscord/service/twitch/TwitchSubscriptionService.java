@@ -73,15 +73,14 @@ public class TwitchSubscriptionService {
         if (principal.role() != AppRole.ADMIN && !entity.getOwnerChannelId().equals(principal.channelId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Twitch subscription not owned by authenticated user");
         }
+        revokeRemoteSubscription(entity.getEventsubOnlineId());
+        revokeRemoteSubscription(entity.getEventsubOfflineId());
         repository.delete(entity);
     }
 
     @Transactional
-    public void notifyDiscord(String eventType, Map<String, Object> event) {
-        final String broadcasterUserId = String.valueOf(event.getOrDefault("broadcaster_user_id", ""));
-        final TwitchEventSubscriptionEntity entity = repository
-            .findFirstByBroadcasterUserIdAndEnabledTrueOrderByCreatedAtDesc(broadcasterUserId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Twitch subscription not found"));
+    public void notifyDiscord(String eventSubSubscriptionId, String eventType, Map<String, Object> event) {
+        final TwitchEventSubscriptionEntity entity = findEnabledSubscription(eventSubSubscriptionId, eventType);
 
         final String broadcasterName = String.valueOf(event.getOrDefault("broadcaster_user_name", entity.getBroadcasterDisplayName()));
         final boolean online = STREAM_ONLINE.equals(eventType);
@@ -100,5 +99,26 @@ public class TwitchSubscriptionService {
             .embeds(List.of(embed))
             .build();
         discordWebhookService.sendDiscordWebhook(webhook, entity.getDiscordWebhookUrl());
+    }
+
+    private TwitchEventSubscriptionEntity findEnabledSubscription(String eventSubSubscriptionId, String eventType) {
+        if (!StringUtils.hasText(eventSubSubscriptionId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Twitch EventSub subscription id is required");
+        }
+        if (STREAM_ONLINE.equals(eventType)) {
+            return repository.findByEventsubOnlineIdAndEnabledTrue(eventSubSubscriptionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Twitch subscription not found"));
+        }
+        if (STREAM_OFFLINE.equals(eventType)) {
+            return repository.findByEventsubOfflineIdAndEnabledTrue(eventSubSubscriptionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Twitch subscription not found"));
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unsupported Twitch EventSub type");
+    }
+
+    private void revokeRemoteSubscription(String eventSubSubscriptionId) {
+        if (StringUtils.hasText(eventSubSubscriptionId)) {
+            twitchApiClient.deleteEventSubSubscription(eventSubSubscriptionId);
+        }
     }
 }

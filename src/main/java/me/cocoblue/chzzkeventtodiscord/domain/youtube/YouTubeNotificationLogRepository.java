@@ -13,4 +13,6 @@ public interface YouTubeNotificationLogRepository extends JpaRepository<YouTubeN
         ZonedDateTime start,
         ZonedDateTime end
     );
+
+    void deleteBySubscription(YouTubeSubscriptionEntity subscription);
 }

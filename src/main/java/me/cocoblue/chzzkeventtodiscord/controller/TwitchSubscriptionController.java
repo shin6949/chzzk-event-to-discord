@@ -76,7 +76,7 @@ public class TwitchSubscriptionController {
             return ResponseEntity.ok(envelope.challenge());
         }
         if (MESSAGE_TYPE_NOTIFICATION.equals(messageType) && envelope.subscription() != null && envelope.event() != null) {
-            twitchSubscriptionService.notifyDiscord(envelope.subscription().type(), envelope.event());
+            twitchSubscriptionService.notifyDiscord(envelope.subscription().id(), envelope.subscription().type(), envelope.event());
         }
         return ResponseEntity.noContent().build();
     }

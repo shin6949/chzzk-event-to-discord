@@ -9,4 +9,6 @@ import java.util.List;
 public interface SoopSubscriptionRepository extends JpaRepository<SoopSubscriptionEntity, Long> {
     List<SoopSubscriptionEntity> findAllByEnabled(boolean enabled);
     Page<SoopSubscriptionEntity> findAllByFormOwner_ChannelId(String channelId, Pageable pageable);
+    boolean existsByWebhook_Id(Long webhookId);
+    boolean existsByBotProfile_Id(Long botProfileId);
 }

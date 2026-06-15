@@ -8,5 +8,7 @@ import java.util.Optional;
 public interface TwitchEventSubscriptionRepository extends JpaRepository<TwitchEventSubscriptionEntity, Long> {
     List<TwitchEventSubscriptionEntity> findAllByOwnerChannelIdOrderByCreatedAtDesc(String ownerChannelId);
 
-    Optional<TwitchEventSubscriptionEntity> findFirstByBroadcasterUserIdAndEnabledTrueOrderByCreatedAtDesc(String broadcasterUserId);
+    Optional<TwitchEventSubscriptionEntity> findByEventsubOnlineIdAndEnabledTrue(String eventsubOnlineId);
+
+    Optional<TwitchEventSubscriptionEntity> findByEventsubOfflineIdAndEnabledTrue(String eventsubOfflineId);
 }

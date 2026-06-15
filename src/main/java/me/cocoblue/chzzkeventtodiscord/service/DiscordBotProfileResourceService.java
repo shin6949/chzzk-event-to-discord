@@ -7,6 +7,7 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordBotProfileDataRepository;
+import me.cocoblue.chzzkeventtodiscord.domain.soop.SoopSubscriptionRepository;
 import me.cocoblue.chzzkeventtodiscord.security.AppRole;
 import me.cocoblue.chzzkeventtodiscord.security.ChzzkPrincipal;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class DiscordBotProfileResourceService {
     private final ChzzkChannelRepository chzzkChannelRepository;
     private final ChzzkSubscriptionFormRepository subscriptionFormRepository;
     private final BotProfileImageStorageService botProfileImageStorageService;
+    private final SoopSubscriptionRepository soopSubscriptionRepository;
 
     @Transactional
     public Page<DiscordBotProfileDataEntity> list(ChzzkPrincipal principal, Pageable pageable) {
@@ -110,7 +112,7 @@ public class DiscordBotProfileResourceService {
     public void delete(Long id, ChzzkPrincipal principal) {
         final DiscordBotProfileDataEntity entity = findReadable(id, principal);
         ensureWritable(entity, principal);
-        if (subscriptionFormRepository.existsByBotProfileId_Id(id)) {
+        if (subscriptionFormRepository.existsByBotProfileId_Id(id) || soopSubscriptionRepository.existsByBotProfile_Id(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "bot profile is used by subscriptions");
         }
 

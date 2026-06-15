@@ -3,14 +3,14 @@ package me.cocoblue.chzzkeventtodiscord.service.twitch;
 import lombok.RequiredArgsConstructor;
 import me.cocoblue.chzzkeventtodiscord.config.TwitchProperties;
 import me.cocoblue.chzzkeventtodiscord.dto.twitch.TwitchEventSubDtos;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -72,6 +72,29 @@ public class TwitchApiClient {
             .block();
         final List<TwitchEventSubDtos.EventSubSubscription> data = response == null ? List.of() : response.data();
         return data == null || data.isEmpty() ? null : data.get(0).id();
+    }
+
+    public void deleteEventSubSubscription(String subscriptionId) {
+        if (!StringUtils.hasText(subscriptionId)) {
+            return;
+        }
+        final String token = getAppAccessToken();
+        webClientBuilder.baseUrl(twitchProperties.normalizedApiBaseUrl())
+            .build()
+            .delete()
+            .uri(uriBuilder -> uriBuilder
+                .path("/helix/eventsub/subscriptions")
+                .queryParam("id", subscriptionId.trim())
+                .build())
+            .header("Client-Id", twitchProperties.clientId())
+            .headers(headers -> headers.setBearerAuth(token))
+            .exchangeToMono(response -> {
+                if (response.statusCode().is2xxSuccessful() || response.statusCode().value() == HttpStatus.NOT_FOUND.value()) {
+                    return response.releaseBody();
+                }
+                return response.createException().flatMap(Mono::error);
+            })
+            .block();
     }
 
     private String getAppAccessToken() {

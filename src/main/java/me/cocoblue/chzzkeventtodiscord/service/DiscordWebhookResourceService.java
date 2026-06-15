@@ -7,6 +7,7 @@ import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkChannelRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.chzzk.ChzzkSubscriptionFormRepository;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataEntity;
 import me.cocoblue.chzzkeventtodiscord.domain.discord.DiscordWebhookDataRepository;
+import me.cocoblue.chzzkeventtodiscord.domain.soop.SoopSubscriptionRepository;
 import me.cocoblue.chzzkeventtodiscord.dto.discord.DiscordWebhookRequestDto;
 import me.cocoblue.chzzkeventtodiscord.security.AppRole;
 import me.cocoblue.chzzkeventtodiscord.security.ChzzkPrincipal;
@@ -27,6 +28,7 @@ public class DiscordWebhookResourceService {
     private final DiscordWebhookDataRepository discordWebhookDataRepository;
     private final ChzzkChannelRepository chzzkChannelRepository;
     private final ChzzkSubscriptionFormRepository subscriptionFormRepository;
+    private final SoopSubscriptionRepository soopSubscriptionRepository;
 
     @Transactional
     public Page<DiscordWebhookDataEntity> list(ChzzkPrincipal principal, Pageable pageable) {
@@ -76,7 +78,7 @@ public class DiscordWebhookResourceService {
     public void delete(Long id, ChzzkPrincipal principal) {
         final DiscordWebhookDataEntity entity = findReadable(id, principal);
         ensureWritable(entity, principal);
-        if (subscriptionFormRepository.existsByWebhookId_Id(id)) {
+        if (subscriptionFormRepository.existsByWebhookId_Id(id) || soopSubscriptionRepository.existsByWebhook_Id(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "webhook is used by subscriptions");
         }
         discordWebhookDataRepository.delete(entity);

@@ -27,8 +27,10 @@ import java.util.HexFormat;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -138,11 +140,23 @@ class TwitchSubscriptionControllerTests {
             .broadcasterUserId("1234")
             .broadcasterLogin("streamer")
             .broadcasterDisplayName("Streamer")
-            .discordWebhookUrl("https://discord.com/api/webhooks/test")
+            .discordWebhookUrl("https://discord.com/api/webhooks/other")
+            .eventsubOnlineId("other-online-sub-id")
+            .eventsubOfflineId("other-offline-sub-id")
+            .enabled(true)
+            .build());
+        repository.save(TwitchEventSubscriptionEntity.builder()
+            .ownerChannelId(OTHER_CHANNEL_ID)
+            .broadcasterUserId("1234")
+            .broadcasterLogin("streamer")
+            .broadcasterDisplayName("Streamer")
+            .discordWebhookUrl("https://discord.com/api/webhooks/target")
+            .eventsubOnlineId("target-online-sub-id")
+            .eventsubOfflineId("target-offline-sub-id")
             .enabled(true)
             .build());
         final String body = objectMapper.writeValueAsString(Map.of(
-            "subscription", Map.of("type", "stream.online"),
+            "subscription", Map.of("id", "target-online-sub-id", "type", "stream.online"),
             "event", Map.of(
                 "broadcaster_user_id", "1234",
                 "broadcaster_user_login", "streamer",
@@ -156,7 +170,30 @@ class TwitchSubscriptionControllerTests {
                 .content(body))
             .andExpect(status().isNoContent());
 
-        verify(discordWebhookService).sendDiscordWebhook(any(DiscordEmbed.Webhook.class), eq("https://discord.com/api/webhooks/test"));
+        verify(discordWebhookService).sendDiscordWebhook(any(DiscordEmbed.Webhook.class), eq("https://discord.com/api/webhooks/target"));
+        verify(discordWebhookService, never()).sendDiscordWebhook(any(DiscordEmbed.Webhook.class), eq("https://discord.com/api/webhooks/other"));
+    }
+
+    @Test
+    void deleteUnregistersRemoteEventSubSubscriptions() throws Exception {
+        final TwitchEventSubscriptionEntity entity = repository.save(TwitchEventSubscriptionEntity.builder()
+            .ownerChannelId(OWNER_CHANNEL_ID)
+            .broadcasterUserId("1234")
+            .broadcasterLogin("streamer")
+            .broadcasterDisplayName("Streamer")
+            .discordWebhookUrl("https://discord.com/api/webhooks/test")
+            .eventsubOnlineId("online-sub-id")
+            .eventsubOfflineId("offline-sub-id")
+            .enabled(true)
+            .build());
+
+        mockMvc.perform(delete("/api/v1/twitch/subscriptions/{id}", entity.getId())
+                .with(SecurityMockMvcRequestPostProcessors.user(OWNER_CHANNEL_ID).roles("USER")))
+            .andExpect(status().isNoContent());
+
+        verify(twitchApiClient).deleteEventSubSubscription("online-sub-id");
+        verify(twitchApiClient).deleteEventSubSubscription("offline-sub-id");
+        assertThat(repository.findById(entity.getId())).isEmpty();
     }
 
     private RequestPostProcessor twitchHeaders(String body, String messageType) {
