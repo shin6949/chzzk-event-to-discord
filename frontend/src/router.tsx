@@ -3,10 +3,14 @@ import { RequireAuth } from './auth/RouteGuards';
 import { MainLayout } from './layouts/MainLayout';
 import { SectionLayout } from './layouts/SectionLayout';
 import { BotProfilesPage } from './pages/app/BotProfilesPage';
+import { NewSoopSubscriptionPage } from './pages/app/NewSoopSubscriptionPage';
 import { NewSubscriptionPage } from './pages/app/NewSubscriptionPage';
+import { SoopSubscriptionsPage } from './pages/app/SoopSubscriptionsPage';
 import { SubscriptionDetailPage } from './pages/app/SubscriptionDetailPage';
+import { TwitchSubscriptionsPage } from './pages/app/TwitchSubscriptionsPage';
 import { SubscriptionsPage } from './pages/app/SubscriptionsPage';
 import { WebhooksPage } from './pages/app/WebhooksPage';
+import { YouTubeSubscriptionsPage } from './pages/app/YouTubeSubscriptionsPage';
 import { ChzzkLoginPage } from './pages/auth/ChzzkLoginPage';
 import { LandingPage } from './pages/LandingPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -14,6 +18,13 @@ import { NotFoundPage } from './pages/NotFoundPage';
 const subscriptionNavItems = [
   { to: '/subscriptions', label: 'Subscriptions' },
   { to: '/subscriptions/new', label: 'New subscription' },
+  { to: '/subscriptions/twitch', label: 'Twitch EventSub' },
+  { to: '/subscriptions/youtube', label: 'YouTube' },
+];
+
+const soopNavItems = [
+  { to: '/soop/subscriptions', label: 'SOOP subscriptions' },
+  { to: '/soop/subscriptions/new', label: 'New SOOP subscription' },
 ];
 
 const discordNavItems = [
@@ -38,7 +49,18 @@ export const routes = [
             children: [
               { index: true, element: <SubscriptionsPage /> },
               { path: 'new', element: <NewSubscriptionPage /> },
+              { path: 'twitch', element: <TwitchSubscriptionsPage /> },
+              { path: 'youtube', element: <YouTubeSubscriptionsPage /> },
               { path: ':id', element: <SubscriptionDetailPage /> },
+            ],
+          },
+          {
+            path: 'soop',
+            element: <SectionLayout title="SOOP" navItems={soopNavItems} />,
+            children: [
+              { index: true, element: <Navigate to="/soop/subscriptions" replace /> },
+              { path: 'subscriptions', element: <SoopSubscriptionsPage /> },
+              { path: 'subscriptions/new', element: <NewSoopSubscriptionPage /> },
             ],
           },
           {
