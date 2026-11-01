@@ -32,6 +32,9 @@ repositories {
     mavenCentral()
 }
 
+// yaml-resource-bundle 2.16.x needs Kotlin stdlib 2.x, but the Boot BOM pins 1.9.x (NoSuchMethodError -> message bundles never load)
+ext['kotlin.version'] = '2.3.21'
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
