@@ -9,6 +9,7 @@
 - **치지직 채널 상태 감시**: 활성화된 구독 폼에 등록된 채널 ID를 기준으로 치지직 API를 조회합니다. 조회 주기는 `CHZZK_CHECK_INTERVAL` 환경변수로 제어하며 기본값은 30초입니다.
 - **이벤트 분류**: 데이터베이스에 저장된 이전 채널 정보와 API에서 새로 가져온 채널 정보를 비교하여 방송 시작(`STREAM_ONLINE`), 방송 종료(`STREAM_OFFLINE`), 채널 정보 변경(`CHANNEL_UPDATE`) 이벤트를 구분합니다.
 - **Discord 알림 전송**: 이벤트가 발생하면 구독 폼에 연결된 Discord Webhook URL로 메시지를 전송합니다. 알림에는 사용자가 설정한 본문, Embed 색상, 봇 표시 이름, 봇 아바타 URL이 반영됩니다.
+- **Twitch EventSub 연동**: Twitch 공식 EventSub `stream.online`/`stream.offline` Webhook을 등록하여 지정 채널의 라이브 시작/종료를 Discord로 알립니다.
 - **방송 시작 상세 정보 구성**: 방송 시작 이벤트의 경우 라이브 제목, 카테고리, 카테고리 포스터, 방송 썸네일, 채팅 제한 조건, 성인 방송 여부, 시청자 수, 태그 등을 설정에 따라 Discord Embed에 포함할 수 있습니다.
 - **중복 알림 방지**: 구독 폼별 알림 로그를 저장하고, `intervalMinute` 설정 시간 안에 같은 구독으로 발송된 알림이 있으면 중복 전송을 막습니다.
 - **구독 설정 관리**: 치지직 채널, Discord Webhook, Discord 봇 프로필, 알림 언어, 알림 간격, 활성화 여부, 이벤트 유형 같은 구독 정보를 데이터베이스에 저장하고 관리합니다.
@@ -54,6 +55,12 @@
   - `APP_DEFAULT_TIMEZONE` (`Asia/Seoul`)
   - `APP_IS_TEST` (`false`)
   - `APP_INSERT_PASSWORD` (empty)
+- Twitch EventSub:
+  - `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`
+  - `TWITCH_EVENTSUB_CALLBACK_BASE_URL` (Twitch가 호출 가능한 공개 HTTPS origin; `/api/v1/twitch/eventsub`가 자동으로 붙습니다)
+  - `TWITCH_EVENTSUB_SECRET` (EventSub HMAC 검증용 공유 시크릿)
+  - `TWITCH_API_BASE_URL` (`https://api.twitch.tv`)
+  - `TWITCH_AUTH_BASE_URL` (`https://id.twitch.tv`)
 - Frontend:
   - `VITE_API_BASE_URL`
   - Local example: `http://localhost:8080/api/v1`

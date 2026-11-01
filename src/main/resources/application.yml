@@ -36,6 +36,12 @@ spring:
         format_sql: false
         use_sql_comments: true
 
+soop:
+  api-base-url: ${SOOP_API_BASE_URL:https://openapi.sooplive.com}
+  client-id: ${SOOP_CLIENT_ID:}
+  check-interval: ${SOOP_CHECK_INTERVAL:30}
+  max-pages: ${SOOP_MAX_PAGES:20}
+
 chzzk:
   check-interval: ${CHZZK_CHECK_INTERVAL:30}
   api-url: ${CHZZK_API_URL:null}
@@ -46,6 +52,15 @@ chzzk:
     client-id: ${CHZZK_OAUTH_CLIENT_ID:}
     client-secret: ${CHZZK_OAUTH_CLIENT_SECRET:}
     redirect-uri: ${CHZZK_OAUTH_REDIRECT_URI:}
+
+
+twitch:
+  api-base-url: ${TWITCH_API_BASE_URL:https://api.twitch.tv}
+  auth-base-url: ${TWITCH_AUTH_BASE_URL:https://id.twitch.tv}
+  client-id: ${TWITCH_CLIENT_ID:}
+  client-secret: ${TWITCH_CLIENT_SECRET:}
+  eventsub-callback-base-url: ${TWITCH_EVENTSUB_CALLBACK_BASE_URL:}
+  eventsub-secret: ${TWITCH_EVENTSUB_SECRET:}
 
 app:
   default-timezone: ${APP_DEFAULT_TIMEZONE:Asia/Seoul}
@@ -87,3 +102,8 @@ storage:
   upload:
     max-bytes: ${APP_STORAGE_UPLOAD_MAX_BYTES:${STORAGE_UPLOAD_MAX_BYTES:5242880}}
     allowed-types: ${APP_STORAGE_UPLOAD_ALLOWED_TYPES:${STORAGE_UPLOAD_ALLOWED_TYPES:image/png,image/jpeg,image/webp}}
+
+youtube:
+  check-interval: ${YOUTUBE_CHECK_INTERVAL:60}
+  api-base-url: ${YOUTUBE_API_BASE_URL:https://www.googleapis.com/youtube/v3}
+  api-key: ${YOUTUBE_API_KEY:}
