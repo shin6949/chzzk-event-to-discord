@@ -38,6 +38,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.flywaydb:flyway-core'
+    // Flyway 10+ ships DB support as separate modules; without these: "Unsupported Database"
+    implementation 'org.flywaydb:flyway-database-oracle'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
     implementation 'dev.akkinoc.util:yaml-resource-bundle:2.16.2'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     compileOnly 'org.projectlombok:lombok'
