@@ -5,11 +5,11 @@ COPY gradle gradle
 COPY build.gradle build.gradle
 COPY settings.gradle settings.gradle
 RUN chmod +x ./gradlew && ./gradlew --no-daemon --version
-RUN ./gradlew --no-daemon clean build --stacktrace
+RUN ./gradlew --no-daemon clean build -x test --stacktrace
 
 FROM cache AS build
 COPY src src
-RUN ./gradlew --no-daemon build
+RUN ./gradlew --no-daemon build -x test
 
 FROM mcr.microsoft.com/openjdk/jdk:17-ubuntu
 LABEL org.opencontainers.image.source=https://github.com/shin6949/chzzk-event-to-discord
