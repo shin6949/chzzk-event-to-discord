@@ -28,6 +28,7 @@ channel:
     follower-count: "{0}"
     verified: "Verified"
     open-live: "Open Live"
+    subscription-available: "Subscription Available"
     true: "Yes"
     false: "No"
     footer: "Naver Chzzk"
