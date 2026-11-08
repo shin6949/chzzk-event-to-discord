@@ -12,7 +12,10 @@ apply plugin: 'java'
 apply plugin: 'io.spring.dependency-management'
 
 group = 'me.cocoblue'
-version = '0.1.5'
+version = '0.1.6'
+
+// yaml-resource-bundle 2.16.x is built against Kotlin 2.x; the Spring Boot BOM pins 1.9.x -> NoSuchMethodError
+ext['kotlin.version'] = '2.3.21'
 
 java {
     sourceCompatibility = '17'
